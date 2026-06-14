@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_BASE_URL } from '../../apiConfig'; 
+import { supabase } from '../../lib/supabaseClient'; 
 
 interface FormData {
   nombre: string;
@@ -160,14 +160,20 @@ export function LibroReclamacionesForm() {
         textEstado: formData.detalle,
       };
     
-      const response = await fetch(`${API_BASE_URL}/api/public/formularios`, { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSend),
-      });
+      const { error: insertError } = await supabase
+        .from('formulario')
+        .insert({
+          nombre_formulario: dataToSend.nombreFormulario,
+          dni_formulario: dataToSend.dniFormulario,
+          correo_formulario: dataToSend.correoFormulario,
+          telefono_formulario: dataToSend.telefonoFormulario,
+          pk_tipo_formulario: dataToSend.pkTipoFormulario,
+          pk_estado_formulario: dataToSend.pkEstadoFormulario,
+          text_estado: dataToSend.textEstado,
+        });
 
-      if (!response.ok) {
-        throw new Error(`Error al enviar el reclamo: ${response.status}`);
+      if (insertError) {
+        throw new Error(`Error al enviar el reclamo: ${insertError.message}`);
       }
 
       // Limpiar formulario tras éxito

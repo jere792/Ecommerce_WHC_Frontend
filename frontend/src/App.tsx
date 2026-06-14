@@ -9,31 +9,73 @@ import LibroReclamaciones from './pages/LibroReclamacionesPage';
 import { DetalleProducto } from "./pages/DetalleProductoPage";
 import InstalacionPage from './pages/InstalacionPage';
 import MantenimientoPage from './pages/MantemientoPage';
+import TerminosPage from './pages/TerminosPage';
+import PrivacidadPage from './pages/PrivacidadPage';
 
 import Layout from './layouts/Layout';
 import ResetPasswordPage from './pages/ResetPasswordPage';
-import MisPedidosPage from './pages/MisPedidosPage'; 
+import MisPedidosPage from './pages/MisPedidosPage';
 
-import ScrollToTop from './components/ui/ScrollToTop'; // <-- Importa el componente de scroll al top
+import ScrollToTop from './components/ui/ScrollToTop';
+
+import AdminLayout from './layouts/AdminLayout';
+import AdminDashboard from './pages/admin/DashboardPage';
+import AdminProducts from './pages/admin/ProductsPage';
+import AdminProductForm from './pages/admin/ProductFormPage';
+import AdminOrders from './pages/admin/OrdersPage';
+import AdminOrderDetail from './pages/admin/OrderDetailPage';
+import AdminUsers from './pages/admin/UsersPage';
+import AdminUserForm from './pages/admin/UserFormPage';
+import AdminForms from './pages/admin/FormsPage';
+import AdminFormDetail from './pages/admin/FormDetailPage';
+import AdminOffers from './pages/admin/OffersPage';
+import AdminMovements from './pages/admin/MovementsPage';
+import AdminCategories from './pages/admin/CategoriesPage';
+import AdminBrands from './pages/admin/BrandsPage';
+import AdminHeroSlides from './pages/admin/HeroSlidesPage';
+import AdminBannerPublicidad from './pages/admin/BannerPublicidadPage';
+import AdminPageHero from './pages/admin/PageHeroPage';
 
 const App: React.FC = () => {
   return (
     <>
-      <ScrollToTop /> {/* Asegura que cada navegación haga scroll al inicio */}
+      <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/productos" element={<ProductsPage />} />
-          <Route path="/contacto" element={<ContactPage />} />  
+          <Route path="/contacto" element={<ContactPage />} />
           <Route path="/cart" element={<CartPage />} />
-          <Route path="/productos/:slug" element={<DetalleProducto />} />    
+          <Route path="/productos/:slug" element={<DetalleProducto />} />
           <Route path="/libro" element={<LibroReclamaciones />} />
           <Route path="/opiniones" element={<OpinonesPage />} />
           <Route path="/instalacion" element={<InstalacionPage />} />
           <Route path="/mantenimiento" element={<MantenimientoPage />} />
-          <Route path="/mis-pedidos" element={<MisPedidosPage />} /> 
+          <Route path="/mis-pedidos" element={<MisPedidosPage />} />
+          <Route path="/terminos" element={<TerminosPage />} />
+          <Route path="/privacidad" element={<PrivacidadPage />} />
         </Route>
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="productos" element={<AdminProducts />} />
+          <Route path="productos/nuevo" element={<AdminProductForm />} />
+          <Route path="productos/editar/:slug" element={<AdminProductForm />} />
+          <Route path="pedidos" element={<AdminOrders />} />
+          <Route path="pedidos/:id" element={<AdminOrderDetail />} />
+          <Route path="usuarios" element={<AdminUsers />} />
+          <Route path="usuarios/nuevo" element={<AdminUserForm />} />
+          <Route path="usuarios/editar/:id" element={<AdminUserForm />} />
+          <Route path="formularios" element={<AdminForms />} />
+          <Route path="formularios/:id" element={<AdminFormDetail />} />
+          <Route path="categorias" element={<AdminCategories />} />
+          <Route path="marcas" element={<AdminBrands />} />
+          <Route path="hero-slides" element={<AdminHeroSlides />} />
+          <Route path="banners-publicidad" element={<AdminBannerPublicidad />} />
+          <Route path="page-hero" element={<AdminPageHero />} />
+          <Route path="ofertas" element={<AdminOffers />} />
+          <Route path="movimientos" element={<AdminMovements />} />
+        </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>

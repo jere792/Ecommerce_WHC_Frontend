@@ -1,0 +1,13 @@
+name = "ecommerce-whc"
+compatibility_date = "2025-06-01"
+
+pages_build_output_dir = "dist"
+
+[env.production]
+name = "ecommerce-whc"
+route = "*"
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

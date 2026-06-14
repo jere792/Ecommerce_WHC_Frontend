@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
+import { supabase } from "../lib/supabaseClient";
 
 const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -17,10 +16,6 @@ const ResetPasswordPage: React.FC = () => {
     setError("");
     setSuccess("");
 
-    if (!token) {
-      setError("Token inválido o faltante.");
-      return;
-    }
     if (!password || !confirm) {
       setError("Completa ambos campos.");
       return;
@@ -31,15 +26,13 @@ const ResetPasswordPage: React.FC = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/admin/auth/reset-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password })
+      const { error: updateError } = await supabase.auth.updateUser({
+        password,
       });
-      if (!res.ok) throw new Error("No se pudo cambiar la contraseña.");
+      if (updateError) throw updateError;
       setSuccess("¡Contraseña restablecida! Ya puedes iniciar sesión.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido al cambiar la contraseña.");
+      setError(err instanceof Error ? err.message : "Error desconocido");
     }
   };
 

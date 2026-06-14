@@ -1,19 +1,12 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useEffect, useRef, useState } from 'react'
-import { User, X, LogOut, ShoppingBag, Eye, EyeOff } from 'lucide-react'
-import { API_BASE_URL } from '../../apiConfig'
+import { User, X, LogOut, Shield, Eye, EyeOff } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-
-type Usuario = {
-  idUsuario: number;
-  nombrePersona: string
-  correoPersona: string
-  token?: string
-  // otros campos no sensibles que devuelva el backend
-}
+import { useAuthContext } from '../../hooks/AuthContext'
 
 export default function LoginModal() {
   const navigate = useNavigate()
+  const { user, login, register, logout, forgotPassword } = useAuthContext()
   const [isOpen, setIsOpen] = useState(false)
   const [isRegister, setIsRegister] = useState(false)
   const [correo, setCorreo] = useState('')
@@ -22,35 +15,19 @@ export default function LoginModal() {
   const [nombre, setNombre] = useState('')
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const [usuario, setUsuario] = useState<Usuario | null>(null)
   const [showForgot, setShowForgot] = useState(false)
   const [forgotCorreo, setForgotCorreo] = useState('')
   const [forgotMsg, setForgotMsg] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // password visibility
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const emailRef = useRef<HTMLInputElement | null>(null)
   const passwordRef = useRef<HTMLInputElement | null>(null)
 
-  useEffect(() => {
-    const u = window.localStorage.getItem('usuario')
-    if (u) {
-      try {
-        const parsed = JSON.parse(u)
-        setUsuario(parsed)
-      } catch {
-        window.localStorage.removeItem('usuario')
-      }
-    }
-  }, [])
-
   const openModal = () => {
     resetFormState()
     setIsOpen(true)
-    // small delay so dialog mounts then focus
     setTimeout(() => emailRef.current?.focus(), 50)
   }
   const closeModal = () => {
@@ -74,7 +51,6 @@ export default function LoginModal() {
     setShowConfirmPassword(false)
   }
 
-  // CLIENT VALIDATIONS (match backend constraints)
   const validateEmail = (e: string) => {
     const email = e.trim()
     if (!email) return 'El correo es requerido'
@@ -86,19 +62,14 @@ export default function LoginModal() {
 
   const validatePassword = (p: string) => {
     if (!p) return 'La contraseña es requerida'
-    if (p.length < 8 || p.length > 15) return 'La contraseña debe tener entre 8 y 15 caracteres'
-    const pattern = /(?=.*[0-9])(?=.*[a-zA-Z])/
-    if (!pattern.test(p)) return 'La contraseña debe contener letras y números'
+    if (p.length < 6) return 'La contraseña debe tener al menos 6 caracteres'
     return ''
   }
 
-  // Nombre: no solo números; sólo letras (incluye acentos) y espacios
   const validateNombre = (n: string) => {
     const name = n.trim()
     if (!name) return 'El nombre es requerido'
     if (name.length > 100) return 'El nombre no puede exceder 100 caracteres'
-    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/
-    if (!nameRe.test(name)) return 'El nombre solo puede contener letras y espacios'
     return ''
   }
 
@@ -125,125 +96,44 @@ export default function LoginModal() {
     return Object.keys(errs).length === 0
   }
 
-  // Parse server error responses into readable messages or field errors
-  const extractServerError = async (response: Response) => {
-    const text = await response.text().catch(() => '')
-    if (!text) return 'Error del servidor'
-    try {
-      const json = JSON.parse(text)
-      // Support common shapes: { message }, { error }, { fieldErrors: { field: msg } }, { errors: [{ field, defaultMessage }] }
-      if (json.fieldErrors && typeof json.fieldErrors === 'object') {
-        setFieldErrors(json.fieldErrors)
-        return json.message || 'Errores de validación'
-      }
-      if (Array.isArray(json.errors)) {
-        const fe: Record<string, string> = {}
-        // Define a minimal shape for items in the errors array and guard at runtime
-        interface ServerErrorItem {
-          field?: string
-          defaultMessage?: string
-          message?: string
-        }
-
-        // normalize potential shapes into array of unknowns
-        const errorsArray = Array.isArray(json.errors) ? (json.errors as unknown[]) : []
-
-        errorsArray.forEach((it: unknown) => {
-          if (it && typeof it === 'object') {
-            const item = it as ServerErrorItem
-            if (item.field) fe[item.field] = item.defaultMessage ?? item.message ?? String(item)
-          }
-        })
-        if (Object.keys(fe).length) {
-          setFieldErrors(fe)
-          return json.message || 'Errores de validación'
-        }
-      }
-      return json.message || json.error || text || 'Error del servidor'
-    } catch {
-      return text
-    }
-  }
-
-  // LOGIN
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setFieldErrors({})
-    if (!runLoginValidations()) {
-      // focus first invalid
-      if (fieldErrors.correo) emailRef.current?.focus()
-      else passwordRef.current?.focus()
-      return
-    }
+    if (!runLoginValidations()) return
     setIsSubmitting(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: correo.trim(), password })
-      })
-      const dataText = await response.text().catch(() => '')
-      const data = dataText ? JSON.parse(dataText) : {}
-      const userIdFromBackend = data.idUsuario ?? data.usuario?.idUsuario;
-
-      if (!userIdFromBackend) {
-        console.error("Respuesta del login exitosa, pero no incluyó un ID de usuario.", data);
-        throw new Error("Error de autenticación: No se recibió el ID de usuario.");
-      }
-      if (!response.ok) {
-        const msg = await extractServerError(response)
-        throw new Error(msg)
-      }
-      // store only non-sensitive data; prefer token or minimal user info
-      const userToStore: Usuario = {
-        idUsuario: Number(userIdFromBackend),
-        nombrePersona: String(data.nombrePersona ?? data.usuario?.nombrePersona ?? ''),
-        correoPersona: String(data.correoPersona ?? data.usuario?.correoPersona ?? ''),
-        token: data.token ? String(data.token) : undefined
-      }
-      window.localStorage.setItem('usuario', JSON.stringify(userToStore))
-      setUsuario(userToStore)
+      await login(correo.trim(), password)
       closeModal()
     } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message)
-      else setError('Error desconocido')
+      if (err instanceof Error) {
+        const msg = err.message.toLowerCase()
+        if (msg.includes('invalid login credentials')) {
+          setError('Correo o contraseña incorrectos')
+        } else {
+          setError(err.message)
+        }
+      } else setError('Error desconocido')
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // REGISTER
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setFieldErrors({})
-    if (!runRegisterValidations()) {
-      // focus first invalid field (basic)
-      if (fieldErrors.nombre) return
-      if (fieldErrors.correo) emailRef.current?.focus()
-      else passwordRef.current?.focus()
-      return
-    }
+    if (!runRegisterValidations()) return
     setIsSubmitting(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: correo.trim(), password, nombre: nombre.trim() })
-      })
-      if (!response.ok) {
-        const msg = await extractServerError(response)
-        throw new Error(msg)
-      }
-      const data = await response.json().catch(() => ({}))
+      await register(nombre.trim(), correo.trim(), password)
       setIsRegister(false)
       setCorreo('')
       setPassword('')
       setConfirmPassword('')
       setNombre('')
       setError('')
-      setForgotMsg(data.message || 'Registro exitoso. Puedes iniciar sesión.')
+      setForgotMsg('Registro exitoso. Revisa tu correo para confirmar tu cuenta.')
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message)
       else setError('Error desconocido')
@@ -252,7 +142,6 @@ export default function LoginModal() {
     }
   }
 
-  // FORGOT PASSWORD
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setForgotMsg('')
@@ -265,17 +154,8 @@ export default function LoginModal() {
     }
     setIsSubmitting(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: forgotCorreo.trim() })
-      })
-      if (!response.ok) {
-        const msg = await extractServerError(response)
-        throw new Error(msg)
-      }
-      const data = await response.json().catch(() => ({}))
-      setForgotMsg(data.message || 'Se ha enviado un correo para restablecer la contraseña')
+      await forgotPassword(forgotCorreo.trim())
+      setForgotMsg('Se ha enviado un correo para restablecer la contraseña')
       setForgotCorreo('')
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message)
@@ -285,10 +165,8 @@ export default function LoginModal() {
     }
   }
 
-  // LOGOUT
-  const handleLogout = () => {
-    window.localStorage.removeItem('usuario')
-    setUsuario(null)
+  const handleLogout = async () => {
+    await logout()
     closeModal()
   }
 
@@ -297,11 +175,9 @@ export default function LoginModal() {
       <button
         className="flex items-center gap-2 p-2 bg-transparent hover:bg-blue-50 rounded cursor-pointer"
         onClick={openModal}
+        title={user ? 'Panel de administración' : 'Iniciar sesión'}
       >
         <User className="w-7 h-7 text-blue-900" />
-        <span className="font-medium text-gray-800">
-          {usuario ? `Hola, ${usuario.nombrePersona}` : 'Hola, Iniciar sesión'}
-        </span>
       </button>
 
       <Transition appear show={isOpen} as={Fragment}>
@@ -332,8 +208,8 @@ export default function LoginModal() {
                 <Dialog.Panel className="w-full max-w-md transform rounded-2xl bg-white p-6 shadow-xl transition-all">
                   <div className="flex justify-between items-center mb-2">
                     <Dialog.Title className="text-lg font-bold text-gray-900">
-                      {usuario
-                        ? `Bienvenido, ${usuario.nombrePersona}`
+                      {user
+                        ? `Bienvenido, ${user.nombre_persona}`
                         : (isRegister ? 'Crear cuenta' : (showForgot ? 'Recuperar contraseña' : 'Iniciar sesión'))
                       }
                     </Dialog.Title>
@@ -342,20 +218,20 @@ export default function LoginModal() {
                     </button>
                   </div>
 
-                  {usuario ? (
+                  {user ? (
                     <div className="flex flex-col items-center gap-4 mt-6">
                       <span className="text-lg text-gray-800 mb-2">
-                        ¡Hola, <b>{usuario.nombrePersona}</b>!
+                        ¡Hola, <b>{user.nombre_persona}</b>!
                       </span>
                       <button
                         onClick={() => {
                           closeModal()
-                          navigate('/mis-pedidos')
+                          navigate('/admin')
                         }}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                       >
-                        <ShoppingBag className="w-5 h-5" />
-                        Ver pedidos anteriores
+                        <Shield className="w-5 h-5" />
+                        Panel de administración
                       </button>
                       <button
                         onClick={handleLogout}
@@ -506,7 +382,7 @@ export default function LoginModal() {
                         >
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
-                        <div className="text-xs text-gray-500 mt-1">8-15 caracteres, al menos una letra y un número.</div>
+                        <div className="text-xs text-gray-500 mt-1">Mínimo 6 caracteres.</div>
                         {fieldErrors.password && <span className="text-red-500">{fieldErrors.password}</span>}
                       </div>
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../ui/ProductCard";
-import { API_BASE_URL } from '../../apiConfig'; 
+import { supabase } from '../../lib/supabaseClient';
 
 interface Producto {
   idProducto: number;
@@ -15,7 +15,7 @@ interface Producto {
 }
 
 interface ProductCarouselProps {
-  pkCategoria: string; // nombre de la categoría
+  pkCategoria: string;
   titulo: string;
   subtitulo?: string;
 }
@@ -27,15 +27,28 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
   useEffect(() => {
     setLoading(true);
 
-    fetch(`${API_BASE_URL}/api/public/productos`)
-      .then(res => res.json())
-      .then(data => {
-        setProductos(data);
+    supabase
+      .from('producto')
+      .select('*, categoria:pk_categoria_producto(*), marca:pk_marca_producto(*)')
+      .then(({ data }) => {
+        if (data) {
+          const adaptados: Producto[] = data.map((p: any) => ({
+            idProducto: p.id_producto,
+            nombreProducto: p.nombre_producto,
+            precioProducto: Number(p.precio_producto),
+            descripcionProducto: p.descripcion_producto || '',
+            imagenProducto: p.imagen_producto,
+            slug: p.slug,
+            marca: p.marca?.nombre_marca_producto || '',
+            categoria: p.categoria?.nombre_categoria_producto || '',
+            stockProducto: p.stock_producto,
+          }));
+          setProductos(adaptados);
+        }
         setLoading(false);
       });
   }, []);
 
-  // Filtrado SOLO por nombre de categoría, insensible a mayúsculas
   const productosFiltrados = productos.filter(prod =>
     prod.categoria?.toLowerCase() === pkCategoria.toLowerCase()
   );

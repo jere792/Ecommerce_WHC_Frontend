@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UserCircle } from "lucide-react";
-import { API_BASE_URL } from '../apiConfig'; 
+import { supabase } from '../lib/supabaseClient'; 
 
 
 interface Opinion {
@@ -55,15 +55,19 @@ export default function OpinionesPage() {
       };
 
       try {
-        const res = await fetch(`${API_BASE_URL}/api/public/formularios`,{
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
+        const { error: insertError } = await supabase
+          .from('formulario')
+          .insert({
+            nombre_formulario: data.nombreFormulario,
+            dni_formulario: data.dniFormulario,
+            correo_formulario: data.correoFormulario,
+            telefono_formulario: data.telefonoFormulario,
+            pk_tipo_formulario: data.pkTipoFormulario,
+            pk_estado_formulario: data.pkEstadoFormulario,
+            text_estado: data.textEstado,
+          });
 
-        if (!res.ok) throw new Error("No se pudo enviar la opinión");
+        if (insertError) throw insertError;
 
         // Si fue exitoso, agrega a la lista local (opcional)
         setOpiniones([{ nombre, comentario }, ...opiniones]);

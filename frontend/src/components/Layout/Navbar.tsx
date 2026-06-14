@@ -4,11 +4,13 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../ui/CartContext';
 import { ShoppingCartModal } from './ShoppingCartModal';
 import LoginModal from '../Layout/loginModal';
+import { useAuthContext } from '../../hooks/AuthContext';
 
 export function Navbar() {
   const desiredScrollOffset = 520;
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin } = useAuthContext();
   const [searchText, setSearchText] = useState("");
 
  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {

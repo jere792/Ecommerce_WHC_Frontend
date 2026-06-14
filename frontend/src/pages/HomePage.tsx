@@ -1,49 +1,51 @@
-//import { Outlet } from 'react-router-dom';
-//import React from 'react';
+import { useEffect, useState } from 'react';
 import { Carousel } from "../components/ui/Carousel";
-import { ImagenPrincipalConSecundarias } from '../components/Home/PublicidadSection'; // Importa el componente
+import { ImagenPrincipalConSecundarias } from '../components/Home/PublicidadSection';
 import { Publicidad } from '../components/ui/Publicidad';
-import  ProductCarousel from "../components/Home/ProductCarousel"; // Importa el nuevo componente de carrusel de productos
+import ProductCarousel from "../components/Home/ProductCarousel";
 import OfertaCarousel from "../components/Home/OfertaCarousel";
-import  Marcas from '../components/ui/Marcas'; // Importa el nuevo componente
-import Text from "../components/ui/text"; // Importa el nuevo componente de texto
-//import ProductCarousel from "../components/ui/ProductCarousel";
-
+import NewProductsCarousel from "../components/Home/NewProductsCarousel";
+import Marcas from '../components/ui/Marcas';
+import Text from "../components/ui/text";
+import { supabase } from '../lib/supabaseClient';
+import type { CategoriaProducto } from '../lib/supabaseTypes';
 
 function HomePage() {
+  const [homeCategories, setHomeCategories] = useState<CategoriaProducto[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('categoria_p')
+      .select('*')
+      .eq('mostrar_en_home', true)
+      .order('id_categoria_producto', { ascending: true })
+      .then(({ data }) => {
+        if (data) setHomeCategories(data as CategoriaProducto[]);
+      });
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-#ffffff">
       <Carousel />
       <Publicidad textoPromocional="¡Bienvenido a nuestra tienda online! Encuentra los mejores productos al mejor precio." />
       <Text
-      title="OFERTAS PRINCIPALES DE LA SEMANA"
-      subtitle="Aprovecha los descuentos y promociones especiales en nuestros productos destacados"
-      color="#0D3C6B"
+        title="OFERTAS PRINCIPALES DE LA SEMANA"
+        subtitle="Aprovecha los descuentos y promociones especiales en nuestros productos destacados"
+        color="#0D3C6B"
       />
-
-     <OfertaCarousel /> 
-
-      <ImagenPrincipalConSecundarias /> 
-            <Publicidad textoPromocional="Delivery gratis a compras mayores a 200" />
-
-      <ProductCarousel
-        pkCategoria="Lavamanos"
-        titulo="LAVADEROS"
-        subtitulo="Encuentra los mejores productos para tu baño y cocina"
-      />
-      <ProductCarousel
-        pkCategoria="Fluxómetros"
-        titulo="FLUXOMETROS"
-        subtitulo="Mejora la eficiencia de tu baño con nuestros fluxómetros de alta calidad"
-      />
-       <ProductCarousel
-        pkCategoria="Urinarios"
-        titulo="URINARIOS"
-        subtitulo="Descubre nuestra selección de urinarios para baños modernos y funcionales"
-      />
-      
-      
-      <Marcas/>
+      <OfertaCarousel />
+      <ImagenPrincipalConSecundarias />
+      <Publicidad textoPromocional="Delivery gratis a compras mayores a 200" />
+      <NewProductsCarousel />
+      {homeCategories.map((cat) => (
+        <ProductCarousel
+          key={cat.id_categoria_producto}
+          pkCategoria={cat.nombre_categoria_producto}
+          titulo={cat.nombre_categoria_producto.toUpperCase()}
+          subtitulo={cat.subtitulo_home || undefined}
+        />
+      ))}
+      <Marcas />
     </div>
   );
 }

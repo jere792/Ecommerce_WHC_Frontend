@@ -1,26 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from "react-router-dom";
-import { Carousel } from "@/components/ui/Carousel";
+import PageHeroBanner from '../components/ui/PageHero';
 import { Publicidad } from '../components/ui/Publicidad';
 import Marcas from '../components/ui/Marcas';
 import ProductCard from '../components/ui/ProductCard';
-import { API_BASE_URL } from '../apiConfig'; 
+import { supabase } from '../lib/supabaseClient';
+import type { Producto } from '../lib/supabaseTypes';
 
-
-type ProductoBackend = {
-  idProducto: number;
-  nombreProducto: string;
-  precioProducto: number | string;
-  descripcionProducto: string;
-  imagenProducto?: string;
-  stockProducto: number;
-  slug: string;
-  categoria: string;
-  marca: string;
-  estado: string;
-};
-
-interface Producto {
+interface ProductoAdapted {
   idProducto: number;
   nombreProducto: string;
   precio: number;
@@ -35,41 +22,44 @@ const MARCAS = [
   "Trébol", "Sloan", "Genebre", "Vainsa", "Helvex", "Leeyes", "Sunmixer"
 ];
 
-// Cantidad de productos por página (tanto mobile como desktop)
 const PAGE_SIZE = 8;
 
 const ProductsPage: React.FC = () => {
-  const [productos, setProductos] = useState<Producto[]>([]);
+  const [productos, setProductos] = useState<ProductoAdapted[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroMarcas, setFiltroMarcas] = useState<string[]>([]);
   const [precioMax, setPrecioMax] = useState<number>(0);
 
-  // Paginación
   const [paginaActual, setPaginaActual] = useState(1);
 
-  // Lógica de búsqueda
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const searchQuery = params.get("search")?.toLowerCase() || "";
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/public/productos`)
-      .then(res => res.json())
-      .then((data: ProductoBackend[]) => {
-        const adaptados: Producto[] = data.map((p) => ({
-          idProducto: p.idProducto,
-          nombreProducto: p.nombreProducto,
-          precio: typeof p.precioProducto === "string" ? parseFloat(p.precioProducto) : Number(p.precioProducto),
-          descripcionProducto: p.descripcionProducto,
-          imagenProducto: p.imagenProducto,
-          slug: p.slug,
-          marca: p.marca,
-          stockProducto: p.stockProducto,
-        }));
-        setProductos(adaptados);
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('producto')
+          .select('*, marca:pk_marca_producto(*)');
+        if (data) {
+          const adaptados: ProductoAdapted[] = (data as unknown as (Producto & { marca?: { nombre_marca_producto: string } })[]).map((p) => ({
+            idProducto: p.id_producto,
+            nombreProducto: p.nombre_producto,
+            precio: Number(p.precio_producto),
+            descripcionProducto: p.descripcion_producto || '',
+            imagenProducto: p.imagen_producto || undefined,
+            slug: p.slug,
+            marca: p.marca?.nombre_marca_producto || '',
+            stockProducto: p.stock_producto,
+          }));
+          setProductos(adaptados);
+        }
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      } catch {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   const hayProductos = productos.length > 0;
@@ -89,10 +79,9 @@ const ProductsPage: React.FC = () => {
         ? prev.filter(m => m !== marca)
         : [...prev, marca]
     );
-    setPaginaActual(1); // Reset a página 1 al cambiar filtro
+    setPaginaActual(1);
   };
 
-  // Filtrado por búsqueda, marcas y precio
   const productosFiltrados = productos
     .filter(prod =>
       (filtroMarcas.length === 0 || filtroMarcas.includes(prod.marca)) &&
@@ -101,7 +90,6 @@ const ProductsPage: React.FC = () => {
     )
     .sort((a, b) => a.precio - b.precio);
 
-  // Paginación
   const cantidadResultados = productosFiltrados.length;
   const totalPaginas = Math.ceil(cantidadResultados / PAGE_SIZE);
   const productosPaginados = productosFiltrados.slice(
@@ -113,7 +101,6 @@ const ProductsPage: React.FC = () => {
     if (pagina >= 1 && pagina <= totalPaginas) setPaginaActual(pagina);
   };
 
-  // Renderizador de paginación
   const Pagination = () => (
     <div className="flex justify-center items-center gap-2 my-6">
       <button
@@ -146,9 +133,8 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div>
-      <Carousel />
+      <PageHeroBanner pagina="productos" />
 
-      {/* Filtros y cantidad en mobile */}
       <div className="block lg:hidden px-4 mb-4">
         <div className="bg-white rounded-lg shadow p-4 mb-2 flex flex-col gap-4">
           <div>
@@ -187,7 +173,6 @@ const ProductsPage: React.FC = () => {
         <div className="text-sm font-medium text-gray-700 mb-2">{cantidadResultados} Resultados</div>
       </div>
 
-      {/* Filtros y cantidad en desktop */}
       <div className="container mx-auto py-8 flex flex-col lg:flex-row gap-8">
         <aside className="hidden lg:block w-1/4 flex-shrink-0">
           <div className="mb-4">
@@ -232,7 +217,6 @@ const ProductsPage: React.FC = () => {
           <div className="text-sm font-medium text-gray-700 mb-2">{cantidadResultados} Resultados</div>
         </aside>
 
-        {/* Grilla de productos */}
         <main className="w-full lg:w-3/4">
           <div className="text-sm font-medium text-gray-700 mb-2 hidden lg:block">{cantidadResultados} Resultados</div>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -244,7 +228,7 @@ const ProductsPage: React.FC = () => {
             productosPaginados.map(producto => (
               <ProductCard
                 key={producto.idProducto}
-                id={producto.idProducto}           // <-- AGREGA ESTA LÍNEA
+                id={producto.idProducto}
                 nombre={producto.nombreProducto}
                 descripcion={producto.descripcionProducto}
                 imagen={producto.imagenProducto}
@@ -255,7 +239,6 @@ const ProductsPage: React.FC = () => {
             ))
           )}
         </div>
-          {/* Paginación */}
           {totalPaginas > 1 && <Pagination />}
         </main>
       </div>

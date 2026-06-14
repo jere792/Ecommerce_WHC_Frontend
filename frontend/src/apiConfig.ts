@@ -1,7 +1,3 @@
-export const API_BASE_URL = "http://localhost:8081"; // O ngrok URL for development
-
-
-//import { API_BASE_URL } from '../../apiConfig'; // Asegúrate de tener esta constante configurada correctamente
-
-
-//    fetch(`${API_BASE_URL}  + /api/public/ofertas/activas`)
+// Supabase configuration is in .env file:
+// VITE_SUPABASE_URL=https://your-project.supabase.co
+// VITE_SUPABASE_ANON_KEY=your-anon-key

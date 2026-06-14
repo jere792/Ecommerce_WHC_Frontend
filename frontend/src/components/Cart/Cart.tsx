@@ -1,16 +1,16 @@
 import { useCart } from "../ui/CartContext";
 import { useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
+import { useAuthContext } from "../../hooks/AuthContext";
+
+const WHATSAPP_NUMBER = "51949790715";
 
 export function Cart() {
   const { items, updateQuantity, removeItem } = useCart();
+  const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
+  const [extraServicio, setExtraServicio] = useState<number>(1);
 
-  // Estado para método de pago. 
-  // Restaurado a 1 (MercadoPago) como default
-  const [metodoPago, setMetodoPago] = useState<number>(1); 
-  const [extraServicio, setExtraServicio] = useState<number>(1); // 1: Sin servicio extra
-
-  // Estado para mostrar/ocultar descripción por producto
   const [showDescriptions, setShowDescriptions] = useState<{
     [id: string]: boolean;
   }>({});
@@ -31,7 +31,6 @@ export function Cart() {
     0
   );
 
-  // Busca el costo según el extra seleccionado
   const extraServiciosCatalogo = [
     { id: 1, nombre: "Sin servicio extra", costo: 0.0 },
     { id: 2, nombre: "Instalación", costo: 50.0 },
@@ -43,92 +42,76 @@ export function Cart() {
   const totalGeneral = totalProductos + costoExtra;
 
   const handleCheckout = async () => {
-    let userId: number | undefined = undefined;
-    try {
-      const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
-      // Aceptamos tanto idUsuario (backend) como id (posible legacy)
-      userId = usuario?.idUsuario || usuario?.id;
-    } catch {
-      userId = undefined;
-    }
-    
-    if (items.length === 0 || !userId) {
+    if (items.length === 0 || !user) {
       alert("Debes tener productos en el carrito y estar logueado.");
+      return;
+    }
+
+    if (items.some((item) => !item.productId || isNaN(item.productId))) {
+      alert("Hay productos con datos inválidos en el carrito.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const descripcion =
-        items.map((item) => `${item.quantity}x ${item.name}`).join(", ") +
-        (extraServicio !== 1
-          ? ` + ${
-              extraServiciosCatalogo.find((e) => e.id === extraServicio)?.nombre
-            }`
-          : "");
+      const servicioExtra = extraServiciosCatalogo.find((e) => e.id === extraServicio);
+      const itemsText = items
+        .map((item) => `${item.quantity}x ${item.name} - S/${(item.price * item.quantity).toFixed(2)}`)
+        .join("\n");
 
-      const cantidad = items.reduce((acc, item) => acc + item.quantity, 0);
+      const mensaje = [
+        `*Nuevo Pedido - ${user.nombre_persona}*`,
+        `*Cliente:* ${user.correo_persona}`,
+        ``,
+        `*Productos:*`,
+        itemsText,
+        ``,
+        servicioExtra && servicioExtra.id !== 1
+          ? `*Servicio extra:* ${servicioExtra.nombre} (S/${servicioExtra.costo.toFixed(2)})`
+          : "",
+        ``,
+        `*Total: S/${totalGeneral.toFixed(2)}*`,
+      ]
+        .filter(Boolean)
+        .join("\n");
 
-      if (items.some((item) => !item.productId || isNaN(item.productId))) {
-        alert(
-          "Hay productos con datos inválidos en el carrito. Intenta eliminarlos y agregarlos de nuevo."
-        );
-        setLoading(false);
-        return;
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+
+      const extraId = extraServicio;
+      const metodoPagoId = 2;
+
+      const { data: pedido } = await supabase
+        .from("pedido")
+        .insert({
+          pk_usuario: user.id_usuario,
+          pk_extra: extraId,
+          pk_metodopago: metodoPagoId,
+          estado_pago: "pendiente",
+          monto_total: totalGeneral,
+        })
+        .select()
+        .single();
+
+      if (pedido) {
+        const detalles = items.map((item) => ({
+          pk_pedido: pedido.id_pedido,
+          pk_producto_pedido: item.productId,
+          cantidad_pedido: item.quantity,
+        }));
+
+        await supabase.from("pedidodetalles").insert(detalles);
+
+        await supabase.from("pedido_estado_pago").insert({
+          pk_pedido: pedido.id_pedido,
+          estado: "pendiente",
+          comentario: "Pedido creado - pendiente de pago",
+        });
       }
 
-      const response = await fetch(
-        "http://localhost:8081/api/public/pedidos/pagar",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            descripcion,
-            monto: totalGeneral,
-            cantidad,
-            pkUsuario: userId,
-            items: items.map((item) => ({
-              pkProductoPedido: item.productId,
-              cantidadPedido: item.quantity,
-            })),
-            pkMetodoPago: metodoPago,
-            pkExtra: extraServicio,
-          }),
-        }
-      );
-      if (!response.ok) {
-        const txt = await response.text();
-        throw new Error("Backend error: " + txt);
-      }
-      const data = await response.json();
-
-      if (data.tipo === "mercadopago" && data.link) {
-        // Redirigir a la pasarela de pago
-        window.location.href = data.link;
-      } else if (data.tipo === "efectivo") {
-        alert(
-          `¡Pedido registrado con éxito!\n\n` +
-          `Número de pedido: ${data.pedidoId}\n` +
-          `Monto a pagar: S/ ${totalGeneral.toFixed(2)}\n\n` +
-          `Acércate a caja con tu número de pedido para realizar el pago.`
-        );
-      } else if (data.tipo === "transferencia") {
-        alert(
-          `¡Pedido registrado!\n\n` +
-          `Número de pedido: ${data.pedidoId}\n` +
-          `Banco: ${data.datosBancarios?.banco}\n` +
-          `Cuenta: ${data.datosBancarios?.cuenta}\n` +
-          `Titular: ${data.datosBancarios?.titular}`
-        );
-      } else {
-        alert(`Pedido registrado correctamente. Nro: ${data.pedidoId}`);
-      }
+      window.open(whatsappUrl, "_blank");
     } catch (error) {
-      alert("Ocurrió un error al proceder con la transacción.\n" + error);
+      alert("Ocurrió un error al procesar el pedido.\n" + error);
     } finally {
       setLoading(false);
     }
@@ -138,7 +121,6 @@ export function Cart() {
     <div className="max-w-4xl mx-auto p-4 md:p-1 bg-white">
       <h2 className="text-2xl font-bold mb-6">Carro de compras</h2>
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Lista de productos */}
         <div
           className="flex-1 bg-white border rounded-x1 p-8 space-y-7"
           style={{ maxHeight: 520, overflowY: "auto" }}
@@ -159,7 +141,6 @@ export function Cart() {
               <div className="flex-1">
                 <h3 className="font-semibold">{item.name}</h3>
                 <p className="text-sm text-gray-500">{item.brand}</p>
-                {/* Toggle descripción */}
                 <button
                   className="text-xs text-blue-700 underline mb-1"
                   onClick={() => handleToggleDescription(item.id)}
@@ -214,7 +195,6 @@ export function Cart() {
           ))}
         </div>
 
-        {/* Resumen del pedido */}
         <div className="w-full md:w-80 bg-gray-100 rounded-xl p-4 h-fit">
           <div className="mb-2 flex justify-between">
             <span>
@@ -228,9 +208,8 @@ export function Cart() {
             <span>Envío a Lima</span>
             <span className="text-green-600 font-semibold">Gratis</span>
           </div>
-          
+
           <div className="mb-6">
-            {/* Servicio extra */}
             <div className="flex flex-col mb-4">
               <label
                 htmlFor="extraServicio"
@@ -252,45 +231,16 @@ export function Cart() {
                 ))}
               </select>
             </div>
-            
-            {/* Método de pago - RESTAURADO MERCADOPAGO */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="metodoPago"
-                className="font-semibold mb-1 text-gray-700"
-              >
-                Método de pago:
-              </label>
-              <select
-                id="metodoPago"
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white transition"
-                value={metodoPago}
-                onChange={(e) => setMetodoPago(Number(e.target.value))}
-              >
-                <option value={1}>MercadoPago</option>
-                <option value={2}>Efectivo</option>
-                <option value={3}>Transferencia</option>
-              </select>
-            </div>
           </div>
-          
+
           <hr className="my-2 border-gray-300" />
           <div className="flex justify-between font-semibold text-lg mb-4">
             <span>Total</span>
             <span>S/ {totalGeneral.toFixed(2)}</span>
           </div>
-          
+
           <button
-            className="
-              w-full py-3
-              bg-gradient-to-r from-green-500 to-blue-600
-              hover:from-green-600 hover:to-blue-700
-              text-white font-bold rounded-xl
-              shadow-lg transition transform duration-300
-              hover:scale-[1.02] hover:shadow-2xl
-              flex items-center justify-center gap-3
-              disabled:opacity-50 disabled:cursor-not-allowed
-            "
+            className="w-full py-3 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg transition transform duration-300 hover:scale-[1.02] hover:shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading || items.length === 0}
             onClick={handleCheckout}
           >
@@ -298,24 +248,17 @@ export function Cart() {
               <span>Procesando...</span>
             ) : (
               <>
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-                Confirmar Compra
+                Confirmar Compra por WhatsApp
               </>
             )}
           </button>
-          
+
           <div className="flex justify-center items-center gap-4 mt-4 opacity-70 grayscale hover:grayscale-0 transition-all duration-300">
-            {/* Imagenes placeholder */}
             <div className="text-xs text-gray-500 text-center">
-              Pago 100% Seguro <br/> MercadoPago, Efectivo o Transferencia
+              Te contactaremos para coordinar el pago y envío
             </div>
           </div>
         </div>

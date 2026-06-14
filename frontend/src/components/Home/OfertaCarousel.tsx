@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ProductCard from "../ui/ProductCard";
-import { API_BASE_URL } from '../../apiConfig'; 
+import { supabase } from '../../lib/supabaseClient';
 
 interface Oferta {
   idOferta: number;
@@ -21,24 +21,38 @@ export default function OfertaCarousel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Ref para el contenedor del carrusel
   const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/public/ofertas/activas`)
-      .then(res => {
-        if (!res.ok) throw new Error("No se pudo obtener ofertas");
-        return res.json();
-      })
-      .then(data => {
-        setOfertas(Array.isArray(data) ? data : []);
+    (async () => {
+      try {
+        const { data, error: err } = await supabase
+          .from('oferta')
+          .select('*, producto:pk_producto(*)')
+          .lte('fecha_inicio', new Date().toISOString().split('T')[0])
+          .gte('fecha_fin', new Date().toISOString().split('T')[0]);
+        if (err) throw err;
+        if (data) {
+          const adaptadas: Oferta[] = data.map((o: any) => ({
+            idOferta: o.id_oferta,
+            idProducto: o.pk_producto,
+            nombreProducto: o.producto?.nombre_producto || '',
+            descripcionProducto: o.producto?.descripcion_producto || '',
+            imagenProducto: o.producto?.imagen_producto,
+            slug: o.producto?.slug || '',
+            precioProducto: Number(o.producto?.precio_producto || 0),
+            precioOferta: Number(o.precio_oferta),
+            stockProducto: o.producto?.stock_producto || 0,
+          }));
+          setOfertas(adaptadas);
+        }
         setLoading(false);
-      })
-      .catch(err => {
+      } catch (err) {
         setLoading(false);
         setOfertas([]);
         setError(String(err));
-      });
+      }
+    })();
   }, []);
 
   const scrollBy = (offset: number) => {

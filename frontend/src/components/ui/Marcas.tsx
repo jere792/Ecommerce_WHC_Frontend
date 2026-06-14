@@ -1,20 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-
-interface Marca {
-    nombre: string;
-    logoSrc: string;
-}
+import { supabase } from '../../lib/supabaseClient';
 
 const Marcas: React.FC = () => {
-    const marcas: Marca[] = [
-        { nombre: 'Sloan', logoSrc: '/marca1.png' },
-        { nombre: 'Genebre', logoSrc: '/marca2.jpg' },
-        { nombre: 'Vainsa', logoSrc: '/marca3.jpg' },
-        { nombre: 'Trebol', logoSrc: '/marca4.png' },
-        { nombre: 'Helvex', logoSrc: '/marca5.png' },
-        { nombre: 'Leeyes', logoSrc: '/marca6.PNG' },
-        { nombre: 'Sunmixer', logoSrc: '/marca7.jpg' },
-    ];
+    const [marcas, setMarcas] = useState<{ nombre: string; logoSrc: string }[]>([]);
+
+    useEffect(() => {
+        supabase
+            .from('marca_p')
+            .select('nombre_marca_producto, logo_url')
+            .eq('mostrar_en_home', true)
+            .then(({ data }) => {
+                if (data && data.length > 0) {
+                    setMarcas(
+                        data.map((m: any) => ({
+                            nombre: m.nombre_marca_producto,
+                            logoSrc: m.logo_url || '/placeholder-marca.png',
+                        }))
+                    );
+                }
+            });
+    }, []);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const [scrollPosition, setScrollPosition] = useState(0);
@@ -39,20 +44,22 @@ const Marcas: React.FC = () => {
                 });
             }, 2000);
 
-            setIntervalId(newIntervalId); // ✅ guardamos el id correctamente
+            setIntervalId(newIntervalId);
 
             return () => {
                 clearInterval(newIntervalId);
                 setIntervalId(null);
             };
         }
-    }, [totalMarcaWidth]);
+    }, [totalMarcaWidth, marcas.length]);
 
     useEffect(() => {
         if (containerRef.current) {
             containerRef.current.scrollLeft = scrollPosition;
         }
     }, [scrollPosition]);
+
+    if (marcas.length === 0) return null;
 
     return (
         <div className="w-full overflow-hidden py-8 bg-white">
