@@ -4,6 +4,7 @@ import { BrowserRouter, } from 'react-router-dom';
 import App from './App'; 
 import './styles/index.css';
 import { CartProvider } from './components/ui/CartContext';
+import { ToastProvider } from './components/ui/Toast';
 
 const rootElement = document.getElementById('root');
 
@@ -13,7 +14,9 @@ if (rootElement) {
     <React.StrictMode>
       <BrowserRouter>
       <CartProvider>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </CartProvider>
       </BrowserRouter>
     </React.StrictMode>
