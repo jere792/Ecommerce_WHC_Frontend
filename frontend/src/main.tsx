@@ -5,6 +5,7 @@ import App from './App';
 import './styles/index.css';
 import { CartProvider } from './components/ui/CartContext';
 import { AuthProvider } from './hooks/AuthContext';
+import { ToastProvider } from './components/ui/Toast';
 
 const rootElement = document.getElementById('root');
 
@@ -15,7 +16,9 @@ if (rootElement) {
       <BrowserRouter>
         <AuthProvider>
           <CartProvider>
-            <App />
+            <ToastProvider>
+              <App />
+            </ToastProvider>
           </CartProvider>
         </AuthProvider>
       </BrowserRouter>
