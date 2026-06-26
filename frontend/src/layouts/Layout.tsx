@@ -4,6 +4,7 @@ import {Footer} from '../components/Layout/Footer';
 import ScrollToTopButton  from '../components/Layout/ScrollToTopButton'; // Importa el nuevo componente
 import { WhatsAppButton } from '../components/Layout/WhatsAppButton';
 import AccessibilityButton from '../components/Layout/AccesibilityButton';
+import ThemeToggle from '../components/ui/ThemeToggle';
 const Layout: React.FC = () => {
   return (
     <>
@@ -14,6 +15,7 @@ const Layout: React.FC = () => {
       <WhatsAppButton />
       <ScrollToTopButton/>
       <AccessibilityButton />
+      <ThemeToggle />
 
       <Footer />
     </>

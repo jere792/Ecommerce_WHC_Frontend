@@ -55,13 +55,13 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
   );
 
   return (
-    <section className="py-10 bg-gray-50">
+    <section className="py-10 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-blue-900 mb-1">
+        <h2 className="text-2xl md:text-3xl font-bold text-center text-blue-900 dark:text-blue-200 mb-1">
           {titulo}
         </h2>
         {subtitulo && (
-          <div className="text-center text-gray-600 mb-4">{subtitulo}</div>
+          <div className="text-center text-gray-600 dark:text-gray-400 mb-4">{subtitulo}</div>
         )}
 
         <div className="relative">
@@ -74,7 +74,7 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
                 </div>
               ))
             ) : productosFiltrados.length === 0 ? (
-              <div className="text-center w-full py-8 text-gray-400">No hay productos para esta categoría.</div>
+              <div className="text-center w-full py-8 text-gray-400 dark:text-gray-500">No hay productos para esta categoría.</div>
             ) : (
               productosFiltrados.map(producto => (
                 <div
