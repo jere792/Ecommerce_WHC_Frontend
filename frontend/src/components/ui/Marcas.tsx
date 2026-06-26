@@ -62,12 +62,12 @@ const Marcas: React.FC = () => {
     if (marcas.length === 0) return null;
 
     return (
-        <div className="w-full overflow-hidden py-8 bg-white dark:bg-gray-900">
+        <div className="w-full overflow-hidden py-8 bg-white">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap text-center sm:text-left">
+                <h2 className="text-2xl font-semibold text-gray-800 whitespace-nowrap text-center sm:text-left">
                     Trabajamos con las mejores marcas
                 </h2>
-                <div className="h-0.5 bg-gray-300 dark:bg-gray-600 w-full sm:w-32" />
+                <div className="h-0.5 bg-gray-300 w-full sm:w-32" />
             </div>
             <div ref={containerRef} className="flex overflow-x-hidden whitespace-nowrap scroll-smooth">
                 {marcas.map((marca, index) => (

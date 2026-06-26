@@ -67,14 +67,14 @@ export default function OfertaCarousel() {
   }
 
   return (
-    <section className="py-2 bg-gray-50 dark:bg-gray-900">
+    <section className="py-2 bg-gray-50">
       <div className="container mx-auto px-4 relative">
 
         <div className="relative">
           {/* Flechas para desktop */}
           <button
             onClick={() => scrollBy(-320)}
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition"
             style={{ left: '-60px' }}
             aria-label="Anterior"
             disabled={loading || ofertas.length === 0}
@@ -83,7 +83,7 @@ export default function OfertaCarousel() {
           </button>
           <button
             onClick={() => scrollBy(320)}
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition"
             style={{ right: '-25px' }}
             aria-label="Siguiente"
             disabled={loading || ofertas.length === 0}
@@ -107,7 +107,7 @@ export default function OfertaCarousel() {
                 </div>
               ))
             ) : ofertas.length === 0 ? (
-              <div className="text-center w-full py-8 text-gray-400 dark:text-gray-500">No hay productos en oferta.</div>
+              <div className="text-center w-full py-8 text-gray-400">No hay productos en oferta.</div>
             ) : (
               ofertas.map(oferta => (
                 <div

@@ -55,13 +55,13 @@ export default function NewProductsCarousel() {
   if (productos.length === 0 && !loading) return null;
 
   return (
-    <section className="py-10 bg-white dark:bg-gray-900">
+    <section className="py-10 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-blue-900 dark:text-blue-200 mb-1">
+          <h2 className="text-2xl md:text-3xl font-bold text-blue-900 mb-1">
             RECIÉN LLEGADOS
           </h2>
-          <div className="text-gray-600 dark:text-gray-400 mb-4">
+          <div className="text-gray-600 mb-4">
             Los últimos productos que acaban de llegar al catálogo
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function NewProductsCarousel() {
         <div className="relative">
           <button
             onClick={() => scrollBy(-320)}
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition"
             style={{ left: '-20px' }}
             aria-label="Anterior"
           >
@@ -77,7 +77,7 @@ export default function NewProductsCarousel() {
           </button>
           <button
             onClick={() => scrollBy(320)}
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition"
             style={{ right: '-20px' }}
             aria-label="Siguiente"
           >

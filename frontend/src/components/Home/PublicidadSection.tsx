@@ -24,7 +24,7 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="py-6 bg-white dark:bg-gray-900">
+      <section className="py-6 bg-white">
         <div className="container mx-auto px-2">
           <Skeleton className="h-8 w-64 mx-auto mb-8" />
           <div className="flex flex-col md:flex-row gap-6 md:gap-10">
@@ -46,9 +46,9 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
   const beforeUnderline = principalWords.slice(0, -2).join(' ');
 
   return (
-    <section className="py-6 bg-white dark:bg-gray-900">
+    <section className="py-6 bg-white">
       <div className="container mx-auto px-2 text-center">
-        <h2 className="text-xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 uppercase">
+        <h2 className="text-xl md:text-3xl font-bold text-gray-800 uppercase">
           {beforeUnderline}{' '}
           <span
             className="underline"

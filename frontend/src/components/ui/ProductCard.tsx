@@ -68,7 +68,7 @@ export default function ProductCard({
   return (
     <div
       className="
-        bg-white dark:bg-gray-800 rounded-4xl shadow-md border border-blue-100 dark:border-gray-700
+        bg-white rounded-4xl shadow-md border border-blue-100
         transition-transform hover:scale-105 hover:shadow-xl cursor-pointer
         w-[280px] h-[320px] flex flex-col justify-between
         mx-auto
@@ -81,7 +81,7 @@ export default function ProductCard({
         if (e.key === "Enter" || e.key === " ") navigate(`/productos/${slug}`);
       }}
     >
-      <div className="h-80 w-full flex items-center justify-center bg-white dark:bg-gray-800">
+      <div className="h-80 w-full flex items-center justify-center bg-white">
         {imagen ? (
           <img
             src={imagen}
@@ -91,30 +91,30 @@ export default function ProductCard({
             onError={e => { e.currentTarget.src = ""; }}
           />
         ) : (
-          <span className="text-blue-200 dark:text-gray-500">Sin imagen</span>
+          <span className="text-blue-200">Sin imagen</span>
         )}
       </div>
       <div className="flex-1 flex flex-col px-4 py-3 justify-between">
-        <h4 className="text-blue-800 dark:text-blue-200 font-bold text-base truncate mb-2">{nombre}</h4>
-        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{descripcion}</p>
+        <h4 className="text-blue-800 font-bold text-base truncate mb-2">{nombre}</h4>
+        <p className="text-xs text-gray-600 mb-2 line-clamp-2">{descripcion}</p>
         <div className="mb-3">
           {precioOriginal && precioOriginal !== precio ? (
             <>
-              <span className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 font-bold px-3 py-1 rounded-full text-sm shadow w-fit mr-3">
+              <span className="bg-red-100 text-red-700 font-bold px-3 py-1 rounded-full text-sm shadow w-fit mr-3">
                 S/. {precio.toFixed(2)}
               </span>
-              <span className="text-gray-400 dark:text-gray-500 line-through text-sm">
+              <span className="text-gray-400 line-through text-sm">
                 S/. {precioOriginal.toFixed(2)}
               </span>
             </>
           ) : (
-            <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-semibold px-3 py-1 rounded-full text-sm shadow w-fit">
+            <span className="bg-blue-100 text-blue-800 font-semibold px-3 py-1 rounded-full text-sm shadow w-fit">
               S/. {precio.toFixed(2)}
             </span>
           )}
         </div>
         <div className="flex justify-between items-end mt-auto">
-          <span className={`text-xs font-medium mr-2 ${stockDisponible === 0 ? "text-red-600 dark:text-red-400" : "text-green-700 dark:text-green-400"}`}>
+          <span className={`text-xs font-medium mr-2 ${stockDisponible === 0 ? "text-red-600" : "text-green-700"}`}>
             {stockDisponible === 0 ? "Sin stock" : `Stock: ${stockDisponible}`}
           </span>
           <button
@@ -125,8 +125,8 @@ export default function ProductCard({
             }}
             className="
               add-to-cart-btn flex items-center justify-center
-              rounded-lg border border-green-500 bg-white dark:bg-gray-700
-              hover:bg-green-100 dark:hover:bg-green-900 active:bg-green-200
+              rounded-lg border border-green-500 bg-white
+              hover:bg-green-100 active:bg-green-200
               transition-all duration-150
               shadow-sm p-0 w-10 h-10
               focus:outline-none focus:ring-2 focus:ring-green-300
@@ -137,7 +137,7 @@ export default function ProductCard({
             aria-label="Añadir al carrito"
             disabled={stockDisponible === 0 || cantidadEnCarrito >= stockDisponible}
           >
-            <ShoppingCart className="w-6 h-6 text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300 transition" />
+            <ShoppingCart className="w-6 h-6 text-green-600 group-hover:text-green-700 transition" />
           </button>
         </div>
       </div>
