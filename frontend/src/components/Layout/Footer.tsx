@@ -83,12 +83,16 @@ export function Footer() {
             href="https://www.instagram.com/solvegrades.com_/"
             target="_blank"
             rel="noopener noreferrer"
+            className="inline-block hover:opacity-80 transition-opacity"
+            aria-label="SolveGrades en Instagram"
           >
             <img
               src="https://res.cloudinary.com/dp1vgjhsq/image/upload/v1778834655/WhatsApp_Image_2026-05-15_at_3.21.36_AM-removebg-preview_wtgmkr.png"
               alt="SolveGrades"
               className="h-14"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
+            <span className="sr-only">SolveGrades</span>
           </a>
         </div>
       </div>

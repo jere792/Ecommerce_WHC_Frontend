@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import { ArrowUp } from 'lucide-react'; // Importa el icono de flecha hacia arriba
+import { ArrowUp } from 'lucide-react';
 
 const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [nearBottom, setNearBottom] = useState(false);
 
-  // Función para controlar la visibilidad del botón
   const handleScroll = () => {
     const scrolled = document.documentElement.scrollTop;
-    if (scrolled > 300) {
-      setIsVisible(true);
-    } else if (scrolled <= 300) {
-      setIsVisible(false);
-    }
+    const scrollBottom = window.innerHeight + scrolled;
+    const docHeight = document.documentElement.scrollHeight;
+    setIsVisible(scrolled > 300);
+    setNearBottom(scrollBottom >= docHeight - 100);
   };
 
   // Función para hacer scroll hacia arriba
@@ -31,7 +30,7 @@ const ScrollToTopButton = () => {
 
   return (
     <>
-      {isVisible && (
+      {isVisible && !nearBottom && (
         <div
           onClick={scrollToTop}
           className="fixed bottom-20 right-6 bg-white text-dark rounded-full shadow-lg z-50 cursor-pointer

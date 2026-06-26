@@ -37,6 +37,7 @@ const saveSettings = (s: Settings) => {
 
 const AccessibilityButton: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
 
   useEffect(() => {
@@ -44,6 +45,17 @@ const AccessibilityButton: React.FC = () => {
     setSettings(s);
     applySettingsToRoot(s);
     injectRootStyles();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollBottom = window.innerHeight + window.scrollY;
+      const docHeight = document.documentElement.scrollHeight;
+      setHidden(scrollBottom >= docHeight - 100);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const applySettingsToRoot = (s: Settings) => {
@@ -118,7 +130,7 @@ const AccessibilityButton: React.FC = () => {
 
   return (
     <div
-      className="fixed right-20 bottom-6 z-60 flex flex-col-reverse items-end gap-1 pointer-events-auto"
+      className={`fixed right-20 bottom-6 z-60 flex flex-col-reverse items-end gap-1 pointer-events-auto transition-opacity duration-300 ${hidden ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       aria-hidden={false}
     >
       {/* Botón flotante principal (icono universal / persona) */}
