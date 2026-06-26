@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ProductCard from "../ui/ProductCard";
+import { ProductCardSkeleton } from "../ui/Skeleton";
 import { supabase } from '../../lib/supabaseClient';
 
 interface Oferta {
@@ -100,7 +101,11 @@ export default function OfertaCarousel() {
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {loading ? (
-              <div className="text-center w-full py-8 text-gray-400">Cargando ofertas...</div>
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="snap-center min-w-[260px] max-w-[280px] flex-shrink-0">
+                  <ProductCardSkeleton />
+                </div>
+              ))
             ) : ofertas.length === 0 ? (
               <div className="text-center w-full py-8 text-gray-400">No hay productos en oferta.</div>
             ) : (

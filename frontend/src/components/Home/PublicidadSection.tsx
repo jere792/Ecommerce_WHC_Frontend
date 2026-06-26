@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import type { BannerPublicidad } from '../../lib/supabaseTypes';
+import { Skeleton } from '../ui/Skeleton';
 
 export const ImagenPrincipalConSecundarias: React.FC = () => {
   const [banner, setBanner] = useState<BannerPublicidad | null>(null);
+  const [loading, setLoading] = useState(true);
   const blueLineColor = '#0d3c6b';
 
   useEffect(() => {
+    setLoading(true);
     supabase
       .from('banner_publicidad')
       .select('*')
@@ -15,8 +18,26 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
       .limit(1)
       .then(({ data }) => {
         if (data && data.length > 0) setBanner(data[0] as BannerPublicidad);
+        setLoading(false);
       });
   }, []);
+
+  if (loading) {
+    return (
+      <section className="py-6 bg-white">
+        <div className="container mx-auto px-2">
+          <Skeleton className="h-8 w-64 mx-auto mb-8" />
+          <div className="flex flex-col md:flex-row gap-6 md:gap-10">
+            <Skeleton className="md:w-1/2 h-[300px] rounded-md" />
+            <div className="md:w-1/2 flex flex-col gap-6 md:gap-10">
+              <Skeleton className="h-[140px] rounded-md" />
+              <Skeleton className="h-[140px] rounded-md" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (!banner) return null;
 
@@ -50,6 +71,8 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
               alt={banner.titulo}
               className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
               style={{ aspectRatio: '782 / 759' }}
+              loading="lazy"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           </a>
 
@@ -65,6 +88,8 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
                 alt={`${banner.titulo} - secundario top`}
                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                 style={{ aspectRatio: '821 / 372' }}
+                loading="lazy"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
             </a>
             <a
@@ -78,6 +103,8 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
                 alt={`${banner.titulo} - secundario bottom`}
                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                 style={{ aspectRatio: '821 / 372' }}
+                loading="lazy"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
             </a>
           </div>

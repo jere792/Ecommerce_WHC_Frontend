@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ProductCard from "../ui/ProductCard";
+import { ProductCardSkeleton } from "../ui/Skeleton";
 import { supabase } from '../../lib/supabaseClient';
 
 interface ProductoSimple {
@@ -51,8 +52,7 @@ export default function NewProductsCarousel() {
     }
   };
 
-  if (loading) return null;
-  if (productos.length === 0) return null;
+  if (productos.length === 0 && !loading) return null;
 
   return (
     <section className="py-10 bg-white">
@@ -89,19 +89,27 @@ export default function NewProductsCarousel() {
             className="flex gap-4 overflow-x-auto pb-2 px-1 scroll-smooth snap-x snap-mandatory hide-scrollbar"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
-            {productos.map((p) => (
-              <div key={p.idProducto} className="snap-center min-w-[260px] max-w-[280px] flex-shrink-0">
-                <ProductCard
-                  id={p.idProducto}
-                  nombre={p.nombreProducto}
-                  descripcion={p.descripcionProducto}
-                  imagen={p.imagenProducto}
-                  slug={p.slug}
-                  precio={p.precioProducto}
-                  stock={p.stockProducto}
-                />
-              </div>
-            ))}
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="snap-center min-w-[260px] max-w-[280px] flex-shrink-0">
+                  <ProductCardSkeleton />
+                </div>
+              ))
+            ) : (
+              productos.map((p) => (
+                <div key={p.idProducto} className="snap-center min-w-[260px] max-w-[280px] flex-shrink-0">
+                  <ProductCard
+                    id={p.idProducto}
+                    nombre={p.nombreProducto}
+                    descripcion={p.descripcionProducto}
+                    imagen={p.imagenProducto}
+                    slug={p.slug}
+                    precio={p.precioProducto}
+                    stock={p.stockProducto}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import PageHeroBanner from '../components/ui/PageHero';
 import { Publicidad } from '../components/ui/Publicidad';
 import Marcas from '../components/ui/Marcas';
 import ProductCard from '../components/ui/ProductCard';
+import { ProductCardSkeleton } from '../components/ui/Skeleton';
 import { supabase } from '../lib/supabaseClient';
 import type { Producto } from '../lib/supabaseTypes';
 
@@ -221,7 +222,9 @@ const ProductsPage: React.FC = () => {
           <div className="text-sm font-medium text-gray-700 mb-2 hidden lg:block">{cantidadResultados} Resultados</div>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading ? (
-            <div className="col-span-full text-center">Cargando productos...</div>
+            Array.from({ length: 8 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))
           ) : productosPaginados.length === 0 ? (
             <div className="col-span-full text-center">No hay productos disponibles.</div>
           ) : (

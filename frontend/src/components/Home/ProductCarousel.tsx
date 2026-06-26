@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../ui/ProductCard";
+import { ProductCardSkeleton } from "../ui/Skeleton";
 import { supabase } from '../../lib/supabaseClient';
 
 interface Producto {
@@ -63,12 +64,15 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
           <div className="text-center text-gray-600 mb-4">{subtitulo}</div>
         )}
 
-        {/* Carrusel */}
         <div className="relative">
           <div className="flex gap-6 overflow-x-auto pb-2 px-2 scroll-smooth snap-x snap-mandatory"
                style={{ WebkitOverflowScrolling: "touch" }}>
             {loading ? (
-              <div className="text-center w-full py-8 text-gray-400">Cargando productos...</div>
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="min-w-[260px] max-w-[280px] snap-start">
+                  <ProductCardSkeleton />
+                </div>
+              ))
             ) : productosFiltrados.length === 0 ? (
               <div className="text-center w-full py-8 text-gray-400">No hay productos para esta categoría.</div>
             ) : (
@@ -78,7 +82,7 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
                   className="min-w-[260px] max-w-[280px] snap-start"
                 >
                   <ProductCard
-                    id={producto.idProducto} // <-- ¡Este es el fix!
+                    id={producto.idProducto}
                     nombre={producto.nombreProducto}
                     descripcion={producto.descripcionProducto}
                     imagen={producto.imagenProducto}

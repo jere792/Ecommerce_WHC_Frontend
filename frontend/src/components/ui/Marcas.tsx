@@ -80,6 +80,7 @@ const Marcas: React.FC = () => {
                             src={marca.logoSrc}
                             alt={marca.nombre}
                             className="max-h-full max-w-full object-contain"
+                            loading="lazy"
                         />
                     </div>
                 ))}
@@ -93,6 +94,7 @@ const Marcas: React.FC = () => {
                             src={marca.logoSrc}
                             alt={marca.nombre}
                             className="max-h-full max-w-full object-contain"
+                            loading="lazy"
                         />
                     </div>
                 ))}

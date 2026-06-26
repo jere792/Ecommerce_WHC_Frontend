@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import type { PageHero } from '../../lib/supabaseTypes';
+import { PageHeroSkeleton } from './Skeleton';
 
 interface Props {
   pagina: string;
@@ -8,8 +9,10 @@ interface Props {
 
 export default function PageHeroBanner({ pagina }: Props) {
   const [hero, setHero] = useState<PageHero | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     supabase
       .from('page_hero')
       .select('*')
@@ -17,8 +20,11 @@ export default function PageHeroBanner({ pagina }: Props) {
       .single()
       .then(({ data }) => {
         if (data) setHero(data as PageHero);
+        setLoading(false);
       });
   }, [pagina]);
+
+  if (loading) return <PageHeroSkeleton />;
 
   if (!hero) return null;
 
@@ -29,6 +35,8 @@ export default function PageHeroBanner({ pagina }: Props) {
           src={hero.imagen_url}
           alt=""
           className="absolute inset-0 w-full h-full object-cover opacity-20"
+          loading="lazy"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
         />
       )}
       <div className="relative container mx-auto px-4 py-16 md:py-24 text-center">

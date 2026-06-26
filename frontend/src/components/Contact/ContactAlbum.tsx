@@ -32,6 +32,7 @@ export const ContactAlbum = () => {
                         src={image3}
                         alt="Imagen 3"
                         className="w-full h-auto object-cover rounded-md"
+                        loading="lazy"
                     />
                 </div>
             </div>
@@ -42,6 +43,7 @@ export const ContactAlbum = () => {
                     src={image4}
                     alt="Imagen 4"
                     className="w-full h-auto object-cover rounded-md"
+                    loading="lazy"
                 />
             </div>
         </section>

@@ -125,6 +125,7 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
                   src={allImages[selectedImage].url}
                   alt={producto.nombreProducto}
                   className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
                   onError={() => handleImgError(allImages[selectedImage].id)}
                 />
               ) : (
@@ -176,6 +177,7 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
                       src={img.url}
                       alt={`${producto.nombreProducto} ${idx + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                       onError={() => handleImgError(img.id)}
                     />
                   ) : (

@@ -87,6 +87,7 @@ export default function ProductCard({
             src={imagen}
             alt={nombre}
             className="object-contain h-32 w-full"
+            loading="lazy"
             onError={e => { e.currentTarget.src = ""; }}
           />
         ) : (

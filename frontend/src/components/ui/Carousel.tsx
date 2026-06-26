@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "../../lib/supabaseClient";
 import type { HeroSlide } from "../../lib/supabaseTypes";
+import { CarouselSkeleton } from "./Skeleton";
 
 export function Carousel() {
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase
@@ -15,6 +17,7 @@ export function Carousel() {
       .order('orden', { ascending: true })
       .then(({ data }) => {
         if (data && data.length > 0) setSlides(data as HeroSlide[]);
+        setLoading(false);
       });
   }, []);
 
@@ -25,6 +28,8 @@ export function Carousel() {
   const prevSlide = () => {
     setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
   };
+
+  if (loading) return <CarouselSkeleton />;
 
   if (slides.length === 0) return null;
 
@@ -40,6 +45,8 @@ export function Carousel() {
               src={slide.image_url}
               alt={`Slide ${index}`}
               className="w-full h-full object-cover"
+              loading="lazy"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
             <div className="absolute top-0 left-0 w-full h-6 bg-gradient-to-b from-black/80 to-transparent"></div>
             <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-black/100 to-transparent"></div>
