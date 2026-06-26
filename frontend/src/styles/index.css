@@ -23,5 +23,99 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #64748b;
   }
+
+  :root {
+    --background: #FFFFFF;
+    --foreground: #020817;
+    --card: #FFFFFF;
+    --card-foreground: #020817;
+    --popover: #FFFFFF;
+    --popover-foreground: #020817;
+    --primary: #0D3D6D;
+    --primary-foreground: #FFFFFF;
+    --secondary: #233876;
+    --secondary-foreground: #FFFFFF;
+    --muted: #F1F5F9;
+    --muted-foreground: #64748B;
+    --accent: #2CC99C;
+    --accent-foreground: #0F172A;
+    --destructive: #EF4444;
+    --destructive-foreground: #F8FAFC;
+    --border: #E2E8F0;
+    --input: #E2E8F0;
+    --ring: #0D3D6D;
+    --chart-1: #E76E50;
+    --chart-2: #2A9D90;
+    --chart-3: #274754;
+    --chart-4: #E8C468;
+    --chart-5: #F4A462;
+
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    --spacing-3xl: 4rem;
+
+    --radius-xs: 0.25rem;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --radius-full: 9999px;
+
+    --border-width: 1px;
+    --border-width-2: 2px;
+    --border-width-4: 4px;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+
+    --transition-fast: 150ms;
+    --transition-normal: 250ms;
+    --transition-slow: 350ms;
+
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-toast: 1080;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: #020817;
+    --foreground: #F8FAFC;
+    --card: #020817;
+    --card-foreground: #F8FAFC;
+    --popover: #020817;
+    --popover-foreground: #F8FAFC;
+    --primary: #1C80E3;
+    --primary-foreground: #FFFFFF;
+    --secondary: #3B5DC4;
+    --secondary-foreground: #FFFFFF;
+    --muted: #1E293B;
+    --muted-foreground: #94A3B8;
+    --accent: #2CC99C;
+    --accent-foreground: #FFFFFF;
+    --destructive: #7F1D1D;
+    --destructive-foreground: #F8FAFC;
+    --border: #1E293B;
+    --input: #1E293B;
+    --ring: #1C80E3;
+    --chart-1: #2662D9;
+    --chart-2: #2EB88A;
+    --chart-3: #E88C30;
+    --chart-4: #AF57DB;
+    --chart-5: #E23670;
+  }
 }
 
