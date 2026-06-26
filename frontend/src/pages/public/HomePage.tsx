@@ -25,13 +25,12 @@ function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-#ffffff">
+    <div className="min-h-screen bg-white">
       <Carousel />
       <Publicidad textoPromocional="¡Bienvenido a nuestra tienda online! Encuentra los mejores productos al mejor precio." />
       <Text
         title="OFERTAS PRINCIPALES DE LA SEMANA"
         subtitle="Aprovecha los descuentos y promociones especiales en nuestros productos destacados"
-        color="#0D3C6B"
       />
       <OfertaCarousel />
       <ImagenPrincipalConSecundarias />

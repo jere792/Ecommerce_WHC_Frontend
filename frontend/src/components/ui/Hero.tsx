@@ -21,7 +21,7 @@ export function Hero() {
     return (
       <div className="relative w-full max-full mx-auto overflow-hidden shadow-xl bg-blue-900 md:h-[140px] h-[100px] flex items-center justify-center">
         <span className="text-white/50 text-sm">Imagen no disponible</span>
-        <div className="absolute bottom-0 left-0 w-full h-4 bg-[#0d3c6b]" />
+        <div className="absolute bottom-0 left-0 w-full h-4 bg-primary" />
       </div>
     );
   }
@@ -39,7 +39,7 @@ export function Hero() {
           />
           <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/70 to-transparent" />
-          <div className="absolute bottom-0 left-0 w-full h-4 bg-[#0d3c6b]" />
+          <div className="absolute bottom-0 left-0 w-full h-4 bg-primary" />
         </>
       )}
     </div>

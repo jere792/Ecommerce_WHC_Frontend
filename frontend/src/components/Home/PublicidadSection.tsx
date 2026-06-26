@@ -6,7 +6,7 @@ import { Skeleton } from '../ui/Skeleton';
 export const ImagenPrincipalConSecundarias: React.FC = () => {
   const [banner, setBanner] = useState<BannerPublicidad | null>(null);
   const [loading, setLoading] = useState(true);
-  const blueLineColor = '#0d3c6b';
+  const blueLineColor = '#0D3C6B';
 
   useEffect(() => {
     setLoading(true);

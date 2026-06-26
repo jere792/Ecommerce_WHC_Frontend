@@ -57,7 +57,7 @@ export function Navbar() {
   }, []);
 
   const navbarClasses = `
-    w-full bg-[#f7fafd] border-t-[10px] border-[#0D3C6B]
+    w-full bg-primary-50 border-t-[10px] border-primary
     sticky top-0 z-50 transition-shadow duration-300 ease-in-out
     ${isScrolled ? "shadow-lg" : "shadow-md"}
   `;
@@ -74,7 +74,7 @@ export function Navbar() {
       <header className={navbarClasses}>
         <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
           {/* Logo box */}
-          <div className="flex items-center space-x-3 border-r-2 border-[#1e62a6] pr-12">
+          <div className="flex items-center space-x-3 border-r-2 border-primary-400 pr-12">
             <Link to="/">
               <img src="/logo.png" className="h-16 w-auto drop-shadow-lg" alt="Logo WHC" />
             </Link>
@@ -94,7 +94,7 @@ export function Navbar() {
                     placeholder:text-blaxk-800 font-medium transition
                   "
                   style={{
-                    boxShadow: "0 4px 24px 0 rgba(13,60,107,0.08)",
+                    boxShadow: "0 4px 24px 0 rgba(13,60,107,0.10)",
                     letterSpacing: "0.03em"
                   }}
                 />
@@ -115,7 +115,7 @@ export function Navbar() {
           <div className="flex items-center space-x-10">
             <LoginModal />
             <div onClick={openCart} className="relative cursor-pointer group">
-              <ShoppingCart className="h-7 w-7 text-blue-900 group-hover:text-blue-600 transition" />
+              <ShoppingCart className="h-7 w-7 text-primary group-hover:text-blue-600 transition" />
               {items.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-gradient-to-tr from-red-400 to-red-700 text-white rounded-full px-2 text-xs font-bold shadow-md border-2 border-white">
                   {items.length}
@@ -144,7 +144,7 @@ export function Navbar() {
 
         {/* MOBILE NAV */}
         {isOpen && (
-            <div className="md:hidden px-4 pb-4 space-y-4 bg-[#f7fafd]">
+            <div className="md:hidden px-4 pb-4 space-y-4 bg-primary-50">
             <form onSubmit={handleSearchSubmit}>
               <input
                 type="text"
@@ -164,26 +164,26 @@ export function Navbar() {
       </header>
 
       {/* BARRA DE LINKS SECUNDARIA DEBAJO DEL NAVBAR */}
-      <nav className="w-full bg-[#ededed] border-b border-blue-100 shadow-sm hidden md:flex">
+      <nav className="w-full bg-primary-50 border-b border-primary-100 shadow-sm hidden md:flex">
         <div className="max-w-7xl mx-auto flex flex-row w-full justify-center">
           <Link
             to="/"
             onClick={handleInicioClick}
-            className="flex-1 py-3.5 text-center font-bold text-blue-900 border-r border-blue-200 text-lg hover:bg-blue-200/40 hover:text-blue-700 transition-colors"
+            className="flex-1 py-3.5 text-center font-bold text-primary border-r border-primary-200 text-lg hover:bg-primary-100 hover:text-primary-600 transition-colors"
             style={{ minWidth: 180, letterSpacing: "0.01em" }}
           >
             Ofertas
           </Link>
           <Link
             to="/productos"
-            className="flex-1 py-3.5 text-center font-bold text-blue-900 border-r border-blue-200 text-lg hover:bg-blue-200/40 hover:text-blue-700 transition-colors"
+            className="flex-1 py-3.5 text-center font-bold text-primary border-r border-primary-200 text-lg hover:bg-primary-100 hover:text-primary-600 transition-colors"
             style={{ minWidth: 180, letterSpacing: "0.01em" }}
           >
             Catálogo
           </Link>
           <Link
             to="/contacto"
-            className="flex-1 py-3.5 text-center font-bold text-blue-900 text-lg hover:bg-blue-200/40 hover:text-blue-700 transition-colors"
+            className="flex-1 py-3.5 text-center font-bold text-primary text-lg hover:bg-primary-100 hover:text-primary-600 transition-colors"
             style={{ minWidth: 180, letterSpacing: "0.01em" }}
           >
             Contacto

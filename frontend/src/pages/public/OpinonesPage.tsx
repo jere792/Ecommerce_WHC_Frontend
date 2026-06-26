@@ -85,7 +85,7 @@ export default function OpinionesPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-center mb-8 text-[#0d3c6b]">
+      <h1 className="text-3xl font-bold text-center mb-8 text-primary">
         Opiniones de nuestros clientes
       </h1>
 
@@ -111,7 +111,7 @@ export default function OpinionesPage() {
         />
         <button
           type="submit"
-          className={`bg-[#0d3c6b] text-white px-6 py-2 rounded hover:bg-blue-800 transition ${enviando ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`bg-primary text-white px-6 py-2 rounded hover:bg-blue-800 transition ${enviando ? "opacity-50 cursor-not-allowed" : ""}`}
           disabled={enviando}
         >
           {enviando ? "Enviando..." : "Enviar"}
