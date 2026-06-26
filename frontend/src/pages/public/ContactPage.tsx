@@ -1,7 +1,7 @@
-import PageHeroBanner from '../components/ui/PageHero';
-import { ContactSection } from '../components/Contact/ContactSection';
-import { Publicidad } from '../components/ui/Publicidad';
-import Marcas from '../components/ui/Marcas';
+import PageHeroBanner from '../../components/ui/PageHero';
+import { ContactSection } from '../../components/Contact/ContactSection';
+import { Publicidad } from '../../components/ui/Publicidad';
+import Marcas from '../../components/ui/Marcas';
 
 const ContactPage = () => {
   return (

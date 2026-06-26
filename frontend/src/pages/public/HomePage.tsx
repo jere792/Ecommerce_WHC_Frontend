@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Carousel } from "../components/ui/Carousel";
-import { ImagenPrincipalConSecundarias } from '../components/Home/PublicidadSection';
-import { Publicidad } from '../components/ui/Publicidad';
-import ProductCarousel from "../components/Home/ProductCarousel";
-import OfertaCarousel from "../components/Home/OfertaCarousel";
-import NewProductsCarousel from "../components/Home/NewProductsCarousel";
-import Marcas from '../components/ui/Marcas';
-import Text from "../components/ui/text";
-import { supabase } from '../lib/supabaseClient';
-import type { CategoriaProducto } from '../lib/supabaseTypes';
+import { Carousel } from "../../components/ui/Carousel";
+import { ImagenPrincipalConSecundarias } from '../../components/Home/PublicidadSection';
+import { Publicidad } from '../../components/ui/Publicidad';
+import ProductCarousel from "../../components/Home/ProductCarousel";
+import OfertaCarousel from "../../components/Home/OfertaCarousel";
+import NewProductsCarousel from "../../components/Home/NewProductsCarousel";
+import Marcas from '../../components/ui/Marcas';
+import Text from "../../components/ui/text";
+import { supabase } from '../../lib/supabaseClient';
+import type { CategoriaProducto } from '../../lib/supabaseTypes';
 
 function HomePage() {
   const [homeCategories, setHomeCategories] = useState<CategoriaProducto[]>([]);

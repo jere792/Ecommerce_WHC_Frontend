@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
-import { Hero } from "../components/ui/Hero";
-import { Publicidad } from '../components/ui/Publicidad';
-import Marcas from '../components/ui/Marcas';
-import ProductDetail from '../components/ui/ProductDetail';
+import { Hero } from "../../components/ui/Hero";
+import { Publicidad } from '../../components/ui/Publicidad';
+import Marcas from '../../components/ui/Marcas';
+import ProductDetail from '../../components/ui/ProductDetail';
 
 export function DetalleProducto() {
   const { slug } = useParams();

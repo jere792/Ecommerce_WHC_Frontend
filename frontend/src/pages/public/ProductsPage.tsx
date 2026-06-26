@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from "react-router-dom";
-import PageHeroBanner from '../components/ui/PageHero';
-import { Publicidad } from '../components/ui/Publicidad';
-import Marcas from '../components/ui/Marcas';
-import ProductCard from '../components/ui/ProductCard';
-import { ProductCardSkeleton } from '../components/ui/Skeleton';
-import { supabase } from '../lib/supabaseClient';
-import type { Producto } from '../lib/supabaseTypes';
+import PageHeroBanner from '../../components/ui/PageHero';
+import { Publicidad } from '../../components/ui/Publicidad';
+import Marcas from '../../components/ui/Marcas';
+import ProductCard from '../../components/ui/ProductCard';
+import { ProductCardSkeleton } from '../../components/ui/Skeleton';
+import { supabase } from '../../lib/supabaseClient';
+import type { Producto } from '../../lib/supabaseTypes';
 
 interface ProductoAdapted {
   idProducto: number;

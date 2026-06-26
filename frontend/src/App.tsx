@@ -1,20 +1,20 @@
 import { Routes, Route } from "react-router-dom";
-import HomePage from './pages/HomePage';
-import OpinonesPage from './pages/OpinonesPage';
-import ProductsPage from './pages/ProductsPage';
-import ContactPage from './pages/ContactPage';
-import NotFoundPage from './pages/NotFoundPage';
-import CartPage from './pages/CartPage';
-import LibroReclamaciones from './pages/LibroReclamacionesPage';
-import { DetalleProducto } from "./pages/DetalleProductoPage";
-import InstalacionPage from './pages/InstalacionPage';
-import MantenimientoPage from './pages/MantemientoPage';
-import TerminosPage from './pages/TerminosPage';
-import PrivacidadPage from './pages/PrivacidadPage';
+import HomePage from './pages/public/HomePage';
+import OpinonesPage from './pages/public/OpinonesPage';
+import ProductsPage from './pages/public/ProductsPage';
+import ContactPage from './pages/public/ContactPage';
+import NotFoundPage from './pages/public/NotFoundPage';
+import CartPage from './pages/public/CartPage';
+import LibroReclamaciones from './pages/public/LibroReclamacionesPage';
+import { DetalleProducto } from "./pages/public/DetalleProductoPage";
+import InstalacionPage from './pages/public/InstalacionPage';
+import MantenimientoPage from './pages/public/MantemientoPage';
+import TerminosPage from './pages/public/TerminosPage';
+import PrivacidadPage from './pages/public/PrivacidadPage';
 
 import Layout from './layouts/Layout';
-import ResetPasswordPage from './pages/ResetPasswordPage';
-import MisPedidosPage from './pages/MisPedidosPage';
+import ResetPasswordPage from './pages/public/ResetPasswordPage';
+import MisPedidosPage from './pages/public/MisPedidosPage';
 
 import ScrollToTop from './components/ui/ScrollToTop';
 

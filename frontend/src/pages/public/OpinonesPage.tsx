@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UserCircle } from "lucide-react";
-import { supabase } from '../lib/supabaseClient'; 
+import { supabase } from '../../lib/supabaseClient'; 
 
 
 interface Opinion {
