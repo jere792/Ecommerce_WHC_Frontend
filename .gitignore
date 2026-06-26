@@ -1,2 +1,7 @@
 node_modules
 _media/
+.next/
+.open-next/
+.wrangler/
+*.tsbuildinfo
+.env
