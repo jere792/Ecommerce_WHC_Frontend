@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "../../lib/supabaseClient";
 import type { HeroSlide } from "../../lib/supabaseTypes";
@@ -8,6 +8,7 @@ export function Carousel() {
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [resetKey, setResetKey] = useState(0);
 
   useEffect(() => {
     supabase
@@ -21,13 +22,29 @@ export function Carousel() {
       });
   }, []);
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+  }, [slides.length]);
+
+  const prevSlide = useCallback(() => {
+    setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  }, [slides.length]);
+
+  const handleNext = () => {
+    nextSlide();
+    setResetKey((k) => k + 1);
   };
 
-  const prevSlide = () => {
-    setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  const handlePrev = () => {
+    prevSlide();
+    setResetKey((k) => k + 1);
   };
+
+  useEffect(() => {
+    if (slides.length === 0) return;
+    const interval = setInterval(nextSlide, 10000);
+    return () => clearInterval(interval);
+  }, [nextSlide, resetKey]);
 
   if (loading) return <CarouselSkeleton />;
 
@@ -61,14 +78,14 @@ export function Carousel() {
       </div>
 
       <button
-        onClick={prevSlide}
+        onClick={handlePrev}
         className="absolute top-1/2 left-4 -translate-y-1/2 bg-black/30 hover:bg-black text-gray-200 shadow"
       >
         <ChevronLeft className="w-8 h-10" />
       </button>
 
       <button
-        onClick={nextSlide}
+        onClick={handleNext}
         className="absolute top-1/2 right-4 -translate-y-1/2 bg-black/30 hover:bg-black text-gray-200 shadow"
       >
         <ChevronRight className="w-8 h-10" />

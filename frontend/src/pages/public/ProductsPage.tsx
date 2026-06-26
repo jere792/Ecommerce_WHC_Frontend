@@ -83,6 +83,17 @@ const ProductsPage: React.FC = () => {
     setPaginaActual(1);
   };
 
+  const limpiarFiltros = () => {
+    setFiltroMarcas([]);
+    setPrecioMax(precioMasAlto);
+    setPaginaActual(1);
+  };
+
+  const filtrosActivos = filtroMarcas.length > 0 || precioMax < precioMasAlto;
+
+  const rangoPrecio = precioMasAlto - precioMasBajo;
+  const porcentajePrecio = rangoPrecio > 0 ? ((precioMax - precioMasBajo) / rangoPrecio) * 100 : 0;
+
   const productosFiltrados = productos
     .filter(prod =>
       (filtroMarcas.length === 0 || filtroMarcas.includes(prod.marca)) &&
@@ -137,89 +148,138 @@ const ProductsPage: React.FC = () => {
       <PageHeroBanner pagina="productos" />
 
       <div className="block lg:hidden px-4 mb-4">
-        <div className="bg-white rounded-lg shadow p-4 mb-2 flex flex-col gap-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col gap-4">
           <div>
-            <span className="font-semibold">Marca</span>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {MARCAS.map(marca => (
-                <label key={marca} className="flex items-center space-x-1">
-                  <input
-                    type="checkbox"
-                    checked={filtroMarcas.includes(marca)}
-                    onChange={() => handleMarcaChange(marca)}
-                    className="accent-blue-600"
-                  />
-                  <span className="text-sm">{marca}</span>
-                </label>
-              ))}
+            <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Marca</span>
+            <div className="flex flex-wrap gap-2 mt-3">
+              {MARCAS.map(marca => {
+                const active = filtroMarcas.includes(marca);
+                return (
+                  <button
+                    key={marca}
+                    onClick={() => handleMarcaChange(marca)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                      active
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {marca}
+                  </button>
+                );
+              })}
             </div>
           </div>
-          <div>
-            <span className="font-semibold">Precio máximo</span>
-            <input
-              type="range"
-              min={precioMasBajo}
-              max={precioMasAlto}
-              value={precioMax}
-              onChange={e => setPrecioMax(Number(e.target.value))}
-              className="w-full accent-sky-500"
-              disabled={precioMasBajo === precioMasAlto}
-            />
-            <div className="flex justify-between text-xs mt-1">
-              <span>S/. {precioMasBajo}</span>
-              <span className="font-semibold text-sky-700">Hasta S/. {precioMax}</span>
-            </div>
-          </div>
-        </div>
-        <div className="text-sm font-medium text-gray-700 mb-2">{cantidadResultados} Resultados</div>
-      </div>
-
-      <div className="container mx-auto py-8 flex flex-col lg:flex-row gap-8">
-        <aside className="hidden lg:block w-1/4 flex-shrink-0">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2">Marca</h3>
-            {MARCAS.map(marca => (
-              <div key={marca}>
-                <input
-                  type="checkbox"
-                  id={marca.toLowerCase()}
-                  name="marca"
-                  value={marca}
-                  checked={filtroMarcas.includes(marca)}
-                  onChange={() => handleMarcaChange(marca)}
-                  className="accent-blue-600"
-                />
-                <label htmlFor={marca.toLowerCase()} className="ml-2">{marca}</label>
-              </div>
-            ))}
-          </div>
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-2">Precio</h3>
-            {hayProductos ? (
-              <>
+          <div className="border-t border-gray-100 pt-3">
+            <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Precio</span>
+            {hayProductos && precioMasBajo < precioMasAlto ? (
+              <div className="mt-3">
                 <input
                   type="range"
                   min={precioMasBajo}
                   max={precioMasAlto}
                   value={precioMax}
                   onChange={e => setPrecioMax(Number(e.target.value))}
-                  className="w-full accent-sky-500"
-                  disabled={precioMasBajo === precioMasAlto}
+                  className="w-full h-2 rounded-full appearance-none cursor-pointer
+                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
+                             [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:shadow
+                             [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full
+                             [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full"
+                  style={{
+                    background: `linear-gradient(to right, #2563eb ${porcentajePrecio}%, #e5e7eb ${porcentajePrecio}%)`,
+                  }}
                 />
-                <div className="flex justify-between text-sm mt-1">
-                  <span>S/. {precioMasBajo}</span>
-                  <span className="font-semibold text-sky-700">Hasta S/. {precioMax}</span>
+                <div className="flex justify-between text-xs mt-1">
+                  <span className="text-gray-400">S/. {precioMasBajo}</span>
+                  <span className="font-semibold text-blue-700">Hasta S/. {precioMax}</span>
                 </div>
-              </>
+              </div>
             ) : (
-              <div className="text-gray-400 text-sm">No hay productos para filtrar</div>
+              <div className="text-gray-400 text-xs mt-2">No hay productos para filtrar</div>
             )}
           </div>
-          <div className="text-sm font-medium text-gray-700 mb-2">{cantidadResultados} Resultados</div>
+          {filtrosActivos && (
+            <button onClick={limpiarFiltros} className="text-sm text-red-500 hover:text-red-700 font-medium self-start">
+              Limpiar filtros
+            </button>
+          )}
+        </div>
+        <div className="text-sm font-medium text-gray-500 mt-2">{cantidadResultados} Resultados</div>
+      </div>
+
+      <div className="container mx-auto py-8 flex flex-col lg:flex-row gap-8">
+        <aside className="hidden lg:block w-1/4 flex-shrink-0">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-24">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Filtros</h3>
+              {filtrosActivos && (
+                <button onClick={limpiarFiltros} className="text-xs text-red-500 hover:text-red-700 font-medium">
+                  Limpiar
+                </button>
+              )}
+            </div>
+            <div className="mb-5">
+              <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide block mb-3">Marca</span>
+              <div className="flex flex-col gap-1.5">
+                {MARCAS.map(marca => {
+                  const active = filtroMarcas.includes(marca);
+                  return (
+                    <button
+                      key={marca}
+                      onClick={() => handleMarcaChange(marca)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        active
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'text-gray-600 hover:bg-gray-50 border border-transparent hover:border-gray-200'
+                      }`}
+                    >
+                      <span className={`inline-block w-4 h-4 rounded mr-2 align-middle border-2 transition-all ${
+                        active ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
+                      }`}>
+                        {active && <svg className="w-3 h-3 text-white mx-auto mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                      </span>
+                      {marca}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="border-t border-gray-100 pt-4">
+              <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide block mb-3">Precio</span>
+              {hayProductos && precioMasBajo < precioMasAlto ? (
+                <div>
+                  <input
+                    type="range"
+                    min={precioMasBajo}
+                    max={precioMasAlto}
+                    value={precioMax}
+                    onChange={e => setPrecioMax(Number(e.target.value))}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer
+                               [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
+                               [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:shadow
+                               [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full
+                               [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full"
+                    style={{
+                      background: `linear-gradient(to right, #2563eb ${porcentajePrecio}%, #e5e7eb ${porcentajePrecio}%)`,
+                    }}
+                  />
+                  <div className="flex justify-between text-sm mt-1">
+                    <span className="text-gray-400">S/. {precioMasBajo}</span>
+                    <span className="font-semibold text-blue-700">Hasta S/. {precioMax}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-400 text-sm">No hay productos para filtrar</div>
+              )}
+            </div>
+            <div className="mt-4 pt-3 border-t border-gray-100">
+              <div className="text-sm font-medium text-gray-500">{cantidadResultados} Resultados</div>
+            </div>
+          </div>
         </aside>
 
         <main className="w-full lg:w-3/4">
-          <div className="text-sm font-medium text-gray-700 mb-2 hidden lg:block">{cantidadResultados} Resultados</div>
+          <div className="text-sm font-medium text-gray-500 mb-3 hidden lg:block">{cantidadResultados} Resultados</div>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading ? (
             Array.from({ length: 8 }).map((_, i) => (

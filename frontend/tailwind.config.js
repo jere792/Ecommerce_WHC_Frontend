@@ -6,8 +6,11 @@ export default {
       "./src/**/*.{js,ts,jsx,tsx}", // Asegura que Tailwind escanee tus archivos correctamente
     ],
   theme: {
-  	extend: {
-  		borderRadius: {
+    fontFamily: {
+      sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+    },
+   	extend: {
+   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'

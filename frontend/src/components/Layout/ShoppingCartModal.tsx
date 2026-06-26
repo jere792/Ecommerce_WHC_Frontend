@@ -1,7 +1,7 @@
 import React from 'react';
 import { useCart } from '../ui/CartContext';
 import { Link } from 'react-router-dom';
-import { XCircle, Trash2, PlusCircle, MinusCircle } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 
 interface ShoppingCartModalProps {
   onClose: () => void;
@@ -11,110 +11,124 @@ export const ShoppingCartModal: React.FC<ShoppingCartModalProps> = ({ onClose })
   const { items, removeItem, updateQuantity } = useCart();
   const calculateTotal = () => items.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
 
-  if (items.length === 0) {
-    return (
-      <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-end">
-        <div
-          className="bg-white w-[430px] p-6 rounded-2xl shadow-xl relative border border-blue-100"
-          style={{ background: "linear-gradient(135deg, #f8fbff 70%, #eaf3fb 100%)" }}
-        >
-          <button onClick={onClose} className="absolute top-5 right-5 text-gray-400 hover:text-blue-500">
-            <XCircle className="h-7 w-7" />
-          </button>
-          <h2 className="text-xl font-bold mb-6 text-blue-900">Carrito de compras</h2>
-          <p className="text-sm text-gray-600">Tu carrito está vacío.</p>
-          <Link
-            to="/cart"
-            onClick={() => {
-              onClose();
-              window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-            }}
-            className="inline-block mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded text-sm"
-          >
-            Ver carrito
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-end">
+    <div className="fixed inset-0 bg-black/50 z-50 flex justify-end">
       <div
-        className="w-[480px] max-w-full p-7 rounded-2xl shadow-xl relative border border-blue-100 flex flex-col"
-        style={{
-          background: "linear-gradient(135deg, #f8fbff 70%, #eaf3fb 100%)",
-          margin: "24px 0"
-        }}
+        className="w-full max-w-md bg-white shadow-2xl flex flex-col"
+        style={{ margin: 0 }}
       >
-        <button onClick={onClose} className="absolute top-5 right-5 text-gray-400 hover:text-blue-500">
-          <XCircle className="h-7 w-7" />
-        </button>
-        <h2 className="text-xl font-bold mb-7 text-blue-900">Carrito de compras</h2>
-        <ul className="space-y-8 mb-7 max-h-[430px] overflow-y-auto pr-3">
-          {items.map(item => (
-            <li
-              key={item.id}
-              className="flex items-center gap-6 pb-2 relative group"
-            >
-              <div className="flex-shrink-0 w-20 h-20 bg-white border border-blue-100 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-contain"
-                    onError={e => { (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/80x80?text=Sin+imagen"; }}
-                  />
-                ) : (
-                  <span className="text-xs text-gray-400">Sin imagen</span>
-                )}
-              </div>
-              <div className="flex-1 min-w-0 pr-2">
-                <h6 className="text-[16px] font-semibold text-blue-900 truncate max-w-[240px]">{item.name}</h6>
-                <p className="text-xs text-gray-500 mb-1">S/ {item.price}</p>
-                <div className="flex items-center space-x-2 mt-1">
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    className="text-gray-400 hover:text-blue-500 focus:outline-none"
-                    disabled={item.quantity <= 1}
-                  >
-                    <MinusCircle className="h-5 w-5" />
-                  </button>
-                  <span className="text-sm">Cant: {item.quantity}</span>
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="text-gray-400 hover:text-blue-500 focus:outline-none"
-                  >
-                    <PlusCircle className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => removeItem(item.id)}
-                className="text-red-500 hover:text-red-700 focus:outline-none ml-4 flex-shrink-0"
-                title="Eliminar"
-              >
-                <Trash2 className="h-7 w-7" />
-              </button>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-7 pt-4 border-t border-blue-100">
-          <p className="font-semibold text-base text-blue-900 flex justify-between mb-3">
-            <span>Subtotal:</span>
-            <span>S/ {calculateTotal()}</span>
-          </p>
-          <Link
-            to="/cart"
-            onClick={() => {
-              onClose();
-              window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-            }}
-            className="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-3 rounded-xl text-base w-full text-center shadow transition"
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 p-2 rounded-lg">
+              <ShoppingBag className="w-5 h-5 text-blue-700" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-800">Carrito</h2>
+              <p className="text-xs text-gray-400">
+                {items.length} {items.length === 1 ? 'producto' : 'productos'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 p-1.5 hover:bg-gray-100 rounded-lg transition"
           >
-            Ir a mi carrito
-          </Link>
+            <X className="h-5 w-5" />
+          </button>
         </div>
+
+        {items.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center px-6">
+            <ShoppingBag className="w-16 h-16 text-gray-200 mb-4" />
+            <p className="text-gray-500 font-medium mb-1">Tu carrito está vacío</p>
+            <p className="text-xs text-gray-400 mb-6">Agrega productos para continuar</p>
+            <button
+              onClick={onClose}
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition text-sm"
+            >
+              Seguir comprando
+            </button>
+          </div>
+        ) : (
+          <>
+            <ul className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+              {items.map(item => (
+                <li
+                  key={item.id}
+                  className="bg-gray-50 rounded-xl p-3 flex gap-3 group"
+                >
+                  <div className="w-20 h-20 bg-white rounded-lg border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-contain"
+                        onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    ) : (
+                      <span className="text-xs text-gray-300">Sin img</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <h6 className="text-sm font-semibold text-gray-800 truncate">{item.name}</h6>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 flex-shrink-0"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <p className="text-sm font-bold text-blue-700 mt-1">
+                      S/ {Number(item.price).toFixed(2)}
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center border border-gray-200 rounded-lg bg-white">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="px-2 py-1 text-gray-500 hover:bg-gray-50 transition rounded-l-lg disabled:opacity-30"
+                          disabled={item.quantity <= 1}
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="px-3 py-1 text-xs font-medium text-gray-700 border-x border-gray-200 min-w-[32px] text-center">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="px-2 py-1 text-gray-500 hover:bg-gray-50 transition rounded-r-lg"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <span className="text-xs font-medium text-gray-500">
+                        S/ {(item.price * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="border-t border-gray-100 px-6 py-5 space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">Subtotal</span>
+                <span className="text-lg font-bold text-gray-800">S/ {calculateTotal()}</span>
+              </div>
+              <Link
+                to="/cart"
+                onClick={() => {
+                  onClose();
+                  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+                }}
+                className="block w-full text-center bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition"
+              >
+                Ir a mi carrito
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

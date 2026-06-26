@@ -57,9 +57,9 @@ export function Navbar() {
   }, []);
 
   const navbarClasses = `
-    w-full bg-[#f7fafd] shadow-md border-t-[10px] border-[#0D3C6B]
-    transition-all duration-300 ease-in-out
-    ${isScrolled ? "fixed top-0 left-0 z-50" : "relative"}
+    w-full bg-[#f7fafd] border-t-[10px] border-[#0D3C6B]
+    sticky top-0 z-50 transition-shadow duration-300 ease-in-out
+    ${isScrolled ? "shadow-lg" : "shadow-md"}
   `;
 
   const openCart = () => setIsCartOpen(true);
