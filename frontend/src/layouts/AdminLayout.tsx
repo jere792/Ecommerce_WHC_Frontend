@@ -26,6 +26,7 @@ export default function AdminLayout() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
     localStorage.setItem('admin-dark', String(dark));
+    return () => document.documentElement.classList.remove('dark');
   }, [dark]);
 
   if (loading) {
@@ -37,7 +38,7 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="flex min-h-screen bg-muted dark:bg-background">
+    <div className="flex min-h-screen bg-muted dark:bg-background transition-colors duration-300">
       <aside className="w-64 bg-background shadow-md flex flex-col border-r border-border">
         <div className="p-4 border-b border-border flex items-center justify-between">
           <div>
@@ -45,7 +46,11 @@ export default function AdminLayout() {
             <p className="text-sm text-muted-foreground">{user.nombre_persona}</p>
           </div>
           <button
-            onClick={() => setDark(d => !d)}
+            onClick={() => {
+              document.documentElement.classList.add('theme-transition');
+              setDark(d => !d);
+              setTimeout(() => document.documentElement.classList.remove('theme-transition'), 300);
+            }}
             className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition"
             title={dark ? 'Modo claro' : 'Modo oscuro'}
           >
