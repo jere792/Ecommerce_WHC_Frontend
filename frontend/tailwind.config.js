@@ -6,8 +6,11 @@ export default {
       "./src/**/*.{js,ts,jsx,tsx}", // Asegura que Tailwind escanee tus archivos correctamente
     ],
   theme: {
-  	extend: {
-  		borderRadius: {
+    fontFamily: {
+      sans: ['Montserrat', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+    },
+   	extend: {
+   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
@@ -23,14 +26,34 @@ export default {
    				DEFAULT: 'var(--popover)',
    				foreground: 'var(--popover-foreground)'
    			},
-   			primary: {
-   				DEFAULT: 'var(--primary)',
-   				foreground: 'var(--primary-foreground)'
-   			},
-   			secondary: {
-   				DEFAULT: 'var(--secondary)',
-   				foreground: 'var(--secondary-foreground)'
-   			},
+    			primary: {
+    				DEFAULT: 'var(--primary)',
+    				foreground: 'var(--primary-foreground)',
+    				'50': 'var(--primary-50)',
+    				'100': 'var(--primary-100)',
+    				'200': 'var(--primary-200)',
+    				'300': 'var(--primary-300)',
+    				'400': 'var(--primary-400)',
+    				'500': 'var(--primary-500)',
+    				'600': 'var(--primary-600)',
+    				'700': 'var(--primary-700)',
+    				'800': 'var(--primary-800)',
+    				'900': 'var(--primary-900)',
+    			},
+    			secondary: {
+    				DEFAULT: 'var(--secondary)',
+    				foreground: 'var(--secondary-foreground)',
+    				'50': 'var(--secondary-50)',
+    				'100': 'var(--secondary-100)',
+    				'200': 'var(--secondary-200)',
+    				'300': 'var(--secondary-300)',
+    				'400': 'var(--secondary-400)',
+    				'500': 'var(--secondary-500)',
+    				'600': 'var(--secondary-600)',
+    				'700': 'var(--secondary-700)',
+    				'800': 'var(--secondary-800)',
+    				'900': 'var(--secondary-900)',
+    			},
    			muted: {
    				DEFAULT: 'var(--muted)',
    				foreground: 'var(--muted-foreground)'

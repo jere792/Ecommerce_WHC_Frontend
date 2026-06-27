@@ -95,7 +95,7 @@ export default function OfertaCarousel() {
           <div
             ref={carouselRef}
             className={`
-              flex gap-4 overflow-x-auto pb-2 px-1 scroll-smooth snap-x snap-mandatory
+              flex gap-4 overflow-x-auto py-4 px-1 scroll-smooth snap-x snap-mandatory
               hide-scrollbar
             `}
             style={{ WebkitOverflowScrolling: "touch" }}

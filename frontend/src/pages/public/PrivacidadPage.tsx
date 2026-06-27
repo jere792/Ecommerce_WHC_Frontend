@@ -1,4 +1,4 @@
-import PageHeroBanner from '../components/ui/PageHero';
+import PageHeroBanner from '../../components/ui/PageHero';
 
 export default function PrivacidadPage() {
   return (

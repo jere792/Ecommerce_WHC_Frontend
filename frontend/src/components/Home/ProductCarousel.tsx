@@ -65,7 +65,7 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
         )}
 
         <div className="relative">
-          <div className="flex gap-6 overflow-x-auto pb-2 px-2 scroll-smooth snap-x snap-mandatory"
+          <div className="flex gap-6 overflow-x-auto py-4 px-2 scroll-smooth snap-x snap-mandatory"
                style={{ WebkitOverflowScrolling: "touch" }}>
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (

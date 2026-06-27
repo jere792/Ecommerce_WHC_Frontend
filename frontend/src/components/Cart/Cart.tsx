@@ -2,6 +2,7 @@ import { useCart } from "../ui/CartContext";
 import { useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useAuthContext } from "../../hooks/AuthContext";
+import { ShoppingCart, Trash2, Minus, Plus, Check } from "lucide-react";
 
 const WHATSAPP_NUMBER = "51949790715";
 
@@ -10,17 +11,6 @@ export function Cart() {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [extraServicio, setExtraServicio] = useState<number>(1);
-
-  const [showDescriptions, setShowDescriptions] = useState<{
-    [id: string]: boolean;
-  }>({});
-
-  const handleToggleDescription = (id: string) => {
-    setShowDescriptions((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
 
   const handleQuantityChange = (id: string, quantity: number) => {
     updateQuantity(id, quantity);
@@ -118,151 +108,167 @@ export function Cart() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-1 bg-white">
-      <h2 className="text-2xl font-bold mb-6">Carro de compras</h2>
-      <div className="flex flex-col md:flex-row gap-6">
-        <div
-          className="flex-1 bg-white border rounded-x1 p-8 space-y-7"
-          style={{ maxHeight: 520, overflowY: "auto" }}
-        >
-          {items.length === 0 && (
-            <div className="text-gray-500">Tu carrito está vacío.</div>
-          )}
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center gap-10 border-b pb-6"
-            >
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-24 h-24 bg-gray-200 rounded-md object-cover"
-              />
-              <div className="flex-1">
-                <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-500">{item.brand}</p>
-                <button
-                  className="text-xs text-blue-700 underline mb-1"
-                  onClick={() => handleToggleDescription(item.id)}
-                  type="button"
-                  style={{
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    cursor: "pointer",
-                  }}
-                >
-                  {showDescriptions[item.id]
-                    ? "Ocultar descripción"
-                    : "Ver descripción"}
-                </button>
-                {showDescriptions[item.id] && (
-                  <p className="text-sm text-gray-600">{item.description}</p>
-                )}
-                <div className="mt-2 flex items-center gap-2 text-sm">
-                  <span className="font-semibold text-gray-800">
-                    S/{item.price.toFixed(2)}
-                  </span>
-                  {item.originalPrice && (
-                    <span className="line-through text-gray-400 text-xs">
-                      S/{item.originalPrice.toFixed(2)}
-                    </span>
-                  )}
-                </div>
-                <label className="text-sm mt-2 block">Cant</label>
-                <select
-                  className="border rounded px-2 py-1 mt-1"
-                  value={item.quantity}
-                  onChange={(e) =>
-                    handleQuantityChange(item.id, Number(e.target.value))
-                  }
-                >
-                  {[...Array(Math.min(item.stock ?? 10, 20)).keys()].map((n) => (
-                    <option key={n + 1} value={n + 1}>
-                      {n + 1}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button
-                className="ml-4 text-red-500 hover:text-red-700 font-bold text-xl px-2"
-                onClick={() => removeItem(item.id)}
-                title="Eliminar producto"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="bg-blue-100 p-2.5 rounded-xl">
+          <ShoppingCart className="w-6 h-6 text-blue-700" />
         </div>
-
-        <div className="w-full md:w-80 bg-gray-100 rounded-xl p-4 h-fit">
-          <div className="mb-2 flex justify-between">
-            <span>
-              Artículos ({items.reduce((acc, item) => acc + item.quantity, 0)})
-            </span>
-            <span className="font-semibold">
-              S/ {totalProductos.toFixed(2)}
-            </span>
-          </div>
-          <div className="mb-2 flex justify-between">
-            <span>Envío a Lima</span>
-            <span className="text-green-600 font-semibold">Gratis</span>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex flex-col mb-4">
-              <label
-                htmlFor="extraServicio"
-                className="font-semibold mb-1 text-gray-700"
-              >
-                Servicio extra:
-              </label>
-              <select
-                id="extraServicio"
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white transition"
-                value={extraServicio}
-                onChange={(e) => setExtraServicio(Number(e.target.value))}
-              >
-                {extraServiciosCatalogo.map((serv) => (
-                  <option key={serv.id} value={serv.id}>
-                    {serv.nombre}{" "}
-                    {serv.costo > 0 ? `(S/ ${serv.costo.toFixed(2)})` : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <hr className="my-2 border-gray-300" />
-          <div className="flex justify-between font-semibold text-lg mb-4">
-            <span>Total</span>
-            <span>S/ {totalGeneral.toFixed(2)}</span>
-          </div>
-
-          <button
-            className="w-full py-3 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg transition transform duration-300 hover:scale-[1.02] hover:shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading || items.length === 0}
-            onClick={handleCheckout}
-          >
-            {loading ? (
-              <span>Procesando...</span>
-            ) : (
-              <>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Confirmar Compra por WhatsApp
-              </>
-            )}
-          </button>
-
-          <div className="flex justify-center items-center gap-4 mt-4 opacity-70 grayscale hover:grayscale-0 transition-all duration-300">
-            <div className="text-xs text-gray-500 text-center">
-              Te contactaremos para coordinar el pago y envío
-            </div>
-          </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Carrito de compras</h2>
+          <p className="text-sm text-gray-500">
+            {items.length} {items.length === 1 ? "producto" : "productos"} en tu carrito
+          </p>
         </div>
       </div>
+
+      {items.length === 0 ? (
+        <div className="text-center py-20">
+          <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500 text-lg">Tu carrito está vacío</p>
+        </div>
+      ) : (
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex-1 space-y-4">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white border border-gray-100 rounded-xl p-4 flex gap-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-24 h-24 bg-gray-100 rounded-lg object-cover flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-gray-800 truncate">{item.name}</h3>
+                      {item.brand && (
+                        <p className="text-xs text-gray-400">{item.brand}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0 p-1"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="font-bold text-blue-700 text-lg">
+                      S/ {item.price.toFixed(2)}
+                    </span>
+                    {item.originalPrice && (
+                      <span className="line-through text-gray-400 text-sm">
+                        S/ {item.originalPrice.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-3 flex items-center gap-3">
+                    <span className="text-xs text-gray-500">Cant:</span>
+                    <div className="flex items-center border border-gray-200 rounded-lg">
+                      <button
+                        onClick={() => handleQuantityChange(item.id, Math.max(1, item.quantity - 1))}
+                        className="px-2.5 py-1.5 text-gray-600 hover:bg-gray-100 transition rounded-l-lg"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="px-4 py-1.5 text-sm font-medium text-gray-800 border-x border-gray-200 min-w-[40px] text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                        className="px-2.5 py-1.5 text-gray-600 hover:bg-gray-100 transition rounded-r-lg"
+                        disabled={item.quantity >= (item.stock ?? 99)}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <span className="text-sm text-gray-500 ml-auto font-medium">
+                      S/ {(item.price * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="w-full lg:w-80">
+            <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm sticky top-28">
+              <h3 className="font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">
+                Resumen de compra
+              </h3>
+
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">
+                    Productos ({items.reduce((acc, item) => acc + item.quantity, 0)} und.)
+                  </span>
+                  <span className="font-medium text-gray-800">S/ {totalProductos.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Envío a Lima</span>
+                  <span className="text-green-600 font-medium">Gratis</span>
+                </div>
+
+                <div className="pt-3 border-t border-gray-100">
+                  <label className="block text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">
+                    Servicio extra
+                  </label>
+                  <select
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition"
+                    value={extraServicio}
+                    onChange={(e) => setExtraServicio(Number(e.target.value))}
+                  >
+                    {extraServiciosCatalogo.map((serv) => (
+                      <option key={serv.id} value={serv.id}>
+                        {serv.nombre}
+                        {serv.costo > 0 ? ` (+S/ ${serv.costo.toFixed(2)})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {costoExtra > 0 && (
+                  <div className="flex justify-between text-sm pt-2">
+                    <span className="text-gray-500">Costo extra</span>
+                    <span className="font-medium">S/ {costoExtra.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-gray-800">Total</span>
+                  <span className="text-xl font-bold text-blue-700">S/ {totalGeneral.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <button
+                className="w-full mt-5 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading || items.length === 0}
+                onClick={handleCheckout}
+              >
+                {loading ? (
+                  <span>Procesando...</span>
+                ) : (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Confirmar Compra
+                  </>
+                )}
+              </button>
+
+              <p className="text-xs text-gray-400 text-center mt-3">
+                Te contactaremos para coordinar el pago y envío
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

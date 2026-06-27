@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
-import { useAuthContext } from "../hooks/AuthContext";
-import type { Pedido } from "../lib/supabaseTypes";
+import { supabase } from "../../lib/supabaseClient";
+import { useAuthContext } from "../../hooks/AuthContext";
+import type { Pedido } from "../../lib/supabaseTypes";
 
 type PedidoDisplay = {
   idPedido: number;
