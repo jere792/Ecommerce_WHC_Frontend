@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../hooks/AuthContext';
-import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, SlidersHorizontal, LogOut, Moon, Sun } from 'lucide-react';
+import { useStore } from '../contexts/StoreContext';
+import { useToast } from '../components/ui/Toast';
+import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, SlidersHorizontal, LogOut, Moon, Sun, Store } from 'lucide-react';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -20,6 +22,8 @@ const navItems = [
 
 export default function AdminLayout() {
   const { user, isAdmin, loading, logout } = useAuthContext();
+  const { isOpenNow, toggleStore, loading: storeLoading, settings } = useStore();
+  const { showToast } = useToast();
   const location = useLocation();
   const [dark, setDark] = useState(() => localStorage.getItem('admin-dark') === 'true');
 
@@ -73,6 +77,38 @@ export default function AdminLayout() {
             );
           })}
         </nav>
+        <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800">
+            <div className="flex items-center gap-2">
+              <Store className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tienda</span>
+            </div>
+            <button
+              onClick={async () => {
+                const result = await toggleStore()
+                if (result.success) {
+                  showToast(`Tienda ${settings?.is_open ? 'abierta' : 'cerrada'}`, 'success')
+                } else {
+                  showToast(result.error || 'Error al cambiar estado', 'error')
+                }
+              }}
+              disabled={storeLoading}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                settings?.is_open ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                settings?.is_open ? 'translate-x-6' : 'translate-x-1'
+              }`} />
+            </button>
+          </div>
+          <p className={`text-xs mt-1 px-3 ${settings?.is_open ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            {settings?.is_open ? 'Abierto' : 'Cerrado'}
+          </p>
+          <p className={`text-[10px] mt-0.5 px-3 ${isOpenNow ? 'text-green-500' : 'text-gray-400'}`}>
+            {isOpenNow ? 'En horario de atencion' : 'Fuera de horario'}
+          </p>
+        </div>
         <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-1">
           <Link
             to="/"

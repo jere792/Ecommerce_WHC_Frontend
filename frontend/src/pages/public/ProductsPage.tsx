@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation } from "react-router-dom";
 import PageHeroBanner from '../../components/ui/PageHero';
 import { Publicidad } from '../../components/ui/Publicidad';
@@ -6,7 +6,8 @@ import Marcas from '../../components/ui/Marcas';
 import ProductCard from '../../components/ui/ProductCard';
 import { ProductCardSkeleton } from '../../components/ui/Skeleton';
 import { supabase } from '../../lib/supabaseClient';
-import type { Producto } from '../../lib/supabaseTypes';
+import type { Producto, CategoriaProducto } from '../../lib/supabaseTypes';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 
 interface ProductoAdapted {
   idProducto: number;
@@ -17,6 +18,7 @@ interface ProductoAdapted {
   slug: string;
   marca: string;
   stockProducto: number;
+  pkCategoria: number | null;
 }
 
 const MARCAS = [
@@ -27,24 +29,49 @@ const PAGE_SIZE = 8;
 
 const ProductsPage: React.FC = () => {
   const [productos, setProductos] = useState<ProductoAdapted[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaProducto[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroMarcas, setFiltroMarcas] = useState<string[]>([]);
   const [precioMax, setPrecioMax] = useState<number>(0);
+  const [filtroCategoria, setFiltroCategoria] = useState<number | null>(null);
 
   const [paginaActual, setPaginaActual] = useState(1);
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const searchQuery = params.get("search")?.toLowerCase() || "";
+  const categoriaParam = params.get("categoria");
+
+  const treeCategorias = useMemo(() => {
+    const map = new Map<number, CategoriaProducto>()
+    const roots: CategoriaProducto[] = []
+    categorias.forEach(c => map.set(c.id_categoria_producto, { ...c, subcategorias: [] }))
+    categorias.forEach(c => {
+      const node = map.get(c.id_categoria_producto)!
+      if (c.pk_categoria_padre && map.has(c.pk_categoria_padre)) {
+        map.get(c.pk_categoria_padre)!.subcategorias!.push(node)
+      } else {
+        roots.push(node)
+      }
+    })
+    return roots
+  }, [categorias])
+
+  useEffect(() => {
+    if (categoriaParam) {
+      setFiltroCategoria(Number(categoriaParam))
+    }
+  }, [categoriaParam])
 
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await supabase
-          .from('producto')
-          .select('*, marca:pk_marca_producto(*)');
-        if (data) {
-          const adaptados: ProductoAdapted[] = (data as unknown as (Producto & { marca?: { nombre_marca_producto: string } })[]).map((p) => ({
+        const [prodRes, catRes] = await Promise.all([
+          supabase.from('producto').select('*, marca:pk_marca_producto(*)'),
+          supabase.from('categoria_p').select('*').order('id_categoria_producto')
+        ])
+        if (prodRes.data) {
+          const adaptados: ProductoAdapted[] = (prodRes.data as unknown as (Producto & { marca?: { nombre_marca_producto: string } })[]).map((p) => ({
             idProducto: p.id_producto,
             nombreProducto: p.nombre_producto,
             precio: Number(p.precio_producto),
@@ -53,9 +80,11 @@ const ProductsPage: React.FC = () => {
             slug: p.slug,
             marca: p.marca?.nombre_marca_producto || '',
             stockProducto: p.stock_producto,
+            pkCategoria: p.pk_categoria_producto,
           }));
           setProductos(adaptados);
         }
+        if (catRes.data) setCategorias(catRes.data as CategoriaProducto[]);
         setLoading(false);
       } catch {
         setLoading(false);
@@ -63,16 +92,17 @@ const ProductsPage: React.FC = () => {
     })();
   }, []);
 
+  const PRECIO_DEFAULT_MIN = 0;
+  const PRECIO_DEFAULT_MAX = 1000;
+
   const hayProductos = productos.length > 0;
   const precios = productos.map(p => p.precio);
-  const precioMasBajo = hayProductos ? Math.min(...precios) : 0;
-  const precioMasAlto = hayProductos ? Math.max(...precios) : 0;
+  const precioMasBajo = hayProductos ? Math.min(...precios) : PRECIO_DEFAULT_MIN;
+  const precioMasAlto = hayProductos ? Math.max(...precios) : PRECIO_DEFAULT_MAX;
 
   useEffect(() => {
-    if (hayProductos) {
-      setPrecioMax(precioMasAlto);
-    }
-  }, [precioMasAlto, hayProductos]);
+    setPrecioMax(precioMasAlto);
+  }, [precioMasAlto]);
 
   const handleMarcaChange = (marca: string) => {
     setFiltroMarcas(prev =>
@@ -83,23 +113,44 @@ const ProductsPage: React.FC = () => {
     setPaginaActual(1);
   };
 
-  const limpiarFiltros = () => {
-    setFiltroMarcas([]);
-    setPrecioMax(precioMasAlto);
+  const handleCategoriaChange = (catId: number | null) => {
+    setFiltroCategoria(catId);
     setPaginaActual(1);
   };
 
-  const filtrosActivos = filtroMarcas.length > 0 || precioMax < precioMasAlto;
+  const getAllSubcategoryIds = (catId: number): number[] => {
+    const ids = [catId]
+    const children = categorias.filter(c => c.pk_categoria_padre === catId)
+    children.forEach(child => ids.push(...getAllSubcategoryIds(child.id_categoria_producto)))
+    return ids
+  };
+
+  const limpiarFiltros = () => {
+    setFiltroMarcas([]);
+    setPrecioMax(precioMasAlto);
+    setFiltroCategoria(null);
+    setPaginaActual(1);
+  };
+
+  const filtrosActivos = filtroMarcas.length > 0 || precioMax < precioMasAlto || filtroCategoria !== null;
 
   const rangoPrecio = precioMasAlto - precioMasBajo;
   const porcentajePrecio = rangoPrecio > 0 ? ((precioMax - precioMasBajo) / rangoPrecio) * 100 : 0;
 
+  const categoryFilterIds = useMemo(() => {
+    if (!filtroCategoria) return null
+    return getAllSubcategoryIds(filtroCategoria)
+  }, [filtroCategoria, categorias])
+
   const productosFiltrados = productos
-    .filter(prod =>
-      (filtroMarcas.length === 0 || filtroMarcas.includes(prod.marca)) &&
-      prod.precio <= precioMax &&
-      prod.nombreProducto.toLowerCase().includes(searchQuery)
-    )
+    .filter(prod => {
+      if (filtroMarcas.length > 0 && !filtroMarcas.includes(prod.marca)) return false
+      if (prod.precio > precioMax) return false
+      if (!prod.nombreProducto.toLowerCase().includes(searchQuery)) return false
+      if (categoryFilterIds && prod.pkCategoria && !categoryFilterIds.includes(prod.pkCategoria)) return false
+      if (categoryFilterIds && !prod.pkCategoria) return false
+      return true
+    })
     .sort((a, b) => a.precio - b.precio);
 
   const cantidadResultados = productosFiltrados.length;
@@ -150,6 +201,30 @@ const ProductsPage: React.FC = () => {
       <div className="block lg:hidden px-4 mb-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col gap-4">
           <div>
+            <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Categoría</span>
+            <div className="flex flex-wrap gap-2 mt-3">
+              <button
+                onClick={() => handleCategoriaChange(null)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  !filtroCategoria ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                Todas
+              </button>
+              {treeCategorias.map(cat => (
+                <button
+                  key={cat.id_categoria_producto}
+                  onClick={() => handleCategoriaChange(cat.id_categoria_producto)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                    filtroCategoria === cat.id_categoria_producto ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  {cat.nombre_categoria_producto}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
             <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Marca</span>
             <div className="flex flex-wrap gap-2 mt-3">
               {MARCAS.map(marca => {
@@ -170,9 +245,8 @@ const ProductsPage: React.FC = () => {
               })}
             </div>
           </div>
-          <div className="border-t border-gray-100 pt-3">
-            <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Precio</span>
-            {hayProductos && precioMasBajo < precioMasAlto ? (
+            <div className="border-t border-gray-100 pt-3">
+              <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Precio</span>
               <div className="mt-3">
                 <input
                   type="range"
@@ -194,10 +268,7 @@ const ProductsPage: React.FC = () => {
                   <span className="font-semibold text-blue-700">Hasta S/. {precioMax}</span>
                 </div>
               </div>
-            ) : (
-              <div className="text-gray-400 text-xs mt-2">No hay productos para filtrar</div>
-            )}
-          </div>
+            </div>
           {filtrosActivos && (
             <button onClick={limpiarFiltros} className="text-sm text-red-500 hover:text-red-700 font-medium self-start">
               Limpiar filtros
@@ -219,6 +290,29 @@ const ProductsPage: React.FC = () => {
               )}
             </div>
             <div className="mb-5">
+              <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide block mb-3">Categoría</span>
+              <div className="flex flex-col gap-0.5">
+                <button
+                  onClick={() => handleCategoriaChange(null)}
+                  className={`w-full text-left px-3 py-1.5 rounded-lg text-sm transition-all duration-200 ${
+                    !filtroCategoria ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Todas
+                </button>
+                {treeCategorias.map(cat => (
+                  <CategoryFilterItem
+                    key={cat.id_categoria_producto}
+                    cat={cat}
+                    categorias={categorias}
+                    selected={filtroCategoria}
+                    onSelect={handleCategoriaChange}
+                    depth={0}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-gray-100 pt-4 mb-5">
               <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide block mb-3">Marca</span>
               <div className="flex flex-col gap-1.5">
                 {MARCAS.map(marca => {
@@ -311,5 +405,48 @@ const ProductsPage: React.FC = () => {
     </div>
   );
 };
+
+function CategoryFilterItem({ cat, categorias, selected, onSelect, depth }: {
+  cat: CategoriaProducto;
+  categorias: CategoriaProducto[];
+  selected: number | null;
+  onSelect: (id: number | null) => void;
+  depth: number;
+}) {
+  const children = categorias.filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <div>
+      <button
+        onClick={() => onSelect(cat.id_categoria_producto)}
+        className={`w-full text-left px-3 py-1.5 rounded-lg text-sm transition-all duration-200 flex items-center gap-1 ${
+          selected === cat.id_categoria_producto
+            ? 'bg-blue-50 text-blue-700 font-medium'
+            : 'text-gray-600 hover:bg-gray-50'
+        }`}
+        style={{ paddingLeft: `${12 + depth * 16}px` }}
+      >
+        {children.length > 0 && (
+          <span onClick={e => { e.stopPropagation(); setExpanded(!expanded) }} className="p-0.5 hover:bg-gray-200 rounded">
+            {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+          </span>
+        )}
+        {children.length === 0 && <span className="w-5" />}
+        {cat.nombre_categoria_producto}
+      </button>
+      {expanded && children.map(child => (
+        <CategoryFilterItem
+          key={child.id_categoria_producto}
+          cat={child}
+          categorias={categorias}
+          selected={selected}
+          onSelect={onSelect}
+          depth={depth + 1}
+        />
+      ))}
+    </div>
+  )
+}
 
 export default ProductsPage;

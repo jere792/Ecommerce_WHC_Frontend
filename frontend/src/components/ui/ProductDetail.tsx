@@ -309,11 +309,6 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
             Agregar al carrito
           </button>
 
-          <button className="w-full py-2.5 px-6 border-2 border-gray-200 hover:border-blue-300 text-gray-600 hover:text-blue-700 font-medium rounded-xl transition-all flex items-center justify-center gap-2 mb-6">
-            <Heart className="w-5 h-5" />
-            Agregar a favoritos
-          </button>
-
           <div className="bg-gray-50 rounded-xl p-4 space-y-3">
             <div className="flex items-center gap-3 text-sm text-gray-600">
               <Truck className="w-5 h-5 text-blue-600 flex-shrink-0" />

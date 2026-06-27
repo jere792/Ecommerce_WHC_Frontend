@@ -26,6 +26,8 @@ export default function AdminProductForm() {
   const [stock, setStock] = useState('');
   const [slugField, setSlugField] = useState('');
   const [pkCategoria, setPkCategoria] = useState<number>(0);
+  const [selectedMain, setSelectedMain] = useState<number>(0);
+  const [selectedSub, setSelectedSub] = useState<number>(0);
   const [pkMarca, setPkMarca] = useState<number>(0);
   const [pkEstado, setPkEstado] = useState<number>(0);
   const [categorias, setCategorias] = useState<CategoriaProducto[]>([]);
@@ -34,6 +36,12 @@ export default function AdminProductForm() {
   const [loading, setLoading] = useState(false);
   const [additionalImages, setAdditionalImages] = useState<AdditionalImage[]>([]);
   const [uploadingAdditional, setUploadingAdditional] = useState(false);
+
+  const [editCatId, setEditCatId] = useState<number | null>(null);
+
+  const mainCats = categorias.filter(c => !c.pk_categoria_padre);
+  const subCats = selectedMain ? categorias.filter(c => c.pk_categoria_padre === selectedMain) : [];
+  const subSubCats = selectedSub ? categorias.filter(c => c.pk_categoria_padre === selectedSub) : [];
 
   useEffect(() => {
     Promise.all([
@@ -63,6 +71,7 @@ export default function AdminProductForm() {
             setStock(String(p.stock_producto));
             setSlugField(p.slug);
             setPkCategoria(p.pk_categoria_producto || 0);
+            setEditCatId(p.pk_categoria_producto || null);
             setPkMarca(p.pk_marca_producto || 0);
             setPkEstado(p.pk_estado_producto || 0);
             if (p.imagenes) {
@@ -76,6 +85,23 @@ export default function AdminProductForm() {
         });
     }
   }, [slug, isEdit]);
+
+  useEffect(() => {
+    if (!editCatId || categorias.length === 0) return;
+    const resolveChain = (catId: number): [number, number, number] => {
+      const cat = categorias.find(c => c.id_categoria_producto === catId);
+      if (!cat) return [0, 0, catId];
+      const parent = cat.pk_categoria_padre ? categorias.find(c => c.id_categoria_producto === cat.pk_categoria_padre) : null;
+      if (!parent) return [catId, 0, catId];
+      const grandparent = parent.pk_categoria_padre ? categorias.find(c => c.id_categoria_producto === parent.pk_categoria_padre) : null;
+      if (!grandparent) return [parent.id_categoria_producto, catId, catId];
+      return [grandparent.id_categoria_producto, parent.id_categoria_producto, catId];
+    };
+    const [mainId, subId, catId] = resolveChain(editCatId);
+    setSelectedMain(mainId);
+    setSelectedSub(subId);
+    setPkCategoria(catId);
+  }, [editCatId, categorias]);
 
   const toSlug = (text: string) =>
     text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, '');
@@ -311,21 +337,67 @@ export default function AdminProductForm() {
               rows={3}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoría</label>
-            <select
-              value={pkCategoria}
-              onChange={e => setPkCategoria(Number(e.target.value))}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            >
-              <option value={0}>Seleccionar</option>
-              {categorias.map(c => (
-                <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
-                  {c.nombre_categoria_producto}
-                </option>
-              ))}
-            </select>
-          </div>
+           <div className="col-span-2">
+             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Categoría</label>
+             <div className="grid grid-cols-3 gap-3">
+               <div>
+                 <label className="block text-xs text-gray-500 mb-1">Categoría</label>
+                 <select
+                   value={selectedMain}
+                   onChange={e => {
+                     const val = Number(e.target.value);
+                     setSelectedMain(val);
+                     setSelectedSub(0);
+                     setPkCategoria(val);
+                   }}
+                   className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+                 >
+                   <option value={0}>Seleccionar</option>
+                   {mainCats.map(c => (
+                     <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
+                       {c.nombre_categoria_producto}
+                     </option>
+                   ))}
+                 </select>
+               </div>
+               <div>
+                 <label className="block text-xs text-gray-500 mb-1">Subcategoría</label>
+                 <select
+                   value={selectedSub}
+                   onChange={e => {
+                     const val = Number(e.target.value);
+                     setSelectedSub(val);
+                     setPkCategoria(val || selectedMain);
+                   }}
+                   className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+                   disabled={!selectedMain}
+                 >
+                   <option value={0}>{subCats.length ? 'Seleccionar' : 'Sin subcategorías'}</option>
+                   {subCats.map(c => (
+                     <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
+                       {c.nombre_categoria_producto}
+                     </option>
+                   ))}
+                 </select>
+               </div>
+               <div>
+                 <label className="block text-xs text-gray-500 mb-1">Sub-subcategoría</label>
+                 <select
+                   value={subSubCats.some(c => c.id_categoria_producto === pkCategoria) ? pkCategoria : selectedSub}
+                   onChange={e => setPkCategoria(Number(e.target.value))}
+                   className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+                   disabled={!selectedSub || subSubCats.length === 0}
+                 >
+                   <option value={selectedSub}>{subSubCats.length ? 'Seleccionar' : 'Sin sub-subcategorías'}</option>
+                   {subSubCats.map(c => (
+                     <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
+                       {c.nombre_categoria_producto}
+                     </option>
+                   ))}
+                 </select>
+               </div>
+             </div>
+           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Marca</label>
             <select

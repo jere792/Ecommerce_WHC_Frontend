@@ -39,6 +39,8 @@ export interface CategoriaProducto {
   nombre_categoria_producto: string;
   mostrar_en_home?: boolean;
   subtitulo_home?: string | null;
+  pk_categoria_padre?: number | null;
+  subcategorias?: CategoriaProducto[];
 }
 
 export interface MarcaProducto {
@@ -174,6 +176,18 @@ export interface ProductoImagen {
   url: string;
   orden: number;
   created_at: string;
+}
+
+export interface StoreSettings {
+  id: number;
+  is_open: boolean;
+  weekday_open: string;
+  weekday_close: string;
+  saturday_open: string;
+  saturday_close: string;
+  sunday_open: string | null;
+  sunday_close: string | null;
+  updated_at: string;
 }
 
 export interface MetodoPago {

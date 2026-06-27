@@ -16,7 +16,7 @@ export function WhatsAppButton() {
   }, []);
 
   const handleClick = () => {
-    const phoneNumber = '922862739';
+    const phoneNumber = '992710948';
     const message = 'Hola, quiero más información.';
     const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappURL, '_blank');

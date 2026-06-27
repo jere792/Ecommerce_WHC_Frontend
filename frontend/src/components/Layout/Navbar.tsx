@@ -5,6 +5,7 @@ import { useCart } from '../ui/CartContext';
 import { ShoppingCartModal } from './ShoppingCartModal';
 import LoginModal from '../Layout/loginModal';
 import { useAuthContext } from '../../hooks/AuthContext';
+import { CategoryNav } from './CategoryNav';
 
 export function Navbar() {
   const desiredScrollOffset = 520;
@@ -163,33 +164,7 @@ export function Navbar() {
         )}
       </header>
 
-      {/* BARRA DE LINKS SECUNDARIA DEBAJO DEL NAVBAR */}
-      <nav className="w-full bg-primary-50 border-b border-primary-100 shadow-sm hidden md:flex">
-        <div className="max-w-7xl mx-auto flex flex-row w-full justify-center">
-          <Link
-            to="/inicio"
-            onClick={handleInicioClick}
-            className="flex-1 py-3.5 text-center font-bold text-primary border-r border-primary-200 text-lg hover:bg-primary-100 hover:text-primary-600 transition-colors"
-            style={{ minWidth: 180, letterSpacing: "0.01em" }}
-          >
-            Inicio
-          </Link>
-          <Link
-            to="/productos"
-            className="flex-1 py-3.5 text-center font-bold text-primary border-r border-primary-200 text-lg hover:bg-primary-100 hover:text-primary-600 transition-colors"
-            style={{ minWidth: 180, letterSpacing: "0.01em" }}
-          >
-            Catálogo
-          </Link>
-          <Link
-            to="/contacto"
-            className="flex-1 py-3.5 text-center font-bold text-primary text-lg hover:bg-primary-100 hover:text-primary-600 transition-colors"
-            style={{ minWidth: 180, letterSpacing: "0.01em" }}
-          >
-            Contacto
-          </Link>
-        </div>
-      </nav>
+      <CategoryNav />
 
       {isCartOpen && <ShoppingCartModal onClose={closeCart} />}
     </>
