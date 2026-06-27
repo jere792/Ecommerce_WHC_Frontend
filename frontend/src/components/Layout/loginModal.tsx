@@ -62,19 +62,6 @@ export default function LoginModal() {
     return Object.keys(errs).length === 0
   }
 
-  const runRegisterValidations = () => {
-    const eNombre = validateNombre(nombre)
-    const eCorreo = validateEmail(correo)
-    const ePass = validatePassword(password)
-    const errs: Record<string, string> = {}
-    if (eNombre) errs.nombre = eNombre
-    if (eCorreo) errs.correo = eCorreo
-    if (ePass) errs.password = ePass
-    if (password !== confirmPassword) errs.confirmPassword = 'Las contraseñas no coinciden'
-    setFieldErrors(errs)
-    return Object.keys(errs).length === 0
-  }
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
