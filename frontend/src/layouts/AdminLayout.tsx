@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../hooks/AuthContext';
-import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, SlidersHorizontal, LogOut, Moon, Sun, Menu, X, ChevronLeft } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, SlidersHorizontal, LogOut, Moon, Sun, Menu, X, ChevronRight } from 'lucide-react';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -18,9 +18,49 @@ const navItems = [
   { to: '/admin/movimientos', icon: Activity, label: 'Movimientos' },
 ];
 
+const breadcrumbLabels: Record<string, string> = {}
+navItems.forEach((n) => { breadcrumbLabels[n.to] = n.label })
+
+function Breadcrumbs() {
+  const location = useLocation()
+  const segments = location.pathname.split('/').filter(Boolean)
+  const crumbs: { label: string; path: string }[] = []
+  let built = ''
+
+  for (let i = 0; i < segments.length; i++) {
+    built += '/' + segments[i]
+    if (breadcrumbLabels[built]) {
+      crumbs.push({ label: breadcrumbLabels[built], path: built })
+    } else if (segments[i] === 'admin') {
+      crumbs.push({ label: 'Admin', path: '/admin' })
+    } else {
+      crumbs.push({ label: segments[i].charAt(0).toUpperCase() + segments[i].slice(1).replace(/-/g, ' '), path: built })
+    }
+  }
+
+  if (crumbs.length <= 1) return null
+
+  return (
+    <div className="flex items-center gap-1.5 text-sm text-muted-foreground min-w-0 overflow-x-auto">
+      {crumbs.map((cr, i) => {
+        const isLast = i === crumbs.length - 1
+        return (
+          <span key={cr.path} className="flex items-center gap-1.5 min-w-0">
+            {i > 0 && <ChevronRight className="w-3.5 h-3.5 shrink-0" />}
+            {isLast ? (
+              <span className="text-foreground font-medium truncate">{cr.label}</span>
+            ) : (
+              <Link to={cr.path} className="hover:text-foreground transition truncate">{cr.label}</Link>
+            )}
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function AdminLayout() {
   const { user, isAdmin, loading, logout } = useAuthContext();
-  const location = useLocation();
   const [dark, setDark] = useState(() => localStorage.getItem('admin-dark') === 'true');
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024);
 
@@ -48,52 +88,28 @@ export default function AdminLayout() {
         <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {!sidebarOpen && (
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="hidden lg:flex fixed left-4 top-4 z-50 p-2 bg-background border border-border rounded-lg hover:bg-muted text-muted-foreground shadow-sm transition"
-          title="Abrir sidebar"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-      )}
-
       <aside className={`
         bg-background shadow-md flex flex-col border-r border-border
         fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out
-        lg:relative lg:z-0 lg:transition-none lg:transform-none
+        lg:sticky lg:top-0 lg:self-start lg:h-screen lg:z-0 lg:transition-none lg:transform-none
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         ${sidebarOpen ? '' : 'lg:hidden'}
       `}>
-        <div className="p-4 border-b border-border flex items-center justify-between shrink-0">
-          <div className="min-w-0">
-            <h1 className="text-lg font-bold text-primary truncate">Admin WHC</h1>
-            <p className="text-sm text-muted-foreground truncate">{user.nombre_persona}</p>
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => {
-                document.documentElement.classList.add('theme-transition');
-                setDark(d => !d);
-                setTimeout(() => document.documentElement.classList.remove('theme-transition'), 300);
-              }}
-              className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition shrink-0"
-              title={dark ? 'Modo claro' : 'Modo oscuro'}
-            >
-              {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+        <div className="shrink-0">
+          <div className="relative flex items-center justify-center px-4 py-3">
+            <img src="/logo.png" alt="Logo" className="h-10 object-contain" />
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition shrink-0"
+              className="absolute right-3 p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition lg:hidden"
               title="Cerrar sidebar"
             >
-              <ChevronLeft className="w-5 h-5 hidden lg:block" />
-              <X className="w-5 h-5 lg:hidden" />
+              <X className="w-4 h-4" />
             </button>
           </div>
+          <hr className="border-t border-border mx-3" />
         </div>
 
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
           {navItems.map((item) => {
             const isActive = item.end
               ? location.pathname === item.to
@@ -103,49 +119,70 @@ export default function AdminLayout() {
                 key={item.to}
                 to={item.to}
                 onClick={handleNavClick}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
                     ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
                     : 'text-muted-foreground hover:bg-muted'
                 }`}
               >
-                <item.icon className="w-5 h-5 shrink-0" />
+                <item.icon className="w-4 h-4 shrink-0" />
                 <span className="truncate">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-border space-y-1 shrink-0">
+        <div className="px-3 py-3 border-t border-border shrink-0">
           <Link
             to="/"
             onClick={handleNavClick}
-            className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg"
+            className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted rounded-lg"
           >
-            <LayoutDashboard className="w-5 h-5 shrink-0" />
+            <LayoutDashboard className="w-4 h-4 shrink-0" />
             <span className="truncate">Ver tienda</span>
           </Link>
           <button
             onClick={() => logout()}
-            className="flex items-center gap-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg w-full"
+            className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10 rounded-lg w-full"
           >
-            <LogOut className="w-5 h-5 shrink-0" />
+            <LogOut className="w-4 h-4 shrink-0" />
             <span className="truncate">Cerrar sesión</span>
           </button>
         </div>
       </aside>
 
       <main className="flex-1 flex flex-col min-h-screen overflow-auto">
-        <div className="sticky top-0 z-20 bg-background border-b border-border p-3 flex items-center gap-3 lg:hidden">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition"
-            title="Abrir menú"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-bold text-primary">Admin WHC</h1>
-        </div>
+        <nav className="sticky top-0 z-20 bg-background border-b border-border">
+          <div className="flex items-center justify-between h-14 px-4 gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition shrink-0"
+                title={sidebarOpen ? 'Cerrar sidebar' : 'Abrir sidebar'}
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <h1 className="text-lg font-bold text-primary shrink-0 hidden sm:block">Admin WHC</h1>
+              <div className="h-4 w-px bg-border shrink-0 hidden sm:block" />
+              <Breadcrumbs />
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-sm text-muted-foreground hidden md:block truncate max-w-[160px]">{user.nombre_persona}</span>
+              <button
+                onClick={() => {
+                  document.documentElement.classList.add('theme-transition');
+                  setDark(d => !d);
+                  setTimeout(() => document.documentElement.classList.remove('theme-transition'), 300);
+                }}
+                className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition shrink-0"
+                title={dark ? 'Modo claro' : 'Modo oscuro'}
+              >
+                {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+        </nav>
 
         <div className="flex-1 p-4 sm:p-6">
           <Outlet />
