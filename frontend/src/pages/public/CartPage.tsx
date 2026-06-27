@@ -17,7 +17,7 @@ function CartPage() {
         <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-4">
           <Cart />
         </div>
-        <Publicidad textoPromocional="Delivery gratis a compras mayores a 200" />  
+        <Publicidad textoPromocional="Delivery gratis a compras mayores a S/.200" />  
         <ProductCarousel
             pkCategoria="Válvulas"
             titulo="MAS PRODUCTOS"

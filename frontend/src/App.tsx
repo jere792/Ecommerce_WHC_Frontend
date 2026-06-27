@@ -42,6 +42,7 @@ const App: React.FC = () => {
       <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
+          <Route path="/inicio" element={<HomePage />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/productos" element={<ProductsPage />} />
           <Route path="/contacto" element={<ContactPage />} />

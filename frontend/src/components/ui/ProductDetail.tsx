@@ -65,6 +65,16 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
       });
   }, [slug]);
 
+  const [cursorPos, setCursorPos] = useState({ x: 50, y: 50 });
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setCursorPos({ x, y });
+  };
+
   const stockDisponible = producto?.stockProducto ?? 0;
   const cartItem = items.find(item => item.id === (producto?.idProducto?.toString() ?? ""));
   const cantidadEnCarrito = cartItem?.quantity ?? 0;
@@ -119,13 +129,22 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
         <div className="space-y-4">
-          <div className="relative bg-gray-50 rounded-2xl overflow-hidden border border-gray-200 group">
+          <div
+            className="relative bg-gray-50 rounded-2xl overflow-hidden border border-gray-200 cursor-crosshair"
+            onMouseMove={handleMouseMove}
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+          >
             <div className="aspect-square flex items-center justify-center p-8">
               {allImages.length > 0 && !imgError.has(allImages[selectedImage]?.id) ? (
                 <img
                   src={allImages[selectedImage].url}
                   alt={producto.nombreProducto}
-                  className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-contain transition-transform duration-100"
+                  style={{
+                    transform: isHovering ? 'scale(2.5)' : 'scale(1)',
+                    transformOrigin: `${cursorPos.x}% ${cursorPos.y}%`,
+                  }}
                   loading="lazy"
                   onError={() => handleImgError(allImages[selectedImage].id)}
                 />

@@ -64,12 +64,12 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
             href={banner.enlace_principal || undefined}
             target={banner.enlace_principal ? '_blank' : undefined}
             rel="noopener noreferrer"
-            className="md:w-1/2 group transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl rounded-md shadow-lg overflow-hidden bg-white cursor-pointer block"
+            className="md:w-1/2 rounded-md shadow-lg overflow-hidden bg-white block"
           >
             <img
               src={banner.imagen_principal}
               alt={banner.titulo}
-              className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-auto object-cover"
               style={{ aspectRatio: '782 / 759' }}
               loading="lazy"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -81,12 +81,12 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
               href={banner.enlace_secundario_top || undefined}
               target={banner.enlace_secundario_top ? '_blank' : undefined}
               rel="noopener noreferrer"
-              className="rounded-md shadow-lg overflow-hidden bg-white group cursor-pointer transition-transform duration-300 hover:translate-x-2 hover:-translate-y-1 hover:shadow-2xl block"
+              className="rounded-md shadow-lg overflow-hidden bg-white block"
             >
               <img
                 src={banner.imagen_secundaria_top}
                 alt={`${banner.titulo} - secundario top`}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-auto object-cover"
                 style={{ aspectRatio: '821 / 372' }}
                 loading="lazy"
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -96,12 +96,12 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
               href={banner.enlace_secundario_bottom || undefined}
               target={banner.enlace_secundario_bottom ? '_blank' : undefined}
               rel="noopener noreferrer"
-              className="rounded-md shadow-lg overflow-hidden bg-white group cursor-pointer transition-transform duration-300 hover:-translate-x-2 hover:translate-y-1 hover:shadow-2xl block"
+              className="rounded-md shadow-lg overflow-hidden bg-white block"
             >
               <img
                 src={banner.imagen_secundaria_bottom}
                 alt={`${banner.titulo} - secundario bottom`}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-auto object-cover"
                 style={{ aspectRatio: '821 / 372' }}
                 loading="lazy"
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}

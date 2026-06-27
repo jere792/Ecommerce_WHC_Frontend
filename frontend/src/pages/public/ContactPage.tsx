@@ -7,7 +7,7 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-white">
       <PageHeroBanner pagina="contacto" />
-      <Publicidad textoPromocional="Delivery gratis a compras mayores a 200" />
+      <Publicidad textoPromocional="Delivery gratis a compras mayores a S/.200" />
       <ContactSection />
       <Publicidad textoPromocional="Mercado en línea - Los mejores productos al mejor precio" />
 

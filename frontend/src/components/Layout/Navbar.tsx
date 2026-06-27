@@ -23,7 +23,7 @@ export function Navbar() {
   
   const handleInicioClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    navigate('/');
+    navigate('/inicio');
     setTimeout(() => {
       window.scrollTo({
         top: desiredScrollOffset,
@@ -39,7 +39,7 @@ export function Navbar() {
   const { items} = useCart();
 
   useEffect(() => {
-    if (location.pathname === '/' && scrollToOfertas) {
+    if ((location.pathname === '/' || location.pathname === '/inicio') && scrollToOfertas) {
       const ofertasElement = document.getElementById('ofertas');
       if (ofertasElement) {
         ofertasElement.scrollIntoView({ behavior: 'smooth' });
@@ -75,7 +75,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
           {/* Logo box */}
           <div className="flex items-center space-x-3 border-r-2 border-primary-400 pr-12">
-            <Link to="/">
+            <Link to="/inicio">
               <img src="/logo.png" className="h-16 w-auto drop-shadow-lg" alt="Logo WHC" />
             </Link>
           </div>
@@ -155,7 +155,7 @@ export function Navbar() {
               />
             </form>
             <nav className="flex flex-col space-y-2 text-base font-semibold">
-              <Link to="/" onClick={handleInicioClick}>Ofertas</Link>
+              <Link to="/inicio" onClick={handleInicioClick}>Inicio</Link>
               <Link to="/productos" className="hover:text-blue-500">Catálogo</Link>
               <Link to="/contacto" className="hover:text-blue-500">Contacto</Link>
             </nav>
@@ -167,12 +167,12 @@ export function Navbar() {
       <nav className="w-full bg-primary-50 border-b border-primary-100 shadow-sm hidden md:flex">
         <div className="max-w-7xl mx-auto flex flex-row w-full justify-center">
           <Link
-            to="/"
+            to="/inicio"
             onClick={handleInicioClick}
             className="flex-1 py-3.5 text-center font-bold text-primary border-r border-primary-200 text-lg hover:bg-primary-100 hover:text-primary-600 transition-colors"
             style={{ minWidth: 180, letterSpacing: "0.01em" }}
           >
-            Ofertas
+            Inicio
           </Link>
           <Link
             to="/productos"

@@ -34,7 +34,7 @@ function HomePage() {
       />
       <OfertaCarousel />
       <ImagenPrincipalConSecundarias />
-      <Publicidad textoPromocional="Delivery gratis a compras mayores a 200" />
+      <Publicidad textoPromocional="Delivery gratis a compras mayores a S/.200" />
       <NewProductsCarousel />
       {homeCategories.map((cat) => (
         <ProductCarousel

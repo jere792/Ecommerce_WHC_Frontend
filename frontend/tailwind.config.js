@@ -7,7 +7,7 @@ export default {
     ],
   theme: {
     fontFamily: {
-      sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      sans: ['Montserrat', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
     },
    	extend: {
    		borderRadius: {

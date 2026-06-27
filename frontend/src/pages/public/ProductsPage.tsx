@@ -208,7 +208,7 @@ const ProductsPage: React.FC = () => {
       </div>
 
       <div className="container mx-auto py-8 px-4 flex flex-col lg:flex-row gap-8">
-        <aside className="hidden lg:block w-1/4 flex-shrink-0">
+        <aside className="hidden lg:block w-1/5 flex-shrink-0">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-24">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Filtros</h3>
@@ -278,7 +278,7 @@ const ProductsPage: React.FC = () => {
           </div>
         </aside>
 
-        <main className="w-full lg:w-3/4">
+        <main className="w-full lg:w-4/5">
           <div className="text-sm font-medium text-gray-500 mb-3 hidden lg:block">{cantidadResultados} Resultados</div>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading ? (
@@ -306,7 +306,7 @@ const ProductsPage: React.FC = () => {
         </main>
       </div>
 
-      <Publicidad textoPromocional="Delivery gratis a compras mayores a 200" />
+      <Publicidad textoPromocional="Delivery gratis a compras mayores a S/.200" />
       <Marcas />
     </div>
   );

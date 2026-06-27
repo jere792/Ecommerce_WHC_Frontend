@@ -10,7 +10,7 @@ export function DetalleProducto() {
       <div className="container mx-auto py-10 px-4">
         {slug && <ProductDetail slug={slug} />}
       </div>
-      <Publicidad textoPromocional="Delivery gratis a compras mayores a 200" />
+      <Publicidad textoPromocional="Delivery gratis a compras mayores a S/. 200" />
       <Marcas />
     </div>
   );
