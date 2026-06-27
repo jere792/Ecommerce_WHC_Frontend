@@ -50,7 +50,6 @@ export default function AdminUsers() {
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">ID</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Nombre</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Email</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Rol</th>
@@ -60,7 +59,6 @@ export default function AdminUsers() {
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {users.map((u) => (
               <tr key={u.id_usuario} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{u.id_usuario}</td>
                 <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{u.nombre_persona}</td>
                 <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{u.correo_persona}</td>
                 <td className="px-4 py-3 text-sm">

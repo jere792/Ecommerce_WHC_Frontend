@@ -106,7 +106,6 @@ export default function AdminBrands() {
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">ID</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Nombre</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Logo</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">En home</th>
@@ -116,7 +115,6 @@ export default function AdminBrands() {
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {brands.map((brand) => (
               <tr key={brand.id_marca_producto} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{brand.id_marca_producto}</td>
                 <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{brand.nombre_marca_producto}</td>
                 <td className="px-4 py-3 text-sm">{brand.logo_url ? <img src={brand.logo_url} alt="" className="h-10 object-contain" /> : '-'}</td>
                 <td className="px-4 py-3 text-sm">

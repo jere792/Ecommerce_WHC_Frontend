@@ -97,7 +97,6 @@ export default function AdminPageHero() {
       {modal}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Hero de páginas</h1>
-        <button onClick={openNew} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Nuevo</button>
       </div>
 
       {showForm && (

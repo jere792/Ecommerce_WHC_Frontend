@@ -39,7 +39,7 @@ function HomePage() {
       {homeCategories.map((cat) => (
         <ProductCarousel
           key={cat.id_categoria_producto}
-          pkCategoria={cat.nombre_categoria_producto}
+          pkCategoria={cat.id_categoria_producto}
           titulo={cat.nombre_categoria_producto.toUpperCase()}
           subtitulo={cat.subtitulo_home || undefined}
         />

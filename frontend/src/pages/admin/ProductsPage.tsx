@@ -45,7 +45,6 @@ export default function AdminProducts() {
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">ID</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Imagen</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Nombre</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Precio venta</th>
@@ -60,7 +59,6 @@ export default function AdminProducts() {
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {products.map((p) => (
               <tr key={p.id_producto} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{p.id_producto}</td>
                 <td className="px-4 py-3">
                   {p.imagen_producto ? (
                     <img src={p.imagen_producto} alt="" className="h-10 w-10 object-cover rounded border dark:border-gray-600" />
