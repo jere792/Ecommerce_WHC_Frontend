@@ -104,26 +104,26 @@ export default function AdminDashboard() {
       atendido: 'bg-blue-100 text-blue-800',
       rechazado: 'bg-red-100 text-red-800',
     };
-    return colors[estado] || 'bg-gray-100 text-gray-800';
+    return colors[estado] || 'bg-muted text-muted-foreground';
   };
 
-  if (loading) return <div className="text-center py-12 text-gray-500 dark:text-gray-400">Cargando...</div>;
+  if (loading) return <div className="text-center py-12 text-muted-foreground">Cargando...</div>;
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card) => (
           <Link
             key={card.label}
             to={card.link}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md transition"
+            className="bg-background rounded-xl shadow-sm border border-border p-6 hover:shadow-md transition"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{card.label}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{card.value}</p>
+                <p className="text-sm text-muted-foreground font-medium">{card.label}</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{card.value}</p>
               </div>
               <div className={`${card.color} p-3 rounded-lg`}>
                 <card.icon className="w-6 h-6 text-white" />
@@ -137,11 +137,11 @@ export default function AdminDashboard() {
         {profitCards.map((card) => (
           <div
             key={card.label}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+            className="bg-background rounded-xl shadow-sm border border-border p-6"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{card.label}</p>
+                <p className="text-sm text-muted-foreground font-medium">{card.label}</p>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">{card.value}</p>
               </div>
               <div className={`${card.color} p-3 rounded-lg`}>
@@ -152,17 +152,17 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Últimos pedidos</h2>
-          <Link to="/admin/pedidos" className="text-sm text-blue-600 hover:underline font-medium">
+      <div className="bg-background rounded-xl shadow-sm border border-border">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h2 className="text-lg font-semibold text-foreground">Últimos pedidos</h2>
+          <Link to="/admin/pedidos" className="text-sm text-primary hover:underline font-medium">
             Ver todos
           </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-left text-sm text-gray-500 dark:text-gray-400">
+              <tr className="text-left text-sm text-muted-foreground">
                 <th className="px-6 py-3 font-medium">ID</th>
                 <th className="px-6 py-3 font-medium">Cliente</th>
                 <th className="px-6 py-3 font-medium">Fecha</th>
@@ -170,18 +170,18 @@ export default function AdminDashboard() {
                 <th className="px-6 py-3 font-medium">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
+            <tbody className="divide-y divide-border">
               {recentOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-400 dark:text-gray-500 text-sm">No hay pedidos aún</td>
+                  <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground text-sm">No hay pedidos aún</td>
                 </tr>
               ) : (
                 recentOrders.map((o) => (
-                  <tr key={o.id_pedido} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm">
-                    <td className="px-6 py-3 font-medium text-gray-900 dark:text-gray-100">#{o.id_pedido}</td>
-                    <td className="px-6 py-3 text-gray-700 dark:text-gray-300">{o.usuario?.nombre_persona || '-'}</td>
-                    <td className="px-6 py-3 text-gray-500 dark:text-gray-400">{new Date(o.fecha).toLocaleDateString()}</td>
-                    <td className="px-6 py-3 font-medium text-gray-900 dark:text-gray-100">S/{Number(o.monto_total).toFixed(2)}</td>
+                  <tr key={o.id_pedido} className="hover:bg-muted text-sm">
+                    <td className="px-6 py-3 font-medium text-foreground">#{o.id_pedido}</td>
+                    <td className="px-6 py-3 text-foreground">{o.usuario?.nombre_persona || '-'}</td>
+                    <td className="px-6 py-3 text-muted-foreground">{new Date(o.fecha).toLocaleDateString()}</td>
+                    <td className="px-6 py-3 font-medium text-foreground">S/{Number(o.monto_total).toFixed(2)}</td>
                     <td className="px-6 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusBadge(o.estado_pago)}`}>
                         {o.estado_pago}

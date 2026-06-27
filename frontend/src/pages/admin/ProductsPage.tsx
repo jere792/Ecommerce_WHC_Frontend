@@ -33,54 +33,54 @@ export default function AdminProducts() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Productos</h1>
+        <h1 className="text-2xl font-bold text-foreground">Productos</h1>
         <Link
           to="/admin/productos/nuevo"
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700"
         >
           <Plus className="w-4 h-4" /> Nuevo producto
         </Link>
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+      <div className="bg-background rounded-lg shadow overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+          <thead className="bg-muted">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">ID</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Imagen</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Nombre</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Precio venta</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Precio compra</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Ganancia</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Stock</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Categoria</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Estado</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Acciones</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">ID</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Imagen</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Nombre</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Precio venta</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Precio compra</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Ganancia</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Stock</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Categoria</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Estado</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-border">
             {products.map((p) => (
-              <tr key={p.id_producto} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{p.id_producto}</td>
+              <tr key={p.id_producto} className="hover:bg-muted">
+                <td className="px-4 py-3 text-sm text-foreground">{p.id_producto}</td>
                 <td className="px-4 py-3">
                   {p.imagen_producto ? (
-                    <img src={p.imagen_producto} alt="" className="h-10 w-10 object-cover rounded border dark:border-gray-600" />
+                    <img src={p.imagen_producto} alt="" className="h-10 w-10 object-cover rounded border border-border" />
                   ) : (
-                    <span className="text-gray-300 dark:text-gray-600 text-xs">-</span>
+                    <span className="text-muted-foreground text-xs">-</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{p.nombre_producto}</td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">S/{Number(p.precio_producto).toFixed(2)}</td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{p.precio_compra ? `S/${Number(p.precio_compra).toFixed(2)}` : '-'}</td>
+                <td className="px-4 py-3 text-sm font-medium text-foreground">{p.nombre_producto}</td>
+                <td className="px-4 py-3 text-sm text-foreground">S/{Number(p.precio_producto).toFixed(2)}</td>
+                <td className="px-4 py-3 text-sm text-foreground">{p.precio_compra ? `S/${Number(p.precio_compra).toFixed(2)}` : '-'}</td>
                 <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400">
                   {p.precio_compra ? `S/${(p.precio_producto - p.precio_compra).toFixed(2)}` : '-'}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{p.stock_producto}</td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{p.categoria?.nombre_categoria_producto}</td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{p.estado?.nombre_estado_producto}</td>
+                <td className="px-4 py-3 text-sm text-foreground">{p.stock_producto}</td>
+                <td className="px-4 py-3 text-sm text-foreground">{p.categoria?.nombre_categoria_producto}</td>
+                <td className="px-4 py-3 text-sm text-foreground">{p.estado?.nombre_estado_producto}</td>
                 <td className="px-4 py-3 text-sm flex gap-2">
                   <button
                     onClick={() => navigate(`/admin/productos/editar/${p.slug}`)}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-primary hover:text-primary-800"
                   >
                     <Edit className="w-4 h-4" />
                   </button>

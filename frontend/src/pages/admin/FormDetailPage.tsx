@@ -60,10 +60,10 @@ export default function AdminFormDetail() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Link to="/admin/formularios" className="text-blue-600 hover:underline mb-4 block">&larr; Volver</Link>
+      <Link to="/admin/formularios" className="text-primary hover:underline mb-4 block">&larr; Volver</Link>
       <h1 className="text-2xl font-bold mb-6">Atender formulario</h1>
 
-      <div className="bg-white rounded-lg shadow p-6 mb-6 space-y-3">
+      <div className="bg-background rounded-lg shadow p-6 mb-6 space-y-3">
         <div><span className="font-medium">Nombre:</span> {form.nombre_formulario}</div>
         <div><span className="font-medium">DNI:</span> {form.dni_formulario}</div>
         <div><span className="font-medium">Email:</span> {form.correo_formulario}</div>
@@ -74,14 +74,14 @@ export default function AdminFormDetail() {
         <div><span className="font-medium">Mensaje:</span> {form.text_estado}</div>
       </div>
 
-      <form onSubmit={handleAttend} className="bg-white rounded-lg shadow p-6 space-y-4">
+      <form onSubmit={handleAttend} className="bg-background rounded-lg shadow p-6 space-y-4">
         <h2 className="text-lg font-semibold">Atender formulario</h2>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Asignar a</label>
+          <label className="block text-sm font-medium text-foreground mb-1">Asignar a</label>
           <select
             value={selectedAdmin}
             onChange={e => setSelectedAdmin(Number(e.target.value))}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border border-border rounded px-3 py-2"
             required
           >
             <option value={0}>Seleccionar administrador</option>
@@ -91,11 +91,11 @@ export default function AdminFormDetail() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Comentario</label>
+          <label className="block text-sm font-medium text-foreground mb-1">Comentario</label>
           <textarea
             value={comment}
             onChange={e => setComment(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border border-border rounded px-3 py-2"
             rows={3}
           />
         </div>

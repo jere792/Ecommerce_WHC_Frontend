@@ -204,11 +204,11 @@ export default function AdminProductForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">{isEdit ? 'Editar producto' : 'Nuevo producto'}</h1>
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+      <h1 className="text-2xl font-bold mb-6 text-foreground">{isEdit ? 'Editar producto' : 'Nuevo producto'}</h1>
+      <form onSubmit={handleSubmit} className="bg-background rounded-lg shadow p-6 space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Nombre</label>
             <input
               type="text"
               value={nombre}
@@ -218,62 +218,62 @@ export default function AdminProductForm() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio venta</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Precio venta</label>
             <input
               type="number"
               step="0.01"
               value={precio}
               onChange={e => setPrecio(e.target.value)}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio compra</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Precio compra</label>
             <input
               type="number"
               step="0.01"
               value={precioCompra}
               onChange={e => setPrecioCompra(e.target.value)}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Stock</label>
             <input
               type="number"
               value={stock}
               onChange={e => setStock(e.target.value)}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
               required
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slug</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Slug</label>
             <input
               type="text"
               value={slugField}
               onChange={e => setSlugField(e.target.value)}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
               required
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Imagen</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Imagen</label>
             <input
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
               disabled={uploadingImg}
             />
-            {uploadingImg && <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">Subiendo imagen...</p>}
+            {uploadingImg && <p className="text-sm text-primary mt-1">Subiendo imagen...</p>}
             {imagen && !uploadingImg && (
-              <img src={imagen} alt="Vista previa" className="mt-2 h-32 w-32 object-cover rounded border dark:border-gray-600" />
+              <img src={imagen} alt="Vista previa" className="mt-2 h-32 w-32 object-cover rounded border border-border" />
             )}
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Imágenes adicionales (galería)
             </label>
             <input
@@ -281,15 +281,15 @@ export default function AdminProductForm() {
               accept="image/*"
               multiple
               onChange={handleAdditionalImageChange}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
               disabled={uploadingAdditional}
             />
-            {uploadingAdditional && <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">Subiendo imágenes...</p>}
+            {uploadingAdditional && <p className="text-sm text-primary mt-1">Subiendo imágenes...</p>}
             {additionalImages.length > 0 && (
               <div className="flex flex-wrap gap-3 mt-3">
                 {additionalImages.map((img, idx) => (
                   <div key={idx} className="relative group">
-                    <img src={img.url} alt={`Adicional ${idx + 1}`} className="h-24 w-24 object-cover rounded-lg border dark:border-gray-600" />
+                    <img src={img.url} alt={`Adicional ${idx + 1}`} className="h-24 w-24 object-cover rounded-lg border border-border" />
                     <button
                       type="button"
                       onClick={() => removeAdditionalImage(idx)}
@@ -303,20 +303,20 @@ export default function AdminProductForm() {
             )}
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Descripción</label>
             <textarea
               value={descripcion}
               onChange={e => setDescripcion(e.target.value)}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
               rows={3}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoría</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Categoría</label>
             <select
               value={pkCategoria}
               onChange={e => setPkCategoria(Number(e.target.value))}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
             >
               <option value={0}>Seleccionar</option>
               {categorias.map(c => (
@@ -327,11 +327,11 @@ export default function AdminProductForm() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Marca</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Marca</label>
             <select
               value={pkMarca}
               onChange={e => setPkMarca(Number(e.target.value))}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
             >
               <option value={0}>Seleccionar</option>
               {marcas.map(m => (
@@ -342,11 +342,11 @@ export default function AdminProductForm() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Estado</label>
             <select
               value={pkEstado}
               onChange={e => setPkEstado(Number(e.target.value))}
-              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
             >
               <option value={0}>Seleccionar</option>
               {estados.map(e => (
@@ -360,7 +360,7 @@ export default function AdminProductForm() {
         <div className="flex gap-3">
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? 'Guardando...' : 'Guardar'}
@@ -368,7 +368,7 @@ export default function AdminProductForm() {
           <button
             type="button"
             onClick={() => navigate('/admin/productos')}
-            className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+            className="bg-muted text-foreground px-4 py-2 rounded hover:bg-muted/80"
           >
             Cancelar
           </button>

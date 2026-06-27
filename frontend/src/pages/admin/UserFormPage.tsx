@@ -66,45 +66,45 @@ export default function AdminUserForm() {
   return (
     <div className="max-w-lg mx-auto">
       <h1 className="text-2xl font-bold mb-6">{isEdit ? 'Editar usuario' : 'Nuevo usuario'}</h1>
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="bg-background rounded-lg shadow p-6 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+          <label className="block text-sm font-medium text-foreground mb-1">Nombre</label>
           <input
             type="text"
             value={nombre}
             onChange={e => setNombre(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border border-border rounded px-3 py-2"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label className="block text-sm font-medium text-foreground mb-1">Email</label>
           <input
             type="email"
             value={correo}
             onChange={e => setCorreo(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border border-border rounded px-3 py-2"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-foreground mb-1">
             {isEdit ? 'Nueva contraseña (dejar vacío para mantener)' : 'Contraseña'}
           </label>
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border border-border rounded px-3 py-2"
             required={!isEdit}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+          <label className="block text-sm font-medium text-foreground mb-1">Rol</label>
           <select
             value={pkRol}
             onChange={e => setPkRol(Number(e.target.value))}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border border-border rounded px-3 py-2"
           >
             {roles.map(r => (
               <option key={r.id_rol_usuario} value={r.id_rol_usuario}>{r.nombre_rol}</option>
@@ -114,7 +114,7 @@ export default function AdminUserForm() {
         <div className="flex gap-3">
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700"
             disabled={loading}
           >
             {loading ? 'Guardando...' : 'Guardar'}
@@ -122,7 +122,7 @@ export default function AdminUserForm() {
           <button
             type="button"
             onClick={() => navigate('/admin/usuarios')}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
+            className="bg-muted text-foreground px-4 py-2 rounded hover:bg-muted/80"
           >
             Cancelar
           </button>

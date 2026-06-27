@@ -29,7 +29,7 @@ export default function AdminLayout() {
   }, [dark]);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">Cargando...</div>;
+    return <div className="flex items-center justify-center min-h-screen bg-background text-foreground">Cargando...</div>;
   }
 
   if (!user || !isAdmin) {
@@ -37,16 +37,16 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-950">
-      <aside className="w-64 bg-white dark:bg-gray-900 shadow-md dark:shadow-gray-800 flex flex-col border-r border-gray-200 dark:border-gray-800">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+    <div className="flex min-h-screen bg-muted dark:bg-background">
+      <aside className="w-64 bg-background shadow-md flex flex-col border-r border-border">
+        <div className="p-4 border-b border-border flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-blue-900 dark:text-blue-400">Admin WHC</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{user.nombre_persona}</p>
+            <h1 className="text-lg font-bold text-primary">Admin WHC</h1>
+            <p className="text-sm text-muted-foreground">{user.nombre_persona}</p>
           </div>
           <button
             onClick={() => setDark(d => !d)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition"
+            className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition"
             title={dark ? 'Modo claro' : 'Modo oscuro'}
           >
             {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -63,8 +63,8 @@ export default function AdminLayout() {
                 to={item.to}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                    : 'text-muted-foreground hover:bg-muted'
                 }`}
               >
                 <item.icon className="w-5 h-5" />
@@ -73,17 +73,17 @@ export default function AdminLayout() {
             );
           })}
         </nav>
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-1">
+        <div className="p-4 border-t border-border space-y-1">
           <Link
             to="/"
-            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg"
+            className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg"
           >
             <LayoutDashboard className="w-5 h-5" />
             Ver tienda
           </Link>
           <button
             onClick={() => logout()}
-            className="flex items-center gap-3 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg w-full"
+            className="flex items-center gap-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg w-full"
           >
             <LogOut className="w-5 h-5" />
             Cerrar sesión

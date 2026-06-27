@@ -89,51 +89,51 @@ export default function AdminOrders() {
       atendido: 'bg-blue-100 text-blue-800',
       rechazado: 'bg-red-100 text-red-800',
     };
-    return colors[estado] || 'bg-gray-100 text-gray-800';
+    return colors[estado] || 'bg-muted text-muted-foreground';
   };
 
   if (loading) return <div>Cargando...</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">Pedidos</h1>
+      <h1 className="text-2xl font-bold mb-6 text-foreground">Pedidos</h1>
       <div className="mb-4 flex gap-2">
         {['', 'pendiente', 'PAGADO', 'atendido', 'rechazado'].map((est) => (
           <Link
             key={est}
             to={est ? `/admin/pedidos?estado=${est}` : '/admin/pedidos'}
-            className={`px-3 py-1 rounded text-sm ${estadoFilter === est || (!estadoFilter && !est) ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+            className={`px-3 py-1 rounded text-sm ${estadoFilter === est || (!estadoFilter && !est) ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}
           >
             {est || 'Todos'}
           </Link>
         ))}
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+      <div className="bg-background rounded-lg shadow overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+          <thead className="bg-muted">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">ID</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Usuario</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Fecha</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Total</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Estado</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Acciones</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">ID</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Usuario</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Fecha</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Total</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Estado</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-border">
             {orders.map((o) => (
-              <tr key={o.id_pedido} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{o.id_pedido}</td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{o.usuario?.nombre_persona}</td>
-                <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{new Date(o.fecha).toLocaleDateString()}</td>
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">S/{Number(o.monto_total).toFixed(2)}</td>
+              <tr key={o.id_pedido} className="hover:bg-muted">
+                <td className="px-4 py-3 text-sm text-foreground">{o.id_pedido}</td>
+                <td className="px-4 py-3 text-sm text-foreground">{o.usuario?.nombre_persona}</td>
+                <td className="px-4 py-3 text-sm text-muted-foreground">{new Date(o.fecha).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-sm text-foreground">S/{Number(o.monto_total).toFixed(2)}</td>
                 <td className="px-4 py-3 text-sm">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${statusBadge(o.estado_pago)}`}>
                     {o.estado_pago}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-sm flex gap-2">
-                  <Link to={`/admin/pedidos/${o.id_pedido}`} className="text-blue-600 hover:underline text-sm">
+                  <Link to={`/admin/pedidos/${o.id_pedido}`} className="text-primary hover:underline text-sm">
                     Ver
                   </Link>
                   {o.estado_pago === 'pendiente' && (
