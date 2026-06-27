@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { uploadToCloudinary } from '../../lib/cloudinary';
+import { uploadPdf } from '../../lib/supabaseStorage';
 import type { CategoriaProducto, MarcaProducto, EstadoProducto, Producto, ProductoImagen } from '../../lib/supabaseTypes';
 import { Trash2, Upload } from 'lucide-react';
 
@@ -36,6 +37,9 @@ export default function AdminProductForm() {
   const [loading, setLoading] = useState(false);
   const [additionalImages, setAdditionalImages] = useState<AdditionalImage[]>([]);
   const [uploadingAdditional, setUploadingAdditional] = useState(false);
+  const [fichaTecnicaUrl, setFichaTecnicaUrl] = useState('');
+  const [fichaTecnicaFile, setFichaTecnicaFile] = useState<File | null>(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const [editCatId, setEditCatId] = useState<number | null>(null);
 
@@ -72,6 +76,7 @@ export default function AdminProductForm() {
             setSlugField(p.slug);
             setPkCategoria(p.pk_categoria_producto || 0);
             setEditCatId(p.pk_categoria_producto || null);
+            setFichaTecnicaUrl(p.ficha_tecnica_url || '');
             setPkMarca(p.pk_marca_producto || 0);
             setPkEstado(p.pk_estado_producto || 0);
             if (p.imagenes) {
@@ -151,6 +156,21 @@ export default function AdminProductForm() {
     setAdditionalImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleFichaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFichaTecnicaFile(file);
+    setUploadingPdf(true);
+    try {
+      const url = await uploadPdf(file);
+      setFichaTecnicaUrl(url);
+    } catch (err) {
+      alert('Error al subir PDF: ' + err);
+    } finally {
+      setUploadingPdf(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -183,6 +203,7 @@ export default function AdminProductForm() {
       pk_categoria_producto: pkCategoria || null,
       pk_marca_producto: pkMarca || null,
       pk_estado_producto: pkEstado || null,
+      ficha_tecnica_url: fichaTecnicaUrl || null,
     };
 
     if (isEdit) {
@@ -325,6 +346,30 @@ export default function AdminProductForm() {
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ficha Técnica (PDF)</label>
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={handleFichaChange}
+              className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              disabled={uploadingPdf}
+            />
+            {uploadingPdf && <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">Subiendo PDF...</p>}
+            {fichaTecnicaUrl && !uploadingPdf && (
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-sm text-green-600">✓ PDF cargado</span>
+                <a href={fichaTecnicaUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">Ver</a>
+                <button
+                  type="button"
+                  onClick={() => { setFichaTecnicaUrl(''); setFichaTecnicaFile(null); }}
+                  className="text-sm text-red-500 hover:underline"
+                >
+                  Eliminar
+                </button>
               </div>
             )}
           </div>

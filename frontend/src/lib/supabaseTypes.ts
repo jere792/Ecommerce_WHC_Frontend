@@ -25,6 +25,7 @@ export interface Producto {
   pk_categoria_producto: number | null;
   pk_marca_producto: number | null;
   pk_estado_producto: number | null;
+  ficha_tecnica_url: string | null;
   slug: string;
   created_at: string;
   updated_at: string;
