@@ -5,6 +5,7 @@ import { uploadToCloudinary } from '../../lib/cloudinary';
 import { uploadPdf } from '../../lib/supabaseStorage';
 import type { CategoriaProducto, MarcaProducto, EstadoProducto, Producto, ProductoImagen } from '../../lib/supabaseTypes';
 import { Trash2, Upload } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface AdditionalImage {
   id?: number;
@@ -250,234 +251,306 @@ export default function AdminProductForm() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-foreground">{isEdit ? 'Editar producto' : 'Nuevo producto'}</h1>
-      <form onSubmit={handleSubmit} className="bg-background rounded-lg shadow p-6 space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-foreground mb-1">Nombre</label>
-            <input
-              type="text"
-              value={nombre}
-              onChange={e => handleNombreChange(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Precio venta</label>
-            <input
-              type="number"
-              step="0.01"
-              value={precio}
-              onChange={e => setPrecio(e.target.value)}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Precio compra</label>
-            <input
-              type="number"
-              step="0.01"
-              value={precioCompra}
-              onChange={e => setPrecioCompra(e.target.value)}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Stock</label>
-            <input
-              type="number"
-              value={stock}
-              onChange={e => setStock(e.target.value)}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-              required
-            />
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-foreground mb-1">Slug</label>
-            <input
-              type="text"
-              value={slugField}
-              onChange={e => setSlugField(e.target.value)}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-              required
-            />
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-foreground mb-1">Imagen</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-              disabled={uploadingImg}
-            />
-            {uploadingImg && <p className="text-sm text-primary mt-1">Subiendo imagen...</p>}
-            {imagen && !uploadingImg && (
-              <img src={imagen} alt="Vista previa" className="mt-2 h-32 w-32 object-cover rounded border " />
-            )}
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Imágenes adicionales (galería)
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleAdditionalImageChange}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-              disabled={uploadingAdditional}
-            />
-            {uploadingAdditional && <p className="text-sm text-primary mt-1">Subiendo imágenes...</p>}
-            {additionalImages.length > 0 && (
-              <div className="flex flex-wrap gap-3 mt-3">
-                {additionalImages.map((img, idx) => (
-                  <div key={idx} className="relative group">
-                    <img src={img.url} alt={`Adicional ${idx + 1}`} className="h-24 w-24 object-cover rounded-lg border " />
+    <div>
+      <PageHeader title={isEdit ? 'Editar producto' : 'Nuevo producto'} />
+
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          {/* LEFT COLUMN - Images & PDF */}
+          <div className="flex flex-col gap-5">
+            {/* Main Image */}
+            <div className="flex-none border border-border rounded-lg p-4 bg-background space-y-3">
+              <label className="block text-sm font-medium text-foreground">Imagen</label>
+              {imagen && !uploadingImg ? (
+                <div className="space-y-3">
+                  <img
+                    src={imagen}
+                    alt="Vista previa"
+                    className="w-full h-48 object-cover rounded-lg border border-border"
+                  />
+                  <div className="flex gap-2">
+                    <label className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
+                      <Upload className="w-4 h-4" />
+                      Cambiar
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                        disabled={uploadingImg}
+                      />
+                    </label>
                     <button
                       type="button"
-                      onClick={() => removeAdditionalImage(idx)}
-                      className="absolute -top-2 -right-2 bg-destructive/100 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                      onClick={() => { setImagen(''); setImagenFile(null); }}
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm rounded border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
+                      Quitar
                     </button>
                   </div>
-                ))}
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center h-48 rounded-lg border-2 border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors">
+                  {uploadingImg ? (
+                    <p className="text-sm text-primary">Subiendo imagen...</p>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Upload className="w-8 h-8" />
+                      <span className="text-sm">Subir imagen</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    disabled={uploadingImg}
+                  />
+                </label>
+              )}
+            </div>
+
+            {/* Gallery Images */}
+            <div className="flex-1 border border-border rounded-lg p-4 bg-background space-y-3">
+              <label className="block text-sm font-medium text-foreground">Galería</label>
+              <label className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
+                <Upload className="w-4 h-4" />
+                Subir imágenes
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleAdditionalImageChange}
+                  className="hidden"
+                  disabled={uploadingAdditional}
+                />
+              </label>
+              {uploadingAdditional && <p className="text-sm text-primary">Subiendo imágenes...</p>}
+              {additionalImages.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {additionalImages.map((img, idx) => (
+                    <div key={idx} className="relative group">
+                      <img
+                        src={img.url}
+                        alt={`Adicional ${idx + 1}`}
+                        className="h-24 w-full object-cover rounded-lg border border-border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeAdditionalImage(idx)}
+                        className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* PDF */}
+            <div className="flex-none border border-border rounded-lg p-4 bg-background space-y-3">
+              <label className="block text-sm font-medium text-foreground">Ficha técnica (PDF)</label>
+              {fichaTecnicaUrl ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-[var(--success)]">&#10003; PDF cargado</span>
+                  <a href={fichaTecnicaUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                    Ver
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => { setFichaTecnicaUrl(''); setFichaTecnicaFile(null); }}
+                    className="text-sm text-destructive hover:underline ml-auto"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              ) : (
+                <label className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
+                  <Upload className="w-4 h-4" />
+                  {uploadingPdf ? 'Subiendo PDF...' : 'Subir PDF'}
+                  <input
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    onChange={handleFichaChange}
+                    className="hidden"
+                    disabled={uploadingPdf}
+                  />
+                </label>
+              )}
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN - Fields */}
+          <div className="lg:col-span-2 flex flex-col gap-5">
+            <div className="flex-1 border border-border rounded-lg p-4 bg-background space-y-4">
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-foreground mb-1">Nombre</label>
+                <input
+                  type="text"
+                  value={nombre}
+                  onChange={(e) => handleNombreChange(e.target.value)}
+                  className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  required
+                />
               </div>
-            )}
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-foreground mb-1">Ficha Técnica (PDF)</label>
-            <input
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={handleFichaChange}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-              disabled={uploadingPdf}
-            />
-            {uploadingPdf && <p className="text-sm text-primary mt-1">Subiendo PDF...</p>}
-            {fichaTecnicaUrl && !uploadingPdf && (
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-sm text-green-600">✓ PDF cargado</span>
-                <a href={fichaTecnicaUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">Ver</a>
-                <button
-                  type="button"
-                  onClick={() => { setFichaTecnicaUrl(''); setFichaTecnicaFile(null); }}
-                  className="text-sm text-destructive hover:underline"
-                >
-                  Eliminar
-                </button>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Precio venta</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={precio}
+                    onChange={(e) => setPrecio(e.target.value)}
+                    className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Precio compra</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={precioCompra}
+                    onChange={(e) => setPrecioCompra(e.target.value)}
+                    className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Stock</label>
+                  <input
+                    type="number"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Slug</label>
+                  <input
+                    type="text"
+                    value={slugField}
+                    onChange={(e) => setSlugField(e.target.value)}
+                    className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    required
+                  />
+                </div>
               </div>
-            )}
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-foreground mb-1">Descripción</label>
-            <textarea
-              value={descripcion}
-              onChange={e => setDescripcion(e.target.value)}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-              rows={3}
-            />
-          </div>
-           <div className="col-span-2">
-             <label className="block text-sm font-medium text-foreground mb-2">Categoría</label>
-             <div className="grid grid-cols-3 gap-3">
-               <div>
-                 <label className="block text-xs text-muted-foreground mb-1">Categoría</label>
-                 <select
-                   value={selectedMain}
-                   onChange={e => {
-                     const val = Number(e.target.value);
-                     setSelectedMain(val);
-                     setSelectedSub(0);
-                     setPkCategoria(val);
-                   }}
-                   className="w-full border  rounded px-3 py-2 bg-background text-foreground text-sm"
-                 >
-                   <option value={0}>Seleccionar</option>
-                   {mainCats.map(c => (
-                     <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
-                       {c.nombre_categoria_producto}
-                     </option>
-                   ))}
-                 </select>
-               </div>
-               <div>
-                 <label className="block text-xs text-muted-foreground mb-1">Subcategoría</label>
-                 <select
-                   value={selectedSub}
-                   onChange={e => {
-                     const val = Number(e.target.value);
-                     setSelectedSub(val);
-                     setPkCategoria(val || selectedMain);
-                   }}
-                   className="w-full border  rounded px-3 py-2 bg-background text-foreground text-sm"
-                   disabled={!selectedMain}
-                 >
-                   <option value={0}>{subCats.length ? 'Seleccionar' : 'Sin subcategorías'}</option>
-                   {subCats.map(c => (
-                     <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
-                       {c.nombre_categoria_producto}
-                     </option>
-                   ))}
-                 </select>
-               </div>
-               <div>
-                 <label className="block text-xs text-muted-foreground mb-1">Sub-subcategoría</label>
-                 <select
-                   value={subSubCats.some(c => c.id_categoria_producto === pkCategoria) ? pkCategoria : selectedSub}
-                   onChange={e => setPkCategoria(Number(e.target.value))}
-                   className="w-full border  rounded px-3 py-2 bg-background text-foreground text-sm"
-                   disabled={!selectedSub || subSubCats.length === 0}
-                 >
-                   <option value={selectedSub}>{subSubCats.length ? 'Seleccionar' : 'Sin sub-subcategorías'}</option>
-                   {subSubCats.map(c => (
-                     <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
-                       {c.nombre_categoria_producto}
-                     </option>
-                   ))}
-                 </select>
-               </div>
-             </div>
-           </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Marca</label>
-            <select
-              value={pkMarca}
-              onChange={e => setPkMarca(Number(e.target.value))}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-            >
-              <option value={0}>Seleccionar</option>
-              {marcas.map(m => (
-                <option key={m.id_marca_producto} value={m.id_marca_producto}>
-                  {m.nombre_marca_producto}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Estado</label>
-            <select
-              value={pkEstado}
-              onChange={e => setPkEstado(Number(e.target.value))}
-              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
-            >
-              <option value={0}>Seleccionar</option>
-              {estados.map(e => (
-                <option key={e.id_estado_producto} value={e.id_estado_producto}>
-                  {e.nombre_estado_producto}
-                </option>
-              ))}
-            </select>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Descripción</label>
+                <textarea
+                  value={descripcion}
+                  onChange={(e) => setDescripcion(e.target.value)}
+                  className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="flex-1 border border-border rounded-lg p-4 bg-background space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Categoría</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">Categoría</label>
+                    <select
+                      value={selectedMain}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setSelectedMain(val);
+                        setSelectedSub(0);
+                        setPkCategoria(val);
+                      }}
+                      className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    >
+                      <option value={0}>Seleccionar</option>
+                      {mainCats.map((c) => (
+                        <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
+                          {c.nombre_categoria_producto}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">Subcategoría</label>
+                    <select
+                      value={selectedSub}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setSelectedSub(val);
+                        setPkCategoria(val || selectedMain);
+                      }}
+                      className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={!selectedMain}
+                    >
+                      <option value={0}>{subCats.length ? 'Seleccionar' : 'Sin subcategorías'}</option>
+                      {subCats.map((c) => (
+                        <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
+                          {c.nombre_categoria_producto}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">Sub-subcategoría</label>
+                    <select
+                      value={subSubCats.some((c) => c.id_categoria_producto === pkCategoria) ? pkCategoria : selectedSub}
+                      onChange={(e) => setPkCategoria(Number(e.target.value))}
+                      className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={!selectedSub || subSubCats.length === 0}
+                    >
+                      <option value={selectedSub}>{subSubCats.length ? 'Seleccionar' : 'Sin sub-subcategorías'}</option>
+                      {subSubCats.map((c) => (
+                        <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
+                          {c.nombre_categoria_producto}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Marca</label>
+                  <select
+                    value={pkMarca}
+                    onChange={(e) => setPkMarca(Number(e.target.value))}
+                    className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  >
+                    <option value={0}>Seleccionar</option>
+                    {marcas.map((m) => (
+                      <option key={m.id_marca_producto} value={m.id_marca_producto}>
+                        {m.nombre_marca_producto}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Estado</label>
+                  <select
+                    value={pkEstado}
+                    onChange={(e) => setPkEstado(Number(e.target.value))}
+                    className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  >
+                    <option value={0}>Seleccionar</option>
+                    {estados.map((e) => (
+                      <option key={e.id_estado_producto} value={e.id_estado_producto}>
+                        {e.nombre_estado_producto}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex gap-3">
+
+        <div className="flex gap-3 justify-end mt-6">
           <button
             type="submit"
-            className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 disabled:opacity-50"
+            className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors text-sm font-medium"
             disabled={loading}
           >
             {loading ? 'Guardando...' : 'Guardar'}
@@ -485,7 +558,7 @@ export default function AdminProductForm() {
           <button
             type="button"
             onClick={() => navigate('/admin/productos')}
-            className="bg-muted text-foreground px-4 py-2 rounded hover:bg-muted"
+            className="bg-muted text-foreground px-5 py-2 rounded-lg hover:bg-muted/80 transition-colors text-sm font-medium"
           >
             Cancelar
           </button>

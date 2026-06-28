@@ -146,7 +146,7 @@ export default function AdminLayout() {
               onClick={async () => {
                 const result = await toggleStore()
                 if (result.success) {
-                  showToast(`Tienda ${settings?.is_open ? 'abierta' : 'cerrada'}`, 'success')
+                  showToast(`Tienda ${settings?.is_open ? 'abierta' : 'cerrada'}`, settings?.is_open ? 'success' : 'error')
                 } else {
                   showToast(result.error || 'Error al cambiar estado', 'error')
                 }

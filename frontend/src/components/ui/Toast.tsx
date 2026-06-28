@@ -18,17 +18,17 @@ const ToastContext = createContext<ToastContextType>({ showToast: () => {} });
 export const useToast = () => useContext(ToastContext);
 
 const iconMap: Record<ToastVariant, React.ReactNode> = {
-  success: <CheckCircle className="w-5 h-5 text-white" />,
-  error: <XCircle className="w-5 h-5 text-white" />,
-  warning: <AlertCircle className="w-5 h-5 text-white" />,
-  info: <Info className="w-5 h-5 text-white" />,
+  success: <CheckCircle className="w-5 h-5" style={{ color: 'var(--success)' }} />,
+  error: <XCircle className="w-5 h-5" style={{ color: 'var(--destructive)' }} />,
+  warning: <AlertCircle className="w-5 h-5" style={{ color: 'var(--warning)' }} />,
+  info: <Info className="w-5 h-5" style={{ color: 'var(--info)' }} />,
 };
 
-const bgMap: Record<ToastVariant, string> = {
-  success: "bg-accent",
-  error: "bg-destructive",
-  warning: "bg-amber-500",
-  info: "bg-primary",
+const styleMap: Record<ToastVariant, string> = {
+  success: "bg-[var(--success-bg)] border-[var(--success)] text-[var(--success)]",
+  error: "bg-[var(--destructive-bg)] border-[var(--destructive)] text-[var(--destructive)]",
+  warning: "bg-[var(--warning-bg)] border-[var(--warning)] text-[var(--warning)]",
+  info: "bg-[var(--info-bg)] border-[var(--info)] text-[var(--info)]",
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -54,14 +54,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`flex items-start gap-3 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium animate-in slide-in-from-right ${bgMap[toast.variant]}`}
+            className={`flex items-start gap-3 px-4 py-3 rounded-xl border shadow-lg text-sm font-medium animate-in slide-in-from-right ${styleMap[toast.variant]}`}
             role="alert"
           >
             <span className="flex-shrink-0 mt-0.5">{iconMap[toast.variant]}</span>
             <p className="flex-1">{toast.message}</p>
             <button
               onClick={() => removeToast(toast.id)}
-              className="flex-shrink-0 text-white/80 hover:text-white transition"
+              className="flex-shrink-0 opacity-60 hover:opacity-100 transition"
             >
               <X className="w-4 h-4" />
             </button>
