@@ -32,6 +32,7 @@ import AdminOffers from './pages/admin/OffersPage';
 import AdminMovements from './pages/admin/MovementsPage';
 import AdminCategories from './pages/admin/CategoriesPage';
 import AdminBrands from './pages/admin/BrandsPage';
+import AdminBrandForm from './pages/admin/BrandFormPage';
 import AdminHeroSlides from './pages/admin/HeroSlidesPage';
 import AdminBannerPublicidad from './pages/admin/BannerPublicidadPage';
 import AdminPageHero from './pages/admin/PageHeroPage';
@@ -71,6 +72,8 @@ const App: React.FC = () => {
           <Route path="formularios/:id" element={<AdminFormDetail />} />
           <Route path="categorias" element={<AdminCategories />} />
           <Route path="marcas" element={<AdminBrands />} />
+          <Route path="marcas/nueva" element={<AdminBrandForm />} />
+          <Route path="marcas/editar/:id" element={<AdminBrandForm />} />
           <Route path="hero-slides" element={<AdminHeroSlides />} />
           <Route path="banners-publicidad" element={<AdminBannerPublicidad />} />
           <Route path="page-hero" element={<AdminPageHero />} />

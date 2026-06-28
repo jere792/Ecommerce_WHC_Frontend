@@ -39,7 +39,7 @@ export default function AdminProducts() {
   const filtered = useMemo(() => {
     let result = products;
 
-    if (search) {
+    if (search.length >= 3) {
       const q = search.toLowerCase();
       result = result.filter((p) => p.nombre_producto.toLowerCase().includes(q));
     }
