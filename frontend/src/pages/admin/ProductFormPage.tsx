@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { uploadToCloudinary } from '../../lib/cloudinary';
+import { uploadPdf } from '../../lib/supabaseStorage';
 import type { CategoriaProducto, MarcaProducto, EstadoProducto, Producto, ProductoImagen } from '../../lib/supabaseTypes';
 import { Trash2, Upload } from 'lucide-react';
 
@@ -26,6 +27,8 @@ export default function AdminProductForm() {
   const [stock, setStock] = useState('');
   const [slugField, setSlugField] = useState('');
   const [pkCategoria, setPkCategoria] = useState<number>(0);
+  const [selectedMain, setSelectedMain] = useState<number>(0);
+  const [selectedSub, setSelectedSub] = useState<number>(0);
   const [pkMarca, setPkMarca] = useState<number>(0);
   const [pkEstado, setPkEstado] = useState<number>(0);
   const [categorias, setCategorias] = useState<CategoriaProducto[]>([]);
@@ -34,6 +37,15 @@ export default function AdminProductForm() {
   const [loading, setLoading] = useState(false);
   const [additionalImages, setAdditionalImages] = useState<AdditionalImage[]>([]);
   const [uploadingAdditional, setUploadingAdditional] = useState(false);
+  const [fichaTecnicaUrl, setFichaTecnicaUrl] = useState('');
+  const [fichaTecnicaFile, setFichaTecnicaFile] = useState<File | null>(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+
+  const [editCatId, setEditCatId] = useState<number | null>(null);
+
+  const mainCats = categorias.filter(c => !c.pk_categoria_padre);
+  const subCats = selectedMain ? categorias.filter(c => c.pk_categoria_padre === selectedMain) : [];
+  const subSubCats = selectedSub ? categorias.filter(c => c.pk_categoria_padre === selectedSub) : [];
 
   useEffect(() => {
     Promise.all([
@@ -63,6 +75,8 @@ export default function AdminProductForm() {
             setStock(String(p.stock_producto));
             setSlugField(p.slug);
             setPkCategoria(p.pk_categoria_producto || 0);
+            setEditCatId(p.pk_categoria_producto || null);
+            setFichaTecnicaUrl(p.ficha_tecnica_url || '');
             setPkMarca(p.pk_marca_producto || 0);
             setPkEstado(p.pk_estado_producto || 0);
             if (p.imagenes) {
@@ -76,6 +90,23 @@ export default function AdminProductForm() {
         });
     }
   }, [slug, isEdit]);
+
+  useEffect(() => {
+    if (!editCatId || categorias.length === 0) return;
+    const resolveChain = (catId: number): [number, number, number] => {
+      const cat = categorias.find(c => c.id_categoria_producto === catId);
+      if (!cat) return [0, 0, catId];
+      const parent = cat.pk_categoria_padre ? categorias.find(c => c.id_categoria_producto === cat.pk_categoria_padre) : null;
+      if (!parent) return [catId, 0, catId];
+      const grandparent = parent.pk_categoria_padre ? categorias.find(c => c.id_categoria_producto === parent.pk_categoria_padre) : null;
+      if (!grandparent) return [parent.id_categoria_producto, catId, catId];
+      return [grandparent.id_categoria_producto, parent.id_categoria_producto, catId];
+    };
+    const [mainId, subId, catId] = resolveChain(editCatId);
+    setSelectedMain(mainId);
+    setSelectedSub(subId);
+    setPkCategoria(catId);
+  }, [editCatId, categorias]);
 
   const toSlug = (text: string) =>
     text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, '');
@@ -125,6 +156,21 @@ export default function AdminProductForm() {
     setAdditionalImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleFichaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFichaTecnicaFile(file);
+    setUploadingPdf(true);
+    try {
+      const url = await uploadPdf(file);
+      setFichaTecnicaUrl(url);
+    } catch (err) {
+      alert('Error al subir PDF: ' + err);
+    } finally {
+      setUploadingPdf(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -157,6 +203,7 @@ export default function AdminProductForm() {
       pk_categoria_producto: pkCategoria || null,
       pk_marca_producto: pkMarca || null,
       pk_estado_producto: pkEstado || null,
+      ficha_tecnica_url: fichaTecnicaUrl || null,
     };
 
     if (isEdit) {
@@ -224,7 +271,7 @@ export default function AdminProductForm() {
               step="0.01"
               value={precio}
               onChange={e => setPrecio(e.target.value)}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
               required
             />
           </div>
@@ -235,7 +282,7 @@ export default function AdminProductForm() {
               step="0.01"
               value={precioCompra}
               onChange={e => setPrecioCompra(e.target.value)}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
             />
           </div>
           <div>
@@ -244,7 +291,7 @@ export default function AdminProductForm() {
               type="number"
               value={stock}
               onChange={e => setStock(e.target.value)}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
               required
             />
           </div>
@@ -254,7 +301,7 @@ export default function AdminProductForm() {
               type="text"
               value={slugField}
               onChange={e => setSlugField(e.target.value)}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
               required
             />
           </div>
@@ -264,12 +311,12 @@ export default function AdminProductForm() {
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
               disabled={uploadingImg}
             />
             {uploadingImg && <p className="text-sm text-primary mt-1">Subiendo imagen...</p>}
             {imagen && !uploadingImg && (
-              <img src={imagen} alt="Vista previa" className="mt-2 h-32 w-32 object-cover rounded border border-border" />
+              <img src={imagen} alt="Vista previa" className="mt-2 h-32 w-32 object-cover rounded border " />
             )}
           </div>
           <div className="col-span-2">
@@ -281,7 +328,7 @@ export default function AdminProductForm() {
               accept="image/*"
               multiple
               onChange={handleAdditionalImageChange}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
               disabled={uploadingAdditional}
             />
             {uploadingAdditional && <p className="text-sm text-primary mt-1">Subiendo imágenes...</p>}
@@ -289,11 +336,11 @@ export default function AdminProductForm() {
               <div className="flex flex-wrap gap-3 mt-3">
                 {additionalImages.map((img, idx) => (
                   <div key={idx} className="relative group">
-                    <img src={img.url} alt={`Adicional ${idx + 1}`} className="h-24 w-24 object-cover rounded-lg border border-border" />
+                    <img src={img.url} alt={`Adicional ${idx + 1}`} className="h-24 w-24 object-cover rounded-lg border " />
                     <button
                       type="button"
                       onClick={() => removeAdditionalImage(idx)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                      className="absolute -top-2 -right-2 bg-destructive/100 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -303,35 +350,105 @@ export default function AdminProductForm() {
             )}
           </div>
           <div className="col-span-2">
+            <label className="block text-sm font-medium text-foreground mb-1">Ficha Técnica (PDF)</label>
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={handleFichaChange}
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
+              disabled={uploadingPdf}
+            />
+            {uploadingPdf && <p className="text-sm text-primary mt-1">Subiendo PDF...</p>}
+            {fichaTecnicaUrl && !uploadingPdf && (
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-sm text-green-600">✓ PDF cargado</span>
+                <a href={fichaTecnicaUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">Ver</a>
+                <button
+                  type="button"
+                  onClick={() => { setFichaTecnicaUrl(''); setFichaTecnicaFile(null); }}
+                  className="text-sm text-destructive hover:underline"
+                >
+                  Eliminar
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="col-span-2">
             <label className="block text-sm font-medium text-foreground mb-1">Descripción</label>
             <textarea
               value={descripcion}
               onChange={e => setDescripcion(e.target.value)}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
               rows={3}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Categoría</label>
-            <select
-              value={pkCategoria}
-              onChange={e => setPkCategoria(Number(e.target.value))}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
-            >
-              <option value={0}>Seleccionar</option>
-              {categorias.map(c => (
-                <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
-                  {c.nombre_categoria_producto}
-                </option>
-              ))}
-            </select>
-          </div>
+           <div className="col-span-2">
+             <label className="block text-sm font-medium text-foreground mb-2">Categoría</label>
+             <div className="grid grid-cols-3 gap-3">
+               <div>
+                 <label className="block text-xs text-muted-foreground mb-1">Categoría</label>
+                 <select
+                   value={selectedMain}
+                   onChange={e => {
+                     const val = Number(e.target.value);
+                     setSelectedMain(val);
+                     setSelectedSub(0);
+                     setPkCategoria(val);
+                   }}
+                   className="w-full border  rounded px-3 py-2 bg-background text-foreground text-sm"
+                 >
+                   <option value={0}>Seleccionar</option>
+                   {mainCats.map(c => (
+                     <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
+                       {c.nombre_categoria_producto}
+                     </option>
+                   ))}
+                 </select>
+               </div>
+               <div>
+                 <label className="block text-xs text-muted-foreground mb-1">Subcategoría</label>
+                 <select
+                   value={selectedSub}
+                   onChange={e => {
+                     const val = Number(e.target.value);
+                     setSelectedSub(val);
+                     setPkCategoria(val || selectedMain);
+                   }}
+                   className="w-full border  rounded px-3 py-2 bg-background text-foreground text-sm"
+                   disabled={!selectedMain}
+                 >
+                   <option value={0}>{subCats.length ? 'Seleccionar' : 'Sin subcategorías'}</option>
+                   {subCats.map(c => (
+                     <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
+                       {c.nombre_categoria_producto}
+                     </option>
+                   ))}
+                 </select>
+               </div>
+               <div>
+                 <label className="block text-xs text-muted-foreground mb-1">Sub-subcategoría</label>
+                 <select
+                   value={subSubCats.some(c => c.id_categoria_producto === pkCategoria) ? pkCategoria : selectedSub}
+                   onChange={e => setPkCategoria(Number(e.target.value))}
+                   className="w-full border  rounded px-3 py-2 bg-background text-foreground text-sm"
+                   disabled={!selectedSub || subSubCats.length === 0}
+                 >
+                   <option value={selectedSub}>{subSubCats.length ? 'Seleccionar' : 'Sin sub-subcategorías'}</option>
+                   {subSubCats.map(c => (
+                     <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
+                       {c.nombre_categoria_producto}
+                     </option>
+                   ))}
+                 </select>
+               </div>
+             </div>
+           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Marca</label>
             <select
               value={pkMarca}
               onChange={e => setPkMarca(Number(e.target.value))}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
             >
               <option value={0}>Seleccionar</option>
               {marcas.map(m => (
@@ -346,7 +463,7 @@ export default function AdminProductForm() {
             <select
               value={pkEstado}
               onChange={e => setPkEstado(Number(e.target.value))}
-              className="w-full border border-border rounded px-3 py-2 bg-background text-foreground"
+              className="w-full border  rounded px-3 py-2 bg-background text-foreground"
             >
               <option value={0}>Seleccionar</option>
               {estados.map(e => (
@@ -360,7 +477,7 @@ export default function AdminProductForm() {
         <div className="flex gap-3">
           <button
             type="submit"
-            className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700 disabled:opacity-50"
+            className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? 'Guardando...' : 'Guardar'}
@@ -368,7 +485,7 @@ export default function AdminProductForm() {
           <button
             type="button"
             onClick={() => navigate('/admin/productos')}
-            className="bg-muted text-foreground px-4 py-2 rounded hover:bg-muted/80"
+            className="bg-muted text-foreground px-4 py-2 rounded hover:bg-muted"
           >
             Cancelar
           </button>
@@ -377,3 +494,5 @@ export default function AdminProductForm() {
     </div>
   );
 }
+
+

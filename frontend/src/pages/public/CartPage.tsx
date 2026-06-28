@@ -19,7 +19,7 @@ function CartPage() {
         </div>
         <Publicidad textoPromocional="Delivery gratis a compras mayores a S/.200" />  
         <ProductCarousel
-            pkCategoria="Válvulas"
+            pkCategoria={34}
             titulo="MAS PRODUCTOS"
             subtitulo="Encuentra los mejores productos para tu baño y cocina"
           />

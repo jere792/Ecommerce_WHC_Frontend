@@ -18,6 +18,7 @@ interface ProductoData {
   marca: string;
   stockProducto?: number;
   categoria?: string;
+  fichaTecnicaUrl?: string;
   imagenesAdicionales: { url: string; id: number }[];
 }
 
@@ -58,6 +59,7 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
           marca: (data as any).marca?.nombre_marca_producto || '',
           stockProducto: data.stock_producto,
           categoria: (data as any).categoria?.nombre_categoria_producto || '',
+          fichaTecnicaUrl: data.ficha_tecnica_url || undefined,
           imagenesAdicionales,
         });
         setSelectedImage(0);
@@ -309,11 +311,6 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
             Agregar al carrito
           </button>
 
-          <button className="w-full py-2.5 px-6 border-2 border-gray-200 hover:border-blue-300 text-gray-600 hover:text-blue-700 font-medium rounded-xl transition-all flex items-center justify-center gap-2 mb-6">
-            <Heart className="w-5 h-5" />
-            Agregar a favoritos
-          </button>
-
           <div className="bg-gray-50 rounded-xl p-4 space-y-3">
             <div className="flex items-center gap-3 text-sm text-gray-600">
               <Truck className="w-5 h-5 text-blue-600 flex-shrink-0" />
@@ -332,6 +329,17 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
           <div className="mt-4 text-xs text-gray-400 space-y-1">
             <p>Código: #{producto.idProducto}</p>
             {producto.categoria && <p>Categoría: {producto.categoria}</p>}
+            {producto.fichaTecnicaUrl && (
+              <button
+                onClick={() => window.open(producto.fichaTecnicaUrl, '_blank')}
+                className="inline-flex items-center gap-1.5 mt-2 text-sm font-medium text-blue-700 hover:text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Ficha Técnica (PDF)
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -387,6 +395,20 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
                 <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
                 <span><strong>Stock:</strong> {stockDisponible} unidades</span>
               </li>
+              {producto.fichaTecnicaUrl && (
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  <button
+                    onClick={() => window.open(producto.fichaTecnicaUrl, '_blank')}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-500"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.293.707l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Ficha Técnica (PDF)
+                  </button>
+                </li>
+              )}
             </ul>
           )}
           {tabActiva === 'envios' && (

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ProductCard from "../ui/ProductCard";
 import { ProductCardSkeleton } from "../ui/Skeleton";
 import { supabase } from '../../lib/supabaseClient';
+import type { CategoriaProducto } from '../../lib/supabaseTypes';
 
 interface Producto {
   idProducto: number;
@@ -11,14 +12,23 @@ interface Producto {
   imagenProducto?: string;
   slug: string;
   marca: string;
-  categoria: string;
-  stockProducto: number; 
+  stockProducto: number;
+  pkCategoria: number | null;
 }
 
 interface ProductCarouselProps {
-  pkCategoria: string;
+  pkCategoria: number;
   titulo: string;
   subtitulo?: string;
+}
+
+function getAllDescendantIds(categorias: CategoriaProducto[], parentId: number): number[] {
+  const ids: number[] = [parentId];
+  const children = categorias.filter(c => c.pk_categoria_padre === parentId);
+  for (const child of children) {
+    ids.push(...getAllDescendantIds(categorias, child.id_categoria_producto));
+  }
+  return ids;
 }
 
 export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: ProductCarouselProps) {
@@ -28,12 +38,17 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
   useEffect(() => {
     setLoading(true);
 
-    supabase
-      .from('producto')
-      .select('*, categoria:pk_categoria_producto(*), marca:pk_marca_producto(*)')
-      .then(({ data }) => {
-        if (data) {
-          const adaptados: Producto[] = data.map((p: any) => ({
+    Promise.all([
+      supabase.from('producto').select('*, marca:pk_marca_producto(*)'),
+      supabase.from('categoria_p').select('*'),
+    ]).then(([prodRes, catRes]) => {
+      const allCategorias = (catRes.data ?? []) as CategoriaProducto[];
+      const categoryIds = getAllDescendantIds(allCategorias, pkCategoria);
+
+      if (prodRes.data) {
+        const adaptados: Producto[] = prodRes.data
+          .filter((p: any) => p.pk_categoria_producto && categoryIds.includes(p.pk_categoria_producto))
+          .map((p: any) => ({
             idProducto: p.id_producto,
             nombreProducto: p.nombre_producto,
             precioProducto: Number(p.precio_producto),
@@ -41,18 +56,14 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
             imagenProducto: p.imagen_producto,
             slug: p.slug,
             marca: p.marca?.nombre_marca_producto || '',
-            categoria: p.categoria?.nombre_categoria_producto || '',
             stockProducto: p.stock_producto,
+            pkCategoria: p.pk_categoria_producto,
           }));
-          setProductos(adaptados);
-        }
-        setLoading(false);
-      });
-  }, []);
-
-  const productosFiltrados = productos.filter(prod =>
-    prod.categoria?.toLowerCase() === pkCategoria.toLowerCase()
-  );
+        setProductos(adaptados);
+      }
+      setLoading(false);
+    });
+  }, [pkCategoria]);
 
   return (
     <section className="py-10 bg-gray-50">
@@ -73,10 +84,10 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
                   <ProductCardSkeleton />
                 </div>
               ))
-            ) : productosFiltrados.length === 0 ? (
+            ) : productos.length === 0 ? (
               <div className="text-center w-full py-8 text-gray-400">No hay productos para esta categoría.</div>
             ) : (
-              productosFiltrados.map(producto => (
+              productos.map(producto => (
                 <div
                   key={producto.idProducto}
                   className="min-w-[260px] max-w-[280px] snap-start"

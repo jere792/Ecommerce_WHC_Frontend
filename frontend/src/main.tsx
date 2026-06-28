@@ -6,6 +6,7 @@ import './styles/index.css';
 import { CartProvider } from './components/ui/CartContext';
 import { AuthProvider } from './hooks/AuthContext';
 import { ToastProvider } from './components/ui/Toast';
+import { StoreProvider } from './contexts/StoreContext';
 
 const rootElement = document.getElementById('root');
 
@@ -15,11 +16,13 @@ if (rootElement) {
     <React.StrictMode>
       <BrowserRouter>
         <AuthProvider>
-          <CartProvider>
-            <ToastProvider>
-              <App />
-            </ToastProvider>
-          </CartProvider>
+          <ToastProvider>
+            <StoreProvider>
+              <CartProvider>
+                <App />
+              </CartProvider>
+            </StoreProvider>
+          </ToastProvider>
         </AuthProvider>
       </BrowserRouter>
     </React.StrictMode>

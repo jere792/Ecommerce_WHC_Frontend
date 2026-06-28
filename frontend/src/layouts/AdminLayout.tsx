@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../hooks/AuthContext';
-import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, SlidersHorizontal, LogOut, Moon, Sun, Menu, X, ChevronRight } from 'lucide-react';
+import { useStore } from '../contexts/StoreContext';
+import { useToast } from '../components/ui/Toast';
+import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, SlidersHorizontal, LogOut, Moon, Sun, Menu, X, ChevronRight, Store } from 'lucide-react';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -61,6 +63,8 @@ function Breadcrumbs() {
 
 export default function AdminLayout() {
   const { user, isAdmin, loading, logout } = useAuthContext();
+  const { isOpenNow, toggleStore, loading: storeLoading, settings } = useStore();
+  const { showToast } = useToast();
   const [dark, setDark] = useState(() => localStorage.getItem('admin-dark') === 'true');
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024);
 
@@ -131,6 +135,39 @@ export default function AdminLayout() {
             );
           })}
         </nav>
+
+        <div className="px-3 py-2 border-t border-border shrink-0">
+          <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted">
+            <div className="flex items-center gap-2">
+              <Store className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">Tienda</span>
+            </div>
+            <button
+              onClick={async () => {
+                const result = await toggleStore()
+                if (result.success) {
+                  showToast(`Tienda ${settings?.is_open ? 'abierta' : 'cerrada'}`, 'success')
+                } else {
+                  showToast(result.error || 'Error al cambiar estado', 'error')
+                }
+              }}
+              disabled={storeLoading}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                settings?.is_open ? 'bg-green-500' : 'bg-muted'
+              }`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                settings?.is_open ? 'translate-x-6' : 'translate-x-1'
+              }`} />
+            </button>
+          </div>
+          <p className={`text-xs mt-1 px-3 ${settings?.is_open ? 'text-green-600' : 'text-destructive'}`}>
+            {settings?.is_open ? 'Abierto' : 'Cerrado'}
+          </p>
+          <p className={`text-[10px] mt-0.5 px-3 ${isOpenNow ? 'text-green-500' : 'text-muted-foreground'}`}>
+            {isOpenNow ? 'En horario de atención' : 'Fuera de horario'}
+          </p>
+        </div>
 
         <div className="px-3 py-3 border-t border-border shrink-0">
           <Link
