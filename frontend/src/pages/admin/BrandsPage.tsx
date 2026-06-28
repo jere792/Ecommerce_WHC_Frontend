@@ -68,63 +68,65 @@ export default function AdminBrands() {
     loadBrands();
   };
 
-  if (loading) return <div className="text-center py-12 text-gray-500 dark:text-gray-400">Cargando...</div>;
+  if (loading) return <div className="text-center py-12 text-muted-foreground">Cargando...</div>;
 
   return (
     <div>
       {modal}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Marcas</h1>
-        <button onClick={openNew} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Nueva marca</button>
+        <h1 className="text-2xl font-bold text-foreground">Marcas</h1>
+        <button onClick={openNew} className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700">Nueva marca</button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{editing ? 'Editar' : 'Nueva'} marca</h2>
+        <form onSubmit={handleSubmit} className="bg-background rounded-lg shadow p-6 mb-6 space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">{editing ? 'Editar' : 'Nueva'} marca</h2>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
-            <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
+            <label className="block text-sm font-medium text-foreground mb-1">Nombre</label>
+            <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Logo</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} disabled={uploading} className="w-full text-gray-900 dark:text-gray-100" />
-            {uploading && <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">Subiendo...</p>}
-            {logoUrl && !uploading && <img src={logoUrl} alt="Logo" className="mt-2 h-16 object-contain rounded border dark:border-gray-600" />}
+            <label className="block text-sm font-medium text-foreground mb-1">Logo</label>
+            <input type="file" accept="image/*" onChange={handleImageChange} disabled={uploading} className="w-full text-foreground" />
+            {uploading && <p className="text-sm text-primary mt-1">Subiendo...</p>}
+            {logoUrl && !uploading && <img src={logoUrl} alt="Logo" className="mt-2 h-16 object-contain rounded border border-border" />}
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={mostrarEnHome} onChange={e => setMostrarEnHome(e.target.checked)} className="w-4 h-4" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Mostrar en la página principal</span>
+            <span className="text-sm font-medium text-foreground">Mostrar en la página principal</span>
           </label>
           <div className="flex gap-3">
             <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Guardar</button>
-            <button type="button" onClick={() => setShowForm(false)} className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Cancelar</button>
+            <button type="button" onClick={() => setShowForm(false)} className="bg-muted text-foreground px-4 py-2 rounded hover:bg-muted/80">Cancelar</button>
           </div>
         </form>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+      <div className="bg-background rounded-lg shadow overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+          <thead className="bg-muted">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Nombre</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Logo</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">En home</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Acciones</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">ID</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Nombre</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Logo</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">En home</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-border">
             {brands.map((brand) => (
-              <tr key={brand.id_marca_producto} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{brand.nombre_marca_producto}</td>
+              <tr key={brand.id_marca_producto} className="hover:bg-muted">
+                <td className="px-4 py-3 text-sm text-foreground">{brand.id_marca_producto}</td>
+                <td className="px-4 py-3 text-sm font-medium text-foreground">{brand.nombre_marca_producto}</td>
                 <td className="px-4 py-3 text-sm">{brand.logo_url ? <img src={brand.logo_url} alt="" className="h-10 object-contain" /> : '-'}</td>
                 <td className="px-4 py-3 text-sm">
-                  <button onClick={() => toggleHome(brand)} className={`px-2 py-1 rounded text-xs font-medium ${brand.mostrar_en_home ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
+                  <button onClick={() => toggleHome(brand)} className={`px-2 py-1 rounded text-xs font-medium ${brand.mostrar_en_home ? 'bg-green-100 text-green-800' : 'bg-muted text-muted-foreground'}`}>
                     {brand.mostrar_en_home ? 'Sí' : 'No'}
                   </button>
                 </td>
                 <td className="px-4 py-3 text-sm flex gap-2">
-                  <button onClick={() => openEdit(brand)} className="text-blue-600 dark:text-blue-400 hover:text-blue-800">Editar</button>
-                  <button onClick={() => handleDelete(brand.id_marca_producto)} className="text-red-600 dark:text-red-400 hover:text-red-800">Eliminar</button>
+                  <button onClick={() => openEdit(brand)} className="text-primary hover:text-primary-800">Editar</button>
+                  <button onClick={() => handleDelete(brand.id_marca_producto)} className="text-destructive hover:text-destructive/80">Eliminar</button>
                 </td>
               </tr>
             ))}

@@ -81,23 +81,23 @@ export default function AdminOffers() {
     loadData();
   };
 
-  if (loading) return <div className="text-center py-12 text-gray-500 dark:text-gray-400">Cargando...</div>;
+  if (loading) return <div className="text-center py-12 text-muted-foreground">Cargando...</div>;
 
   return (
     <div>
       {modal}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Ofertas</h1>
-        <button onClick={openNew} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Nueva oferta</button>
+        <h1 className="text-2xl font-bold text-foreground">Ofertas</h1>
+        <button onClick={openNew} className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700">Nueva oferta</button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{editingOffer ? 'Editar' : 'Nueva'} oferta</h2>
+        <form onSubmit={handleSubmit} className="bg-background rounded-lg shadow p-6 mb-6 space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">{editingOffer ? 'Editar' : 'Nueva'} oferta</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Producto</label>
-              <select value={formProducto} onChange={e => setFormProducto(Number(e.target.value))} className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required>
+              <label className="block text-sm font-medium text-foreground mb-1">Producto</label>
+              <select value={formProducto} onChange={e => setFormProducto(Number(e.target.value))} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" required>
                 <option value={0}>Seleccionar producto</option>
                 {products.map(p => (
                   <option key={p.id_producto} value={p.id_producto}>{p.nombre_producto}</option>
@@ -105,48 +105,48 @@ export default function AdminOffers() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio oferta</label>
-              <input type="number" step="0.01" value={formPrecio} onChange={e => setFormPrecio(e.target.value)} className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
+              <label className="block text-sm font-medium text-foreground mb-1">Precio oferta</label>
+              <input type="number" step="0.01" value={formPrecio} onChange={e => setFormPrecio(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha inicio</label>
-              <input type="date" value={formInicio} onChange={e => setFormInicio(e.target.value)} className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
+              <label className="block text-sm font-medium text-foreground mb-1">Fecha inicio</label>
+              <input type="date" value={formInicio} onChange={e => setFormInicio(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha fin</label>
-              <input type="date" value={formFin} onChange={e => setFormFin(e.target.value)} className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
+              <label className="block text-sm font-medium text-foreground mb-1">Fecha fin</label>
+              <input type="date" value={formFin} onChange={e => setFormFin(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" required />
             </div>
           </div>
           <div className="flex gap-3">
             <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Guardar</button>
-            <button type="button" onClick={() => setShowForm(false)} className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Cancelar</button>
+            <button type="button" onClick={() => setShowForm(false)} className="bg-muted text-foreground px-4 py-2 rounded hover:bg-muted/80">Cancelar</button>
           </div>
         </form>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+      <div className="bg-background rounded-lg shadow overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+          <thead className="bg-muted">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">ID</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Producto</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Precio oferta</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Inicio</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Fin</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Acciones</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">ID</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Producto</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Precio oferta</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Inicio</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Fin</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-border">
             {offers.map((o) => (
-              <tr key={o.id_oferta} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{o.id_oferta}</td>
-                <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{o.producto?.nombre_producto}</td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">S/{Number(o.precio_oferta).toFixed(2)}</td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{o.fecha_inicio}</td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{o.fecha_fin}</td>
+              <tr key={o.id_oferta} className="hover:bg-muted">
+                <td className="px-4 py-3 text-sm text-foreground">{o.id_oferta}</td>
+                <td className="px-4 py-3 text-sm font-medium text-foreground">{o.producto?.nombre_producto}</td>
+                <td className="px-4 py-3 text-sm text-foreground">S/{Number(o.precio_oferta).toFixed(2)}</td>
+                <td className="px-4 py-3 text-sm text-foreground">{o.fecha_inicio}</td>
+                <td className="px-4 py-3 text-sm text-foreground">{o.fecha_fin}</td>
                 <td className="px-4 py-3 text-sm flex gap-2">
-                  <button onClick={() => openEdit(o)} className="text-blue-600 dark:text-blue-400 hover:text-blue-800">Editar</button>
-                  <button onClick={() => handleDelete(o.id_oferta)} className="text-red-600 dark:text-red-400 hover:text-red-800">Eliminar</button>
+                  <button onClick={() => openEdit(o)} className="text-primary hover:text-primary-800">Editar</button>
+                  <button onClick={() => handleDelete(o.id_oferta)} className="text-destructive hover:text-destructive/80">Eliminar</button>
                 </td>
               </tr>
             ))}

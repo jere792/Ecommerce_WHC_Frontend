@@ -9,6 +9,11 @@
     overflow-y: scroll;
   }
 
+  html.theme-transition,
+  html.theme-transition * {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+  }
+
   body {
     font-family: 'Montserrat', 'Inter', system-ui, -apple-system, sans-serif;
   }
@@ -118,30 +123,30 @@
   }
 
   .dark {
-    --background: #020817;
-    --foreground: #F8FAFC;
-    --card: #020817;
-    --card-foreground: #F8FAFC;
-    --popover: #020817;
-    --popover-foreground: #F8FAFC;
-    --primary: #1C80E3;
+    --background: #0B1628;
+    --foreground: #F1F7FE;
+    --card: #0F1D34;
+    --card-foreground: #F1F7FE;
+    --popover: #0F1D34;
+    --popover-foreground: #F1F7FE;
+    --primary: #3B9BFF;
     --primary-foreground: #FFFFFF;
-    --secondary: #3B5DC4;
+    --secondary: #4A7CF7;
     --secondary-foreground: #FFFFFF;
-    --muted: #1E293B;
-    --muted-foreground: #94A3B8;
-    --accent: #2CC99C;
-    --accent-foreground: #FFFFFF;
-    --destructive: #7F1D1D;
-    --destructive-foreground: #F8FAFC;
-    --border: #1E293B;
-    --input: #1E293B;
-    --ring: #1C80E3;
-    --chart-1: #2662D9;
-    --chart-2: #2EB88A;
-    --chart-3: #E88C30;
-    --chart-4: #AF57DB;
-    --chart-5: #E23670;
+    --muted: #1A2D47;
+    --muted-foreground: #9BB3D4;
+    --accent: #34D9A8;
+    --accent-foreground: #0F1D34;
+    --destructive: #991B1B;
+    --destructive-foreground: #F1F7FE;
+    --border: #1E3A5E;
+    --input: #1E3A5E;
+    --ring: #3B9BFF;
+    --chart-1: #3B82F6;
+    --chart-2: #34D9A8;
+    --chart-3: #F59E0B;
+    --chart-4: #A855F7;
+    --chart-5: #EF4444;
   }
 }
 

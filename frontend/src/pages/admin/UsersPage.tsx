@@ -35,38 +35,40 @@ export default function AdminUsers() {
     loadUsers();
   };
 
-  if (loading) return <div className="text-center py-12 text-gray-500 dark:text-gray-400">Cargando...</div>;
+  if (loading) return <div className="text-center py-12 text-muted-foreground">Cargando...</div>;
 
   return (
     <div>
       {modal}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Usuarios</h1>
-        <Link to="/admin/usuarios/nuevo" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <h1 className="text-2xl font-bold text-foreground">Usuarios</h1>
+        <Link to="/admin/usuarios/nuevo" className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700">
           <Plus className="w-4 h-4" /> Nuevo usuario
         </Link>
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+      <div className="bg-background rounded-lg shadow overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+          <thead className="bg-muted">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Nombre</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Email</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Rol</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Acciones</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">ID</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Nombre</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Email</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Rol</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-border">
             {users.map((u) => (
-              <tr key={u.id_usuario} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{u.nombre_persona}</td>
-                <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{u.correo_persona}</td>
+              <tr key={u.id_usuario} className="hover:bg-muted">
+                <td className="px-4 py-3 text-sm text-foreground">{u.id_usuario}</td>
+                <td className="px-4 py-3 text-sm font-medium text-foreground">{u.nombre_persona}</td>
+                <td className="px-4 py-3 text-sm text-foreground">{u.correo_persona}</td>
                 <td className="px-4 py-3 text-sm">
-                  <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">{u.rol?.nombre_rol}</span>
+                  <span className="px-2 py-1 rounded text-xs font-medium bg-primary-100 text-primary-800">{u.rol?.nombre_rol}</span>
                 </td>
                 <td className="px-4 py-3 text-sm flex gap-2">
-                  <button onClick={() => navigate(`/admin/usuarios/editar/${u.id_usuario}`)} className="text-blue-600 dark:text-blue-400 hover:text-blue-800"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(u.id_usuario, u.auth_user_id)} className="text-red-600 dark:text-red-400 hover:text-red-800"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => navigate(`/admin/usuarios/editar/${u.id_usuario}`)} className="text-primary hover:text-primary-800"><Edit className="w-4 h-4" /></button>
+                  <button onClick={() => handleDelete(u.id_usuario, u.auth_user_id)} className="text-destructive hover:text-destructive/80"><Trash2 className="w-4 h-4" /></button>
                 </td>
               </tr>
             ))}

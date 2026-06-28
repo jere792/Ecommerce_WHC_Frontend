@@ -90,78 +90,78 @@ export default function AdminBannerPublicidad() {
     loadBanners();
   };
 
-  if (loading) return <div className="text-center py-12 text-gray-500 dark:text-gray-400">Cargando...</div>;
+  if (loading) return <div className="text-center py-12 text-muted-foreground">Cargando...</div>;
 
   return (
     <div>
       {modal}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Banners Publicidad</h1>
-        <button onClick={openNew} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Nuevo banner</button>
+        <h1 className="text-2xl font-bold text-foreground">Banners Publicidad</h1>
+        <button onClick={openNew} className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700">Nuevo banner</button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{editing ? 'Editar' : 'Nuevo'} banner</h2>
+        <form onSubmit={handleSubmit} className="bg-background rounded-lg shadow p-6 mb-6 space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">{editing ? 'Editar' : 'Nuevo'} banner</h2>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Título</label>
-            <input type="text" value={titulo} onChange={e => setTitulo(e.target.value)} className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
+            <label className="block text-sm font-medium text-foreground mb-1">Título</label>
+            <input type="text" value={titulo} onChange={e => setTitulo(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" required />
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Imagen principal</label>
-              <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('principal', e.target.files[0])} disabled={uploading.principal} className="w-full text-gray-900 dark:text-gray-100" />
-              {uploading.principal && <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Subiendo...</p>}
-              {imgPrincipal && !uploading.principal && <img src={imgPrincipal} alt="" className="mt-1 h-16 object-cover rounded border dark:border-gray-600" />}
+              <label className="block text-sm font-medium text-foreground mb-1">Imagen principal</label>
+              <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('principal', e.target.files[0])} disabled={uploading.principal} className="w-full text-foreground" />
+              {uploading.principal && <p className="text-xs text-primary mt-1">Subiendo...</p>}
+              {imgPrincipal && !uploading.principal && <img src={imgPrincipal} alt="" className="mt-1 h-16 object-cover rounded border border-border" />}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Secundaria top</label>
-              <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('top', e.target.files[0])} disabled={uploading.top} className="w-full text-gray-900 dark:text-gray-100" />
-              {uploading.top && <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Subiendo...</p>}
-              {imgSecTop && !uploading.top && <img src={imgSecTop} alt="" className="mt-1 h-16 object-cover rounded border dark:border-gray-600" />}
+              <label className="block text-sm font-medium text-foreground mb-1">Secundaria top</label>
+              <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('top', e.target.files[0])} disabled={uploading.top} className="w-full text-foreground" />
+              {uploading.top && <p className="text-xs text-primary mt-1">Subiendo...</p>}
+              {imgSecTop && !uploading.top && <img src={imgSecTop} alt="" className="mt-1 h-16 object-cover rounded border border-border" />}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Secundaria bottom</label>
-              <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('bottom', e.target.files[0])} disabled={uploading.bottom} className="w-full text-gray-900 dark:text-gray-100" />
-              {uploading.bottom && <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Subiendo...</p>}
-              {imgSecBottom && !uploading.bottom && <img src={imgSecBottom} alt="" className="mt-1 h-16 object-cover rounded border dark:border-gray-600" />}
+              <label className="block text-sm font-medium text-foreground mb-1">Secundaria bottom</label>
+              <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('bottom', e.target.files[0])} disabled={uploading.bottom} className="w-full text-foreground" />
+              {uploading.bottom && <p className="text-xs text-primary mt-1">Subiendo...</p>}
+              {imgSecBottom && !uploading.bottom && <img src={imgSecBottom} alt="" className="mt-1 h-16 object-cover rounded border border-border" />}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Enlace principal</label>
-              <input type="text" value={enlacePrincipal} onChange={e => setEnlacePrincipal(e.target.value)} className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="https://..." />
+              <label className="block text-sm font-medium text-foreground mb-1">Enlace principal</label>
+              <input type="text" value={enlacePrincipal} onChange={e => setEnlacePrincipal(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" placeholder="https://..." />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Enlace secundario top</label>
-              <input type="text" value={enlaceSecTop} onChange={e => setEnlaceSecTop(e.target.value)} className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="https://..." />
+              <label className="block text-sm font-medium text-foreground mb-1">Enlace secundario top</label>
+              <input type="text" value={enlaceSecTop} onChange={e => setEnlaceSecTop(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" placeholder="https://..." />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Enlace secundario bottom</label>
-              <input type="text" value={enlaceSecBottom} onChange={e => setEnlaceSecBottom(e.target.value)} className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="https://..." />
+              <label className="block text-sm font-medium text-foreground mb-1">Enlace secundario bottom</label>
+              <input type="text" value={enlaceSecBottom} onChange={e => setEnlaceSecBottom(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" placeholder="https://..." />
             </div>
           </div>
           <div className="flex gap-3">
             <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Guardar</button>
-            <button type="button" onClick={() => setShowForm(false)} className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Cancelar</button>
+            <button type="button" onClick={() => setShowForm(false)} className="bg-secondary text-secondary-foreground px-4 py-2 rounded hover:bg-secondary/80">Cancelar</button>
           </div>
         </form>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+      <div className="bg-background rounded-lg shadow overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+          <thead className="bg-muted">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">ID</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Título</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Vista previa</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Activo</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Acciones</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">ID</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Título</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Vista previa</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Activo</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-border">
             {banners.map((b) => (
-              <tr key={b.id_banner} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{b.id_banner}</td>
-                <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{b.titulo}</td>
+              <tr key={b.id_banner} className="hover:bg-muted">
+                <td className="px-4 py-3 text-sm text-foreground">{b.id_banner}</td>
+                <td className="px-4 py-3 text-sm font-medium text-foreground">{b.titulo}</td>
                 <td className="px-4 py-3 text-sm">
                   <div className="flex gap-1">
                     <img src={b.imagen_principal} alt="" className="h-10 w-10 object-cover rounded" />
@@ -175,8 +175,8 @@ export default function AdminBannerPublicidad() {
                   </button>
                 </td>
                 <td className="px-4 py-3 text-sm flex gap-2">
-                  <button onClick={() => openEdit(b)} className="text-blue-600 dark:text-blue-400 hover:text-blue-800">Editar</button>
-                  <button onClick={() => handleDelete(b.id_banner)} className="text-red-600 dark:text-red-400 hover:text-red-800">Eliminar</button>
+                  <button onClick={() => openEdit(b)} className="text-primary hover:text-primary-800">Editar</button>
+                  <button onClick={() => handleDelete(b.id_banner)} className="text-destructive hover:text-destructive/80">Eliminar</button>
                 </td>
               </tr>
             ))}
