@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+*.tsbuildinfo
+_media/
+
+
+
+src/db/supabase.sql

@@ -1,65 +1,100 @@
-  import { FaBook } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { FaWhatsapp, FaEnvelope } from 'react-icons/fa';
 
 export function Footer() {
   return (
-    <footer className="bg-[#1E293B] text-gray-300 py-12 border-t border-gray-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-10">
+    <footer className="bg-gray-900 text-gray-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="space-y-4">
+          <Link to="/" className="block">
+            <span className="text-xl font-bold text-white">WHC Representaciones</span>
+          </Link>
+          <p className="text-sm text-gray-400">
+            Equipos de importación para tu negocio. Soluciones profesionales de gasfitería para proyectos residenciales, comerciales e industriales.
+          </p>
+          <div className="flex gap-3 pt-2">
+            <a
+              href="https://wa.me/51949790715"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-green-600 p-2 rounded-lg hover:bg-green-700 transition"
+            >
+              <FaWhatsapp className="w-5 h-5 text-white" />
+            </a>
+            <a
+              href="mailto:whsRepresentaciones@gmail.com"
+              className="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              <FaEnvelope className="w-5 h-5 text-white" />
+            </a>
+          </div>
+        </div>
+
         <div>
-          <h6 className="text-sm font-semibold uppercase mb-6 text-gray-400">Productos</h6>
-          <ul className="text-sm">
-            <li className="mb-3">
-              <Link to="/productos" className="hover:text-white transition duration-200">
-                Nuestros Productos
-              </Link>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">Navegación</h3>
+          <ul className="space-y-2 text-sm">
+            <li><Link to="/" className="hover:text-white transition">Inicio</Link></li>
+            <li><Link to="/productos" className="hover:text-white transition">Productos</Link></li>
+            <li><Link to="/contacto" className="hover:text-white transition">Contacto</Link></li>
+            <li>
+              <a href="https://wa.me/51949790715" target="_blank" rel="noopener noreferrer" className="hover:text-white transition flex items-center gap-1">
+                <FaWhatsapp className="w-3.5 h-3.5" /> WhatsApp
+              </a>
+            </li>
+            <li>
+              <a href="mailto:whsRepresentaciones@gmail.com" className="hover:text-white transition flex items-center gap-1">
+                <FaEnvelope className="w-3.5 h-3.5" /> Email
+              </a>
             </li>
           </ul>
         </div>
+
         <div>
-          <h6 className="text-sm font-semibold uppercase mb-6 text-gray-400">Compañía</h6>
-          <ul className="text-sm">
-            <li className="mb-3">
-              <Link to="/contacto" className="hover:text-white transition duration-200">Contacto</Link>
-            </li>
-            <li>
-              <Link to="/opiniones" className="hover:text-white transition duration-200">Opiniones de Clientes</Link>
-            </li>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">Servicios</h3>
+          <ul className="space-y-2 text-sm">
+            <li><Link to="/instalacion" className="hover:text-white transition">Servicio de Instalación</Link></li>
+            <li><Link to="/mantenimiento" className="hover:text-white transition">Soporte y Mantenimiento</Link></li>
+            <li><Link to="/opiniones" className="hover:text-white transition">Opiniones de Clientes</Link></li>
           </ul>
         </div>
+
         <div>
-          <h6 className="text-sm font-semibold uppercase mb-6 text-gray-400">Servicios</h6>
-          <ul className="text-sm">
-            <li className="mb-3">
-              <Link to="/instalacion" className="hover:text-white transition duration-200">Servicio de Instalación</Link>
-            </li>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">Legal</h3>
+          <ul className="space-y-2 text-sm">
+            <li><Link to="/terminos" className="hover:text-white transition">Términos y Condiciones</Link></li>
+            <li><Link to="/privacidad" className="hover:text-white transition">Política de Privacidad</Link></li>
             <li>
-              <Link to="/mantenimiento" className="hover:text-white transition duration-200">Servicio de Soporte y Mantenimiento</Link>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h6 className="text-sm font-semibold uppercase mb-6 text-gray-400">Información Legal</h6>
-          <ul className="text-sm">
-            <li>
-              <Link to="/libro" className="hover:text-white transition duration-200 flex items-center">
-                <FaBook className="mr-2" /> Libro de Reclamaciones
+              <Link to="/libro" className="hover:text-white transition flex items-center gap-1">
+                <img
+                  src="https://res.cloudinary.com/dxuk9bogw/image/upload/v1776155530/7f85d794-58b5-47d0-850d-d06179563fb2.png"
+                  alt="Libro de Reclamaciones"
+                  className="h-16"
+                />
               </Link>
             </li>
           </ul>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pt-6 border-t border-gray-700 text-center text-xs text-gray-500">
-        <p>
-          © {new Date().getFullYear()}{" "}
+
+      <div className="border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+          <p>© {new Date().getFullYear()} WHC Representaciones. Todos los derechos reservados.</p>
           <a
             href="https://www.instagram.com/solvegrades.com_/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
+            className="inline-block hover:opacity-80 transition-opacity"
+            aria-label="SolveGrades en Instagram"
           >
-            SolveGrudes
-          </a>. Todos los derechos reservados.
-        </p>
+            <img
+              src="https://res.cloudinary.com/dp1vgjhsq/image/upload/v1778834655/WhatsApp_Image_2026-05-15_at_3.21.36_AM-removebg-preview_wtgmkr.png"
+              alt="SolveGrades"
+              className="h-14"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+            <span className="sr-only">SolveGrades</span>
+          </a>
+        </div>
       </div>
     </footer>
   );

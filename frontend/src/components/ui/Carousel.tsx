@@ -1,72 +1,98 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-const images = [
-  { src: "/assets/Ruleta1.webp", text: "elegante y moderno" },
-  { src: "/assets/Ruleta2.webp", text: "calidad garantizada" },
-  { src: "/assets/Ruleta3.webp", text: "lo mejor para ti" },
-  { src: "/assets/Ruleta4.webp", text: "comunidad y elegancia" },
-];
+import { supabase } from "../../lib/supabaseClient";
+import type { HeroSlide } from "../../lib/supabaseTypes";
+import { CarouselSkeleton } from "./Skeleton";
 
 export function Carousel() {
+  const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [resetKey, setResetKey] = useState(0);
 
-  const nextSlide = () => {
-    setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  useEffect(() => {
+    supabase
+      .from('hero_slide')
+      .select('*')
+      .eq('activo', true)
+      .order('orden', { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length > 0) setSlides(data as HeroSlide[]);
+        setLoading(false);
+      });
+  }, []);
+
+  const nextSlide = useCallback(() => {
+    setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+  }, [slides.length]);
+
+  const prevSlide = useCallback(() => {
+    setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  }, [slides.length]);
+
+  const handleNext = () => {
+    nextSlide();
+    setResetKey((k) => k + 1);
   };
 
-  const prevSlide = () => {
-    setCurrent((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  const handlePrev = () => {
+    prevSlide();
+    setResetKey((k) => k + 1);
   };
+
+  useEffect(() => {
+    if (slides.length === 0) return;
+    const interval = setInterval(nextSlide, 10000);
+    return () => clearInterval(interval);
+  }, [nextSlide, resetKey]);
+
+  if (loading) return <CarouselSkeleton />;
+
+  if (slides.length === 0) return null;
 
   return (
     <div className="relative w-full h-[500px] overflow-hidden">
-      {/* Contenedor horizontal */}
       <div
         className="flex transition-transform duration-700 ease-in-out h-full"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
-        {images.map((image, index) => (
-          <div
-            key={index}
-            className="w-full flex-shrink-0 relative h-full"
-          >
+        {slides.map((slide, index) => (
+          <div key={slide.id_hero_slide} className="w-full flex-shrink-0 relative h-full">
             <img
-              src={image.src}
+              src={slide.image_url}
               alt={`Slide ${index}`}
               className="w-full h-full object-cover"
+              loading="lazy"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
-            {/* Difuminado superior */}  
             <div className="absolute top-0 left-0 w-full h-6 bg-gradient-to-b from-black/80 to-transparent"></div>
-             {/* Difuminado inferior */}
             <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-black/100 to-transparent"></div>
             <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/100 to-transparent"></div>
-             {/* Texto elegante, bien alineado y con glassmorphism */}
-            <div className="absolute bottom-10 left-10 bg-white/10 backdrop-blur-md text-white px-8 py-3 rounded-lg shadow-xl text-xl font-semibold border border-white/20">
-              {image.text}
-            </div>
+            {slide.texto && (
+              <div className="absolute bottom-10 left-10 bg-white/10 backdrop-blur-md text-white px-8 py-3 rounded-lg shadow-xl text-xl font-semibold border border-white/20">
+                {slide.texto}
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-         {/* Flechas */}
       <button
-        onClick={prevSlide}
+        onClick={handlePrev}
         className="absolute top-1/2 left-4 -translate-y-1/2 bg-black/30 hover:bg-black text-gray-200 shadow"
       >
         <ChevronLeft className="w-8 h-10" />
       </button>
-      
-       <button
-        onClick={nextSlide}
+
+      <button
+        onClick={handleNext}
         className="absolute top-1/2 right-4 -translate-y-1/2 bg-black/30 hover:bg-black text-gray-200 shadow"
       >
         <ChevronRight className="w-8 h-10" />
       </button>
 
-      {/* Indicadores */}
       <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-3">
-        {images.map((_, index) => (
+        {slides.map((_, index) => (
           <div
             key={index}
             className={`w-2.5 h-2.5 rounded-full ${
@@ -76,8 +102,7 @@ export function Carousel() {
         ))}
       </div>
 
-      {/* Línea decorativa */}
       <div className="absolute bottom-0 left-0 w-full h-2 bg-[#000000]" />
-     </div>
+    </div>
   );
 }

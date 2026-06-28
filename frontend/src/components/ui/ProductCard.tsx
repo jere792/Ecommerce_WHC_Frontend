@@ -70,7 +70,7 @@ export default function ProductCard({
       className="
         bg-white rounded-4xl shadow-md border border-blue-100
         transition-transform hover:scale-105 hover:shadow-xl cursor-pointer
-        w-[280px] h-[320px] flex flex-col justify-between
+        w-[280px] h-[360px] flex flex-col justify-between
         mx-auto
       "
       onClick={handleCardClick}
@@ -81,12 +81,13 @@ export default function ProductCard({
         if (e.key === "Enter" || e.key === " ") navigate(`/productos/${slug}`);
       }}
     >
-      <div className="h-80 w-full flex items-center justify-center bg-white">
+      <div className="h-36 w-full flex items-center justify-center bg-white">
         {imagen ? (
           <img
             src={imagen}
             alt={nombre}
             className="object-contain h-32 w-full"
+            loading="lazy"
             onError={e => { e.currentTarget.src = ""; }}
           />
         ) : (

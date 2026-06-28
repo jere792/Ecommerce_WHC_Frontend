@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../ui/ProductCard";
-import { API_BASE_URL } from '../../apiConfig'; 
+import { ProductCardSkeleton } from "../ui/Skeleton";
+import { supabase } from '../../lib/supabaseClient';
+import type { CategoriaProducto } from '../../lib/supabaseTypes';
 
 interface Producto {
   idProducto: number;
@@ -10,14 +12,23 @@ interface Producto {
   imagenProducto?: string;
   slug: string;
   marca: string;
-  categoria: string;
-  stockProducto: number; 
+  stockProducto: number;
+  pkCategoria: number | null;
 }
 
 interface ProductCarouselProps {
-  pkCategoria: string; // nombre de la categoría
+  pkCategoria: number;
   titulo: string;
   subtitulo?: string;
+}
+
+function getAllDescendantIds(categorias: CategoriaProducto[], parentId: number): number[] {
+  const ids: number[] = [parentId];
+  const children = categorias.filter(c => c.pk_categoria_padre === parentId);
+  for (const child of children) {
+    ids.push(...getAllDescendantIds(categorias, child.id_categoria_producto));
+  }
+  return ids;
 }
 
 export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: ProductCarouselProps) {
@@ -27,18 +38,32 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
   useEffect(() => {
     setLoading(true);
 
-    fetch(`${API_BASE_URL}/api/public/productos`)
-      .then(res => res.json())
-      .then(data => {
-        setProductos(data);
-        setLoading(false);
-      });
-  }, []);
+    Promise.all([
+      supabase.from('producto').select('*, marca:pk_marca_producto(*)'),
+      supabase.from('categoria_p').select('*'),
+    ]).then(([prodRes, catRes]) => {
+      const allCategorias = (catRes.data ?? []) as CategoriaProducto[];
+      const categoryIds = getAllDescendantIds(allCategorias, pkCategoria);
 
-  // Filtrado SOLO por nombre de categoría, insensible a mayúsculas
-  const productosFiltrados = productos.filter(prod =>
-    prod.categoria?.toLowerCase() === pkCategoria.toLowerCase()
-  );
+      if (prodRes.data) {
+        const adaptados: Producto[] = prodRes.data
+          .filter((p: any) => p.pk_categoria_producto && categoryIds.includes(p.pk_categoria_producto))
+          .map((p: any) => ({
+            idProducto: p.id_producto,
+            nombreProducto: p.nombre_producto,
+            precioProducto: Number(p.precio_producto),
+            descripcionProducto: p.descripcion_producto || '',
+            imagenProducto: p.imagen_producto,
+            slug: p.slug,
+            marca: p.marca?.nombre_marca_producto || '',
+            stockProducto: p.stock_producto,
+            pkCategoria: p.pk_categoria_producto,
+          }));
+        setProductos(adaptados);
+      }
+      setLoading(false);
+    });
+  }, [pkCategoria]);
 
   return (
     <section className="py-10 bg-gray-50">
@@ -50,22 +75,25 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
           <div className="text-center text-gray-600 mb-4">{subtitulo}</div>
         )}
 
-        {/* Carrusel */}
         <div className="relative">
-          <div className="flex gap-6 overflow-x-auto pb-2 px-2 scroll-smooth snap-x snap-mandatory"
+          <div className="flex gap-6 overflow-x-auto py-4 px-2 scroll-smooth snap-x snap-mandatory"
                style={{ WebkitOverflowScrolling: "touch" }}>
             {loading ? (
-              <div className="text-center w-full py-8 text-gray-400">Cargando productos...</div>
-            ) : productosFiltrados.length === 0 ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="min-w-[260px] max-w-[280px] snap-start">
+                  <ProductCardSkeleton />
+                </div>
+              ))
+            ) : productos.length === 0 ? (
               <div className="text-center w-full py-8 text-gray-400">No hay productos para esta categoría.</div>
             ) : (
-              productosFiltrados.map(producto => (
+              productos.map(producto => (
                 <div
                   key={producto.idProducto}
                   className="min-w-[260px] max-w-[280px] snap-start"
                 >
                   <ProductCard
-                    id={producto.idProducto} // <-- ¡Este es el fix!
+                    id={producto.idProducto}
                     nombre={producto.nombreProducto}
                     descripcion={producto.descripcionProducto}
                     imagen={producto.imagenProducto}
