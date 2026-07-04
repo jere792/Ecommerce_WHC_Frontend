@@ -1,6 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 import HomePage from './pages/public/HomePage';
-import OpinonesPage from './pages/public/OpinonesPage';
 import ProductsPage from './pages/public/ProductsPage';
 import ContactPage from './pages/public/ContactPage';
 import NotFoundPage from './pages/public/NotFoundPage';
@@ -11,6 +10,7 @@ import InstalacionPage from './pages/public/InstalacionPage';
 import MantenimientoPage from './pages/public/MantemientoPage';
 import TerminosPage from './pages/public/TerminosPage';
 import PrivacidadPage from './pages/public/PrivacidadPage';
+import LoginPage from './pages/public/LoginPage';
 
 import Layout from './layouts/Layout';
 import ResetPasswordPage from './pages/public/ResetPasswordPage';
@@ -51,7 +51,6 @@ const App: React.FC = () => {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/productos/:slug" element={<DetalleProducto />} />
           <Route path="/libro" element={<LibroReclamaciones />} />
-          <Route path="/opiniones" element={<OpinonesPage />} />
           <Route path="/instalacion" element={<InstalacionPage />} />
           <Route path="/mantenimiento" element={<MantenimientoPage />} />
           <Route path="/mis-pedidos" element={<MisPedidosPage />} />
@@ -59,6 +58,7 @@ const App: React.FC = () => {
           <Route path="/privacidad" element={<PrivacidadPage />} />
         </Route>
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="productos" element={<AdminProducts />} />

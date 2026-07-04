@@ -1,160 +1,118 @@
 import React from 'react';
-import { ShieldCheck, Wrench, LifeBuoy, CheckCircle, MessageCircle, CalendarCheck, UserCheck, RefreshCcw } from 'lucide-react';
-
-const iconColor = '#2dc99d';
-const imgContainerStyle = 'flex-shrink-0 flex items-center justify-center rounded-xl p-2.5 bg-gradient-to-br from-secondary-50 to-secondary-100';
-
-const cardClasses = 'bg-white rounded-xl shadow-lg p-8 mb-8 border border-secondary-100 flex items-center gap-8';
-
-const subtitleClasses = 'text-secondary font-bold text-xl mb-3 flex items-center gap-2';
-
-function PreguntasFrecuentes() {
-  return (
-    <section className={`${cardClasses} flex-col items-start gap-5`}>
-      <div className={subtitleClasses}><MessageCircle size={24} color={iconColor} />Preguntas frecuentes</div>
-      <div>
-        <b>¿Puedo solicitar mantenimiento si no compré el producto en WHC?</b><br />
-        Por políticas de garantía y compatibilidad, el servicio de mantenimiento y soporte está disponible exclusivamente para productos adquiridos en WHC Representaciones.
-      </div>
-      <div>
-        <b>¿Cuánto tiempo tarda un mantenimiento?</b><br />
-        La duración depende del tipo de equipo y la complejidad, pero la mayoría de servicios se realizan en el mismo día de la visita.
-      </div>
-      <div>
-        <b>¿El mantenimiento tiene garantía?</b><br />
-        Sí, todos nuestros servicios cuentan con garantía sobre mano de obra y repuestos originales.
-      </div>
-      <div>
-        <b>¿Puedo agendar el mantenimiento en fin de semana?</b><br />
-        Sí, puedes coordinar tu cita según disponibilidad del equipo técnico. Escríbenos para consultar fechas especiales.
-      </div>
-      <div>
-        <b>¿Qué hago si tengo una emergencia?</b><br />
-        Contáctanos de inmediato por WhatsApp o teléfono para priorizar tu caso. Atendemos urgencias dentro de Lima Metropolitana.
-      </div>
-    </section>
-  );
-}
-
-function BeneficiosExtra() {
-  return (
-    <ul className="pl-5 m-0 text-lg text-secondary space-y-1">
-      <li className="flex items-center gap-2"><UserCheck size={18} color={iconColor} /> Atención personalizada y seguimiento post-servicio.</li>
-      <li className="flex items-center gap-2"><CalendarCheck size={18} color={iconColor} /> Puedes programar mantenimientos periódicos.</li>
-      <li className="flex items-center gap-2"><RefreshCcw size={18} color={iconColor} /> Servicio de renovación y modernización de equipos sanitarios.</li>
-    </ul>
-  );
-}
+import { ShieldCheck, Wrench, LifeBuoy, CheckCircle, MessageCircle, CalendarCheck, UserCheck, RefreshCcw, Mail, Phone, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useStore } from '../../contexts/StoreContext';
 
 function MantenimientoPage() {
+  const { settings } = useStore();
+  const companyName = settings?.company_name || 'WHC Representaciones';
+  const email = settings?.company_email || 'whcRepresentaciones@gmail.com';
+  const whatsapp = settings?.company_whatsapp || '51949790715';
+  const phone = settings?.company_phone || '(+51) 949790715';
+
   return (
-    <div className="px-3 py-10 max-w-[950px] mx-auto text-secondary bg-secondary-50 min-h-screen">
-      {/* HERO */}
-      <div className="flex flex-col items-center gap-1.5 mb-7">
-        <div className="w-[70px] h-[70px] rounded-full flex items-center justify-center mb-3 shadow-lg"
-          style={{ background: 'linear-gradient(135deg, #233876 70%, #5e7fd9 100%)' }}>
-          <ShieldCheck size={38} color="#fff" />
-        </div>
-        <h1 className="font-black text-4xl mb-3 tracking-widest text-center text-secondary">
-          Soporte y Mantenimiento Profesional
-        </h1>
-        <p className="text-secondary-300 text-lg text-center font-medium tracking-wide">
-          Protege tu inversión: mantenemos tus instalaciones funcionando como nuevas, con respaldo profesional, garantía y atención inmediata.
-        </p>
-      </div>
-
-      {/* Mantenimiento Preventivo */}
-      <div className={cardClasses}>
-        <div className={imgContainerStyle}>
-          <img src="/assets/mantenimiento1.webp" alt="Mantenimiento Preventivo"
-            className="w-[110px] h-[110px] object-cover rounded-lg shadow border-2 border-secondary-100 bg-white transition-transform duration-200 hover:scale-105" />
-        </div>
-        <div>
-          <div className={subtitleClasses}><CheckCircle size={24} color={iconColor} />Mantenimiento Preventivo</div>
-          <p>
-            Realizamos revisiones periódicas para prevenir fallas, fugas y desgaste en tus sistemas de gasfitería. Incluye limpieza, ajuste y diagnóstico profesional de tuberías, grifería, sanitarios y equipos instalados. <b style={{color: iconColor}}>¡Evita emergencias y alarga la vida útil de tus productos!</b>
+    <div className="bg-white">
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-16 md:py-24">
+        <div className="container mx-auto px-4 text-center">
+          <div className="w-16 h-16 mx-auto mb-6 bg-white/10 flex items-center justify-center">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <h1 className="text-3xl md:text-5xl font-bold mb-4">Soporte y Mantenimiento</h1>
+          <p className="text-lg md:text-xl text-blue-200 max-w-2xl mx-auto">
+            Protege tu inversión: mantenemos tus instalaciones funcionando como nuevas, con respaldo profesional y garantía.
           </p>
-          <ul className="pl-5 m-0 text-lg text-secondary space-y-1">
-            <li>Chequeo de instalaciones y detección de fugas.</li>
-            <li>Limpieza y desinfección de componentes.</li>
-            <li>Revisión de presión y funcionamiento de sistemas hidráulicos.</li>
-          </ul>
         </div>
-      </div>
+      </section>
 
-      {/* Mantenimiento Correctivo */}
-      <div className={cardClasses}>
-        <div className={imgContainerStyle}>
-          <img src="/assets/mantenimiento2.jpg" alt="Mantenimiento Correctivo"
-            className="w-[110px] h-[110px] object-cover rounded-lg shadow border-2 border-secondary-100 bg-white transition-transform duration-200 hover:scale-105" />
+      {/* Servicios */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: CheckCircle, title: 'Mantenimiento Preventivo', items: ['Chequeo de instalaciones y detección de fugas', 'Limpieza y desinfección de componentes', 'Revisión de presión y sistemas hidráulicos'] },
+              { icon: Wrench, title: 'Mantenimiento Correctivo', items: ['Reemplazo de piezas dañadas', 'Reparación inmediata de fugas', 'Mantenimiento de termas y bombas'] },
+              { icon: LifeBuoy, title: 'Soporte Técnico', items: ['Asesoría remota y presencial', 'Capacitación sobre uso de equipos', 'Diagnóstico de problemas recurrentes'] },
+            ].map((s, i) => (
+              <div key={i} className="bg-white shadow p-6">
+                <div className="w-12 h-12 bg-blue-50 flex items-center justify-center mb-4">
+                  <s.icon className="w-6 h-6 text-blue-700" />
+                </div>
+                <h3 className="font-bold text-gray-800 mb-3">{s.title}</h3>
+                <ul className="space-y-2">
+                  {s.items.map((item, j) => (
+                    <li key={j} className="text-sm text-gray-600 flex items-start gap-2">
+                      <span className="text-blue-700 mt-0.5">•</span> {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
-        <div>
-          <div className={subtitleClasses}><Wrench size={24} color={iconColor} />Mantenimiento Correctivo</div>
-          <p>
-            ¿Tienes una fuga o un desperfecto? Solucionamos cualquier problema en tus instalaciones: cambio de piezas, reparación de grifería, sanitarios, termas y bombas. Servicio <b style={{color: iconColor}}>rápido, seguro y con garantía</b> WHC Representaciones.
-          </p>
-          <ul className="pl-5 m-0 text-lg text-secondary space-y-1">
-            <li>Reemplazo de piezas dañadas o desgastadas.</li>
-            <li>Reparación inmediata de fugas.</li>
-            <li>Mantenimiento de termas, bombas y válvulas.</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Soporte Técnico Especializado */}
-      <div className={cardClasses}>
-        <div className={imgContainerStyle}>
-          <img src="/assets/mantenimiento3.jpg" alt="Soporte Técnico Especializado"
-            className="w-[110px] h-[110px] object-cover rounded-lg shadow border-2 border-secondary-100 bg-white transition-transform duration-200 hover:scale-105" />
-        </div>
-        <div>
-          <div className={subtitleClasses}><LifeBuoy size={24} color={iconColor} />Soporte Técnico Especializado</div>
-          <p>
-            Nuestro equipo te asesora en el uso, instalación y cuidado de todos los productos comprados en <b>WHC Representaciones</b>. Atención personalizada por chat, correo o WhatsApp, para resolver tus dudas y ayudarte siempre.
-          </p>
-          <ul className="pl-5 m-0 text-lg text-secondary space-y-1">
-            <li>Asesoría remota y presencial.</li>
-            <li>Capacitación sobre uso óptimo de equipos.</li>
-            <li>Diagnóstico de problemas recurrentes.</li>
-          </ul>
-        </div>
-      </div>
+      </section>
 
       {/* Beneficios */}
-      <div className={cardClasses}>
-        <div className={imgContainerStyle}>
-          <img src="/assets/mantenimiento4.jpg" alt="Beneficios del Servicio"
-            className="w-[110px] h-[110px] object-cover rounded-lg shadow border-2 border-secondary-100 bg-white transition-transform duration-200 hover:scale-105" />
+      <section className="py-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Beneficios de nuestro servicio</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { icon: UserCheck, text: 'Atención personalizada y seguimiento post-servicio' },
+              { icon: CalendarCheck, text: 'Programa mantenimientos periódicos' },
+              { icon: RefreshCcw, text: 'Renovación y modernización de equipos' },
+              { icon: ShieldCheck, text: 'Garantía en todos nuestros trabajos' },
+              { icon: CheckCircle, text: 'Uso exclusivo de repuestos originales' },
+              { icon: LifeBuoy, text: 'Atención rápida donde nos necesites' },
+            ].map((b, i) => (
+              <div key={i} className="flex items-start gap-3 p-4 bg-gray-50">
+                <b.icon className="w-5 h-5 text-blue-700 mt-0.5 shrink-0" />
+                <span className="text-sm text-gray-700">{b.text}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div>
-          <div className={subtitleClasses}><ShieldCheck size={24} color={iconColor} />Beneficios de nuestro servicio</div>
-          <ul className="pl-5 m-0 text-lg text-secondary space-y-1">
-            <li>Extiende la vida útil de tus instalaciones y equipos.</li>
-            <li>Previene emergencias y gastos inesperados.</li>
-            <li>Atención rápida y profesional, donde nos necesites.</li>
-            <li>Uso exclusivo de repuestos originales y materiales de calidad.</li>
-            <li>Garantía en todos nuestros trabajos y visitas técnicas.</li>
-          </ul>
-          <BeneficiosExtra />
-        </div>
-      </div>
+      </section>
 
-      {/* Preguntas Frecuentes */}
-      <PreguntasFrecuentes />
-
-      {/* Solicita tu Servicio */}
-      <div className="text-white rounded-xl px-9 py-7 text-center mx-auto mt-9 max-w-[650px] text-lg font-medium shadow-lg tracking-wide"
-        style={{ background: 'linear-gradient(90deg, #233876 85%, #5e7fd9 100%)' }}>
-        ¿Necesitas mantenimiento o soporte? Solicítalo desde tu área de usuario,{' '}
-        <a href="mailto:soporte@whc.com" className="text-white underline">escríbenos</a> o contáctanos por WhatsApp.{' '}
-        <span style={{color: iconColor, fontWeight: 700}}>¡Respaldo inmediato, siempre contigo!</span>
-        <div className="mt-2.5 text-base opacity-85">
-          <b>Horario de atención:</b> Lunes a Sábado de 8:00 a.m. a 7:00 p.m. | Lima y provincias
+      {/* Preguntas frecuentes */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Preguntas frecuentes</h2>
+          <div className="space-y-4">
+            {[
+              { q: '¿Puedo solicitar mantenimiento si no compré en WHC?', a: `Por políticas de garantía, el servicio está disponible exclusivamente para productos adquiridos en ${companyName}.` },
+              { q: '¿Cuánto tiempo tarda un mantenimiento?', a: 'Depende del equipo, pero la mayoría se realizan el mismo día de la visita.' },
+              { q: '¿El mantenimiento tiene garantía?', a: 'Sí, todos nuestros servicios cuentan con garantía sobre mano de obra y repuestos.' },
+              { q: '¿Puedo agendar en fin de semana?', a: 'Sí, según disponibilidad del equipo técnico. Contáctanos para consultar fechas.' },
+              { q: '¿Qué hago si tengo una emergencia?', a: 'Contáctanos por WhatsApp o teléfono para priorizar tu caso. Atendemos urgencias en Lima Metropolitana.' },
+            ].map((faq, i) => (
+              <div key={i} className="bg-white p-5 shadow-sm">
+                <h3 className="font-semibold text-gray-800 mb-1">{faq.q}</h3>
+                <p className="text-gray-600 text-sm">{faq.a}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="text-center mt-10 text-secondary-300 text-lg">
-        &copy; {new Date().getFullYear()} WHC Representaciones - Todos los derechos reservados.
-      </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Necesitas mantenimiento?</h2>
+          <p className="text-blue-200 mb-8 max-w-xl mx-auto">Solicítalo y te atendemos de inmediato</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href={`mailto:${email}`} className="flex items-center gap-2 bg-white text-blue-900 px-6 py-3 font-semibold hover:bg-gray-100 transition">
+              <Mail className="w-4 h-4" /> {email}
+            </a>
+            <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 font-semibold hover:bg-green-600 transition">
+              <Phone className="w-4 h-4" /> {phone}
+            </a>
+            <Link to="/productos" className="flex items-center gap-2 border border-white text-white px-6 py-3 font-semibold hover:bg-white/10 transition">
+              Ver productos <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
