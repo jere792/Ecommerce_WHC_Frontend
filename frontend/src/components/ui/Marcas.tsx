@@ -27,13 +27,12 @@ const Marcas: React.FC = () => {
 
   return (
     <div className="w-full overflow-hidden py-8 bg-white">
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <div className="h-0.5 bg-gray-300 w-full sm:w-32" />
-
-        <h2 className="text-2xl font-semibold text-gray-800 whitespace-nowrap text-center sm:text-left">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+        <div className="h-0.5 bg-gray-300 w-16 sm:w-32" />
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 whitespace-nowrap text-center">
           Trabajamos con las mejores marcas
         </h2>
-        <div className="h-0.5 bg-gray-300 w-full sm:w-32" />
+        <div className="h-0.5 bg-gray-300 w-16 sm:w-32" />
       </div>
 
       <div className="overflow-hidden mt-8">
@@ -41,7 +40,7 @@ const Marcas: React.FC = () => {
           {[...marcas, ...marcas, ...marcas].map((marca, index) => (
             <div
               key={index}
-              className="flex-shrink-0 w-[150px] h-[100px] flex items-center justify-center mx-2.5"
+              className="flex-shrink-0 w-[100px] sm:w-[150px] h-[70px] sm:h-[100px] flex items-center justify-center mx-1.5 sm:mx-2.5"
             >
               <img
                 src={marca.logoSrc}
@@ -55,8 +54,6 @@ const Marcas: React.FC = () => {
       </div>
 
       <style>{`
-        html { overflow-x: hidden; }
-        body { overflow-x: hidden; }
         .marquee-track {
           animation: marquee-right 20s linear infinite;
         }

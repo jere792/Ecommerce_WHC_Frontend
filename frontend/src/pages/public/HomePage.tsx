@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Carousel } from "../../components/ui/Carousel";
-import { ImagenPrincipalConSecundarias } from '../../components/Home/PublicidadSection';
-import { Publicidad } from '../../components/ui/Publicidad';
 import ProductCarousel from "../../components/Home/ProductCarousel";
 import OfertaCarousel from "../../components/Home/OfertaCarousel";
 import NewProductsCarousel from "../../components/Home/NewProductsCarousel";
@@ -27,14 +25,11 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       <Carousel />
-      <Publicidad textoPromocional="¡Bienvenido a nuestra tienda online! Encuentra los mejores productos al mejor precio." />
       <Text
         title="OFERTAS PRINCIPALES DE LA SEMANA"
         subtitle="Aprovecha los descuentos y promociones especiales en nuestros productos destacados"
       />
       <OfertaCarousel />
-      <ImagenPrincipalConSecundarias />
-      <Publicidad textoPromocional="Delivery gratis a compras mayores a S/.200" />
       <NewProductsCarousel />
       {homeCategories.map((cat) => (
         <ProductCarousel

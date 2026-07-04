@@ -13,8 +13,8 @@ function PreguntasFrecuentes() {
     <section className={`${cardClasses} flex-col items-start gap-5`}>
       <div className={subtitleClasses}><MessageCircle size={24} color={iconColor} />Preguntas frecuentes</div>
       <div>
-        <b>¿Puedo solicitar mantenimiento si no compré el producto en WHS?</b><br />
-        Por políticas de garantía y compatibilidad, el servicio de mantenimiento y soporte está disponible exclusivamente para productos adquiridos en WHS Representaciones.
+        <b>¿Puedo solicitar mantenimiento si no compré el producto en WHC?</b><br />
+        Por políticas de garantía y compatibilidad, el servicio de mantenimiento y soporte está disponible exclusivamente para productos adquiridos en WHC Representaciones.
       </div>
       <div>
         <b>¿Cuánto tiempo tarda un mantenimiento?</b><br />
@@ -91,7 +91,7 @@ function MantenimientoPage() {
         <div>
           <div className={subtitleClasses}><Wrench size={24} color={iconColor} />Mantenimiento Correctivo</div>
           <p>
-            ¿Tienes una fuga o un desperfecto? Solucionamos cualquier problema en tus instalaciones: cambio de piezas, reparación de grifería, sanitarios, termas y bombas. Servicio <b style={{color: iconColor}}>rápido, seguro y con garantía</b> WHS Representaciones.
+            ¿Tienes una fuga o un desperfecto? Solucionamos cualquier problema en tus instalaciones: cambio de piezas, reparación de grifería, sanitarios, termas y bombas. Servicio <b style={{color: iconColor}}>rápido, seguro y con garantía</b> WHC Representaciones.
           </p>
           <ul className="pl-5 m-0 text-lg text-secondary space-y-1">
             <li>Reemplazo de piezas dañadas o desgastadas.</li>
@@ -110,7 +110,7 @@ function MantenimientoPage() {
         <div>
           <div className={subtitleClasses}><LifeBuoy size={24} color={iconColor} />Soporte Técnico Especializado</div>
           <p>
-            Nuestro equipo te asesora en el uso, instalación y cuidado de todos los productos comprados en <b>WHS Representaciones</b>. Atención personalizada por chat, correo o WhatsApp, para resolver tus dudas y ayudarte siempre.
+            Nuestro equipo te asesora en el uso, instalación y cuidado de todos los productos comprados en <b>WHC Representaciones</b>. Atención personalizada por chat, correo o WhatsApp, para resolver tus dudas y ayudarte siempre.
           </p>
           <ul className="pl-5 m-0 text-lg text-secondary space-y-1">
             <li>Asesoría remota y presencial.</li>
@@ -146,14 +146,14 @@ function MantenimientoPage() {
       <div className="text-white rounded-xl px-9 py-7 text-center mx-auto mt-9 max-w-[650px] text-lg font-medium shadow-lg tracking-wide"
         style={{ background: 'linear-gradient(90deg, #233876 85%, #5e7fd9 100%)' }}>
         ¿Necesitas mantenimiento o soporte? Solicítalo desde tu área de usuario,{' '}
-        <a href="mailto:soporte@whs.com" className="text-white underline">escríbenos</a> o contáctanos por WhatsApp.{' '}
+        <a href="mailto:soporte@whc.com" className="text-white underline">escríbenos</a> o contáctanos por WhatsApp.{' '}
         <span style={{color: iconColor, fontWeight: 700}}>¡Respaldo inmediato, siempre contigo!</span>
         <div className="mt-2.5 text-base opacity-85">
           <b>Horario de atención:</b> Lunes a Sábado de 8:00 a.m. a 7:00 p.m. | Lima y provincias
         </div>
       </div>
       <div className="text-center mt-10 text-secondary-300 text-lg">
-        &copy; {new Date().getFullYear()} WHS Representaciones - Todos los derechos reservados.
+        &copy; {new Date().getFullYear()} WHC Representaciones - Todos los derechos reservados.
       </div>
     </div>
   );

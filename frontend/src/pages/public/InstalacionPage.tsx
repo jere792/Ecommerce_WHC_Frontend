@@ -32,7 +32,7 @@ const InstalacionPage: React.FC = () => (
     <Card>
       <h2 className="text-secondary font-bold text-xl mb-4">¿En qué consiste nuestro servicio?</h2>
       <p className="text-lg">
-        En <b>WHS Representaciones</b> ofrecemos instalación profesional de sistemas de gasfitería: tuberías, grifería, sanitarios, termas y más. Nuestro equipo técnico garantiza un trabajo seguro, limpio y conforme a las normas técnicas, con atención a detalle en cada proyecto.
+        En <b>WHC Representaciones</b> ofrecemos instalación profesional de sistemas de gasfitería: tuberías, grifería, sanitarios, termas y más. Nuestro equipo técnico garantiza un trabajo seguro, limpio y conforme a las normas técnicas, con atención a detalle en cada proyecto.
       </p>
     </Card>
 
@@ -94,7 +94,7 @@ const InstalacionPage: React.FC = () => (
       <h2 className="text-secondary font-bold text-xl mb-4">Preguntas frecuentes</h2>
       <div className="mb-3 text-base">
         <b>¿Puedo pedir instalación si ya tengo el producto?</b><br />
-        Solo instalamos productos comprados en WHS Representaciones para garantizar compatibilidad y respaldo.
+        Solo instalamos productos comprados en WHC Representaciones para garantizar compatibilidad y respaldo.
       </div>
       <div className="mb-3 text-base">
         <b>¿La instalación tiene costo adicional?</b><br />
@@ -109,7 +109,7 @@ const InstalacionPage: React.FC = () => (
     {/* Contacto */}
     <div className="text-white rounded-xl px-8 py-7 text-center mx-auto mt-8 max-w-[700px] text-lg font-medium shadow-lg"
       style={{ background: 'linear-gradient(90deg, #233876 80%, #4f6dbe 100%)' }}>
-      ¿Tienes dudas? Escribe a <a href="mailto:soporte@whs.com" className="text-white underline">soporte@whs.com</a> o contáctanos por WhatsApp.
+      ¿Tienes dudas? Escribe a <a href="mailto:soporte@whc.com" className="text-white underline">soporte@whs.com</a> o contáctanos por WhatsApp.
     </div>
   </div>
 );

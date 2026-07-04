@@ -2,15 +2,16 @@ import { useCart } from "../ui/CartContext";
 import { useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useAuthContext } from "../../hooks/AuthContext";
+import { useStore } from "../../contexts/StoreContext";
 import { ShoppingCart, Trash2, Minus, Plus, Check } from "lucide-react";
-
-const WHATSAPP_NUMBER = "51949790715";
 
 export function Cart() {
   const { items, updateQuantity, removeItem } = useCart();
   const { user } = useAuthContext();
+  const { settings } = useStore();
   const [loading, setLoading] = useState(false);
   const [extraServicio, setExtraServicio] = useState<number>(1);
+  const whatsappNumber = settings?.company_whatsapp || '51949790715';
 
   const handleQuantityChange = (id: string, quantity: number) => {
     updateQuantity(id, quantity);
@@ -66,7 +67,7 @@ export function Cart() {
         .filter(Boolean)
         .join("\n");
 
-      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
 
       const extraId = extraServicio;
       const metodoPagoId = 2;

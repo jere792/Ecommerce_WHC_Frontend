@@ -189,6 +189,13 @@ export interface StoreSettings {
   sunday_open: string | null;
   sunday_close: string | null;
   updated_at: string;
+  company_name?: string | null;
+  company_phone?: string | null;
+  company_whatsapp?: string | null;
+  company_email?: string | null;
+  company_address?: string | null;
+  company_schedule?: string | null;
+  google_maps_url?: string | null;
 }
 
 export interface MetodoPago {

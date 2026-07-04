@@ -15,6 +15,7 @@ interface Oferta {
   fechaInicio?: string;
   fechaFin?: string;
   stockProducto: number;
+  categoria?: string;
 }
 
 export default function OfertaCarousel() {
@@ -29,7 +30,7 @@ export default function OfertaCarousel() {
       try {
         const { data, error: err } = await supabase
           .from('oferta')
-          .select('*, producto:pk_producto(*)')
+          .select('*, producto:pk_producto(*, categoria:pk_categoria_producto(nombre_categoria_producto))')
           .lte('fecha_inicio', new Date().toISOString().split('T')[0])
           .gte('fecha_fin', new Date().toISOString().split('T')[0]);
         if (err) throw err;
@@ -44,6 +45,7 @@ export default function OfertaCarousel() {
             precioProducto: Number(o.producto?.precio_producto || 0),
             precioOferta: Number(o.precio_oferta),
             stockProducto: o.producto?.stock_producto || 0,
+            categoria: o.producto?.categoria?.nombre_categoria_producto || undefined,
           }));
           setOfertas(adaptadas);
         }
@@ -74,8 +76,7 @@ export default function OfertaCarousel() {
           {/* Flechas para desktop */}
           <button
             onClick={() => scrollBy(-320)}
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition"
-            style={{ left: '-60px' }}
+              className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow w-10 h-10 items-center justify-center hover:bg-gray-100 transition -left-4 xl:-left-12"
             aria-label="Anterior"
             disabled={loading || ofertas.length === 0}
           >
@@ -83,8 +84,7 @@ export default function OfertaCarousel() {
           </button>
           <button
             onClick={() => scrollBy(320)}
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition"
-            style={{ right: '-25px' }}
+              className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow w-10 h-10 items-center justify-center hover:bg-gray-100 transition -right-4 xl:-right-12"
             aria-label="Siguiente"
             disabled={loading || ofertas.length === 0}
           >
@@ -95,14 +95,14 @@ export default function OfertaCarousel() {
           <div
             ref={carouselRef}
             className={`
-              flex gap-4 overflow-x-auto py-4 px-1 scroll-smooth snap-x snap-mandatory
+              flex gap-3 sm:gap-4 overflow-x-auto py-4 px-2 pr-8 sm:pr-0 scroll-smooth snap-x snap-mandatory
               hide-scrollbar
             `}
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="snap-center min-w-[260px] max-w-[280px] flex-shrink-0">
+                <div key={i} className="snap-start min-w-[75%] sm:min-w-[260px] sm:max-w-[280px] flex-shrink-0">
                   <ProductCardSkeleton />
                 </div>
               ))
@@ -112,7 +112,7 @@ export default function OfertaCarousel() {
               ofertas.map(oferta => (
                 <div
                   key={oferta.idOferta}
-                  className="snap-center min-w-[260px] max-w-[280px] flex-shrink-0"
+                  className="snap-start min-w-[75%] sm:min-w-[260px] sm:max-w-[280px] flex-shrink-0"
                 >
                   <ProductCard
                     id={oferta.idProducto}
@@ -123,6 +123,7 @@ export default function OfertaCarousel() {
                     precio={oferta.precioOferta}
                     precioOriginal={oferta.precioProducto}
                     stock={oferta.stockProducto}
+                    categoria={oferta.categoria}
                   />
                 </div>
               ))
