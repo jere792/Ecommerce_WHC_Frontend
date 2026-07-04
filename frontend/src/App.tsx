@@ -1,6 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 import HomePage from './pages/public/HomePage';
-import OpinonesPage from './pages/public/OpinonesPage';
 import ProductsPage from './pages/public/ProductsPage';
 import ContactPage from './pages/public/ContactPage';
 import NotFoundPage from './pages/public/NotFoundPage';
@@ -11,6 +10,7 @@ import InstalacionPage from './pages/public/InstalacionPage';
 import MantenimientoPage from './pages/public/MantemientoPage';
 import TerminosPage from './pages/public/TerminosPage';
 import PrivacidadPage from './pages/public/PrivacidadPage';
+import LoginPage from './pages/public/LoginPage';
 
 import Layout from './layouts/Layout';
 import ResetPasswordPage from './pages/public/ResetPasswordPage';
@@ -31,10 +31,12 @@ import AdminFormDetail from './pages/admin/FormDetailPage';
 import AdminOffers from './pages/admin/OffersPage';
 import AdminMovements from './pages/admin/MovementsPage';
 import AdminCategories from './pages/admin/CategoriesPage';
+import AdminCategoryForm from './pages/admin/CategoryFormPage';
 import AdminBrands from './pages/admin/BrandsPage';
 import AdminHeroSlides from './pages/admin/HeroSlidesPage';
 import AdminBannerPublicidad from './pages/admin/BannerPublicidadPage';
 import AdminPageHero from './pages/admin/PageHeroPage';
+import AdminEmpresa from './pages/admin/EmpresaPage';
 
 const App: React.FC = () => {
   return (
@@ -49,7 +51,6 @@ const App: React.FC = () => {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/productos/:slug" element={<DetalleProducto />} />
           <Route path="/libro" element={<LibroReclamaciones />} />
-          <Route path="/opiniones" element={<OpinonesPage />} />
           <Route path="/instalacion" element={<InstalacionPage />} />
           <Route path="/mantenimiento" element={<MantenimientoPage />} />
           <Route path="/mis-pedidos" element={<MisPedidosPage />} />
@@ -57,6 +58,7 @@ const App: React.FC = () => {
           <Route path="/privacidad" element={<PrivacidadPage />} />
         </Route>
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="productos" element={<AdminProducts />} />
@@ -70,10 +72,13 @@ const App: React.FC = () => {
           <Route path="formularios" element={<AdminForms />} />
           <Route path="formularios/:id" element={<AdminFormDetail />} />
           <Route path="categorias" element={<AdminCategories />} />
+          <Route path="categorias/nuevo" element={<AdminCategoryForm />} />
+          <Route path="categorias/editar/:id" element={<AdminCategoryForm />} />
           <Route path="marcas" element={<AdminBrands />} />
           <Route path="hero-slides" element={<AdminHeroSlides />} />
           <Route path="banners-publicidad" element={<AdminBannerPublicidad />} />
           <Route path="page-hero" element={<AdminPageHero />} />
+          <Route path="empresa" element={<AdminEmpresa />} />
           <Route path="ofertas" element={<AdminOffers />} />
           <Route path="movimientos" element={<AdminMovements />} />
         </Route>

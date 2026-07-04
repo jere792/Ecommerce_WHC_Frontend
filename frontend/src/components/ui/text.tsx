@@ -14,7 +14,7 @@ const Text: React.FC<TextProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`text-center py-8 bg-primary-50 ${className}`}>
+    <div className={`text-center py-4 sm:py-6 md:py-8 bg-primary-50 ${className}`}>
       <h2 className="text-xl md:text-2xl font-semibold text-primary-800 tracking-wide uppercase">
         {title}
       </h2>

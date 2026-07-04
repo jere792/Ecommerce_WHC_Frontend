@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import type { CategoriaProducto } from '../../lib/supabaseTypes';
 import { ChevronRight, ChevronDown, Plus, Trash2, Edit3 } from 'lucide-react';
@@ -110,12 +111,7 @@ function CategoryRow({ cat, categories, depth, onEdit, onAddSub, onDelete, onTog
 export default function AdminCategories() {
   const [categories, setCategories] = useState<CategoriaProducto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<CategoriaProducto | null>(null);
-  const [nombre, setNombre] = useState('');
-  const [parentId, setParentId] = useState<number | null>(null);
-  const [mostrarEnHome, setMostrarEnHome] = useState(false);
-  const [subtituloHome, setSubtituloHome] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => { loadCategories(); }, []);
 
@@ -125,42 +121,42 @@ export default function AdminCategories() {
     setLoading(false);
   };
 
-  const resetForm = () => { setNombre(''); setParentId(null); setMostrarEnHome(false); setSubtituloHome(''); setEditing(null); };
-
-  const openNew = (parent?: CategoriaProducto) => { resetForm(); if (parent) setParentId(parent.id_categoria_producto); setShowForm(true); };
-
   const openEdit = (cat: CategoriaProducto) => {
-    setEditing(cat); setNombre(cat.nombre_categoria_producto); setParentId(cat.pk_categoria_padre ?? null); setMostrarEnHome(cat.mostrar_en_home ?? false); setSubtituloHome(cat.subtitulo_home ?? '');
-    setShowForm(true);
+    navigate(`/admin/categorias/editar/${cat.id_categoria_producto}`);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const payload = { nombre_categoria_producto: nombre, pk_categoria_padre: parentId || null, mostrar_en_home: mostrarEnHome, subtitulo_home: subtituloHome || null };
-    if (editing) {
-      await supabase.from('categoria_p').update(payload).eq('id_categoria_producto', editing.id_categoria_producto);
-    } else {
-      await supabase.from('categoria_p').insert(payload);
-    }
-    setShowForm(false); resetForm(); loadCategories();
+  const openNew = () => {
+    navigate('/admin/categorias/nuevo');
   };
 
   const handleDelete = async (cat: CategoriaProducto) => {
     const hasChildren = categories.some(c => c.pk_categoria_padre === cat.id_categoria_producto);
     if (hasChildren && !confirm(`"${cat.nombre_categoria_producto}" tiene subcategorías. ¿Eliminar también?`)) return;
     if (!hasChildren && !confirm(`Eliminar "${cat.nombre_categoria_producto}"?`)) return;
-    await supabase.from('categoria_p').delete().eq('id_categoria_producto', cat.id_categoria_producto);
+    const { error } = await supabase.from('categoria_p').delete().eq('id_categoria_producto', cat.id_categoria_producto);
+    if (error) { alert('Error al eliminar: ' + error.message); return; }
     loadCategories();
   };
 
   const toggleHome = async (cat: CategoriaProducto) => {
-    await supabase.from('categoria_p').update({ mostrar_en_home: !cat.mostrar_en_home }).eq('id_categoria_producto', cat.id_categoria_producto);
-    loadCategories();
-  };
+    const nuevoValor = !(cat.mostrar_en_home ?? false);
 
-  const parentOptions = categories.filter(c =>
-    !editing || c.id_categoria_producto !== editing.id_categoria_producto
-  );
+    setCategories(prev => prev.map(c =>
+      c.id_categoria_producto === cat.id_categoria_producto
+        ? { ...c, mostrar_en_home: nuevoValor }
+        : c
+    ));
+
+    const { error } = await supabase
+      .from('categoria_p')
+      .update({ mostrar_en_home: nuevoValor })
+      .eq('id_categoria_producto', cat.id_categoria_producto);
+
+    if (error) {
+      alert('Error al guardar: ' + error.message);
+      loadCategories();
+    }
+  };
 
   const tree = buildTree(categories)
 
@@ -170,43 +166,10 @@ export default function AdminCategories() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-foreground">Categorías</h1>
-        <button onClick={() => openNew()} className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 flex items-center gap-2"><Plus className="w-4 h-4" /> Nueva</button>
+        <button onClick={openNew} className="bg-primary text-white px-4 py-2 hover:bg-primary/90 flex items-center gap-2"><Plus className="w-4 h-4" /> Nueva</button>
       </div>
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="bg-background rounded-lg shadow p-6 mb-6 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">{editing ? 'Editar' : 'Nueva'} categoría</h2>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Nombre</label>
-            <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full border  rounded px-3 py-2 bg-background text-foreground" required />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Categoría padre</label>
-            <select value={parentId ?? ''} onChange={e => setParentId(e.target.value ? Number(e.target.value) : null)} className="w-full border  rounded px-3 py-2 bg-background text-foreground">
-              <option value="">— Ninguna (raíz) —</option>
-              {parentOptions.map(c => (
-                <option key={c.id_categoria_producto} value={c.id_categoria_producto}>
-                  {getBreadcrumb(c, categories).map(b => b.nombre_categoria_producto).join(' > ')}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Subtítulo (Home)</label>
-            <input type="text" value={subtituloHome} onChange={e => setSubtituloHome(e.target.value)} className="w-full border  rounded px-3 py-2 bg-background text-foreground" placeholder="Ej: Encuentra los mejores productos para tu baño" />
-          </div>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={mostrarEnHome} onChange={e => setMostrarEnHome(e.target.checked)} className="w-4 h-4" />
-            <span className="text-sm font-medium text-foreground">Mostrar en la página principal</span>
-          </label>
-          <div className="flex gap-3">
-            <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Guardar</button>
-            <button type="button" onClick={() => setShowForm(false)} className="bg-muted text-foreground px-4 py-2 rounded hover:bg-muted">Cancelar</button>
-          </div>
-        </form>
-      )}
-
-      <div className="bg-background rounded-lg shadow overflow-hidden">
+      <div className="bg-background shadow overflow-hidden">
         <div className="divide-y divide-border">
           {tree.map(root => (
             <CategoryRow

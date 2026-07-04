@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProductCard from "../ui/ProductCard";
 import { ProductCardSkeleton } from "../ui/Skeleton";
 import { supabase } from '../../lib/supabaseClient';
@@ -33,6 +33,7 @@ function getAllDescendantIds(categorias: CategoriaProducto[], parentId: number):
 
 export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: ProductCarouselProps) {
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaProducto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
       supabase.from('categoria_p').select('*'),
     ]).then(([prodRes, catRes]) => {
       const allCategorias = (catRes.data ?? []) as CategoriaProducto[];
+      setCategorias(allCategorias);
       const categoryIds = getAllDescendantIds(allCategorias, pkCategoria);
 
       if (prodRes.data) {
@@ -65,8 +67,14 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
     });
   }, [pkCategoria]);
 
+  const categoriaNombreMap = useMemo(() => {
+    const map = new Map<number, string>();
+    categorias.forEach(c => map.set(c.id_categoria_producto, c.nombre_categoria_producto));
+    return map;
+  }, [categorias]);
+
   return (
-    <section className="py-10 bg-gray-50">
+    <section className="py-6 sm:py-8 md:py-10 bg-gray-50">
       <div className="container mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-bold text-center text-blue-900 mb-1">
           {titulo}
@@ -76,11 +84,11 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
         )}
 
         <div className="relative">
-          <div className="flex gap-6 overflow-x-auto py-4 px-2 scroll-smooth snap-x snap-mandatory"
+          <div className="flex gap-3 sm:gap-4 md:gap-6 overflow-x-auto py-4 px-2 pr-8 sm:pr-2 scroll-smooth snap-x snap-mandatory hide-scrollbar"
                style={{ WebkitOverflowScrolling: "touch" }}>
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="min-w-[260px] max-w-[280px] snap-start">
+                <div key={i} className="min-w-[75%] sm:min-w-[260px] sm:max-w-[280px] snap-start">
                   <ProductCardSkeleton />
                 </div>
               ))
@@ -90,7 +98,7 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
               productos.map(producto => (
                 <div
                   key={producto.idProducto}
-                  className="min-w-[260px] max-w-[280px] snap-start"
+                  className="min-w-[75%] sm:min-w-[260px] sm:max-w-[280px] snap-start"
                 >
                   <ProductCard
                     id={producto.idProducto}
@@ -100,6 +108,7 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
                     slug={producto.slug}
                     precio={producto.precioProducto}
                     stock={producto.stockProducto}
+                    categoria={producto.pkCategoria ? categoriaNombreMap.get(producto.pkCategoria) : undefined}
                   />
                 </div>
               ))
@@ -107,6 +116,7 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
           </div>
         </div>
       </div>
+      <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </section>
   );
 }

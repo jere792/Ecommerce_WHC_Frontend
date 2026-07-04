@@ -60,7 +60,7 @@ export default function PrivacidadPage() {
             <li><strong>Oposición:</strong> Oponerse al tratamiento de sus datos para fines específicos.</li>
           </ul>
           <p>
-            Para ejercer estos derechos, puede contactarnos a través de whsRepresentaciones@gmail.com. Atenderemos su solicitud en un plazo máximo de 15 días hábiles.
+            Para ejercer estos derechos, puede contactarnos a través de whcRepresentaciones@gmail.com. Atenderemos su solicitud en un plazo máximo de 15 días hábiles.
           </p>
         </section>
         <section>
