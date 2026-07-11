@@ -36,7 +36,7 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
     setLoading(true);
     supabase
       .from('producto')
-      .select('*, marca:pk_marca_producto(*), categoria:pk_categoria_producto(*), imagenes:producto_imagen(*), inventario:inventario!pk_producto(stock_actual)')
+      .select('*, marca:pk_marca_producto(*), categoria:pk_categoria_producto(*), imagenes:producto_imagen(*), inventario:inventario!pk_producto!left(stock_actual)')
       .eq('slug', slug)
       .single()
       .then(({ data, error }) => {

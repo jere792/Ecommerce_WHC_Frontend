@@ -73,7 +73,7 @@ const ProductsPage: React.FC = () => {
     (async () => {
       try {
         const [prodRes, catRes] = await Promise.all([
-          supabase.from('producto').select('*, marca:pk_marca_producto(*), inventario:inventario!pk_producto(stock_actual)'),
+          supabase.from('producto').select('*, marca:pk_marca_producto(*), inventario:inventario!pk_producto!left(stock_actual)'),
           supabase.from('categoria_productos').select('*').order('id_categoria_producto')
         ])
         if (prodRes.data) {

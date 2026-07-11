@@ -26,7 +26,7 @@ export default function NewProductsCarousel() {
 
       const { data } = await supabase
         .from('producto')
-        .select('*, categoria:pk_categoria_producto(nombre_categoria_producto), inventario:inventario!pk_producto(stock_actual)')
+        .select('*, categoria:pk_categoria_producto(nombre_categoria_producto), inventario:inventario!pk_producto!left(stock_actual)')
         .gte('created_at', treintaDiasAtras.toISOString())
         .order('created_at', { ascending: false });
 

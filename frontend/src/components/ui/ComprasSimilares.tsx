@@ -26,7 +26,7 @@ export default function ComprasSimilares({ categoria, slug }: Props) {
   useEffect(() => {
     supabase
       .from('producto')
-      .select('*, marca:pk_marca_producto(*), categoria:pk_categoria_producto(*), inventario:inventario!pk_producto(stock_actual)')
+      .select('*, marca:pk_marca_producto(*), categoria:pk_categoria_producto(*), inventario:inventario!pk_producto!left(stock_actual)')
       .then(({ data }) => {
         if (data) {
           const mismos: ProductoData[] = data

@@ -40,7 +40,7 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
     setLoading(true);
 
     Promise.all([
-      supabase.from('producto').select('*, marca:pk_marca_producto(*), inventario:inventario!pk_producto(stock_actual)'),
+      supabase.from('producto').select('*, marca:pk_marca_producto(*), inventario:inventario!pk_producto!left(stock_actual)'),
       supabase.from('categoria_productos').select('*'),
     ]).then(([prodRes, catRes]) => {
       const allCategorias = (catRes.data ?? []) as CategoriaProducto[];

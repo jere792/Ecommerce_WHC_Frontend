@@ -58,7 +58,7 @@ export default function AdminProductForm() {
     if (isEdit) {
       supabase
         .from('producto')
-        .select('*, imagenes:producto_imagen(*)')
+        .select('*, imagenes:producto_imagen(*), inventario:inventario!pk_producto!left(stock_actual)')
         .eq('slug', slug)
         .single()
         .then(({ data }) => {
@@ -74,6 +74,7 @@ export default function AdminProductForm() {
             setEditCatId(p.pk_categoria_producto || null);
             setFichaTecnicaUrl(p.ficha_tecnica_url || '');
             setPkMarca(p.pk_marca_producto || 0);
+            setStock(String((p as any).inventario?.stock_actual ?? ''));
             if (p.imagenes) {
               setAdditionalImages(
                 p.imagenes
@@ -209,6 +210,12 @@ export default function AdminProductForm() {
       if (prodError) { alert(prodError.message); setLoading(false); return; }
 
       const productId = existingProd.id_producto;
+
+      const { error: invErr } = await supabase
+        .from('inventario')
+        .upsert({ pk_producto: productId, stock_actual: parseInt(stock) || 0, stock_minimo: 0 }, { onConflict: 'pk_producto' });
+      if (invErr) { alert('Error al guardar stock: ' + invErr.message); setLoading(false); return; }
+
       const existingIds = (await supabase.from('producto_imagen').select('id_producto_imagen').eq('id_producto', productId)).data?.map(i => i.id_producto_imagen) || [];
       const keepIds = additionalImages.filter(img => img.id).map(img => img.id!);
       const toDelete = existingIds.filter(id => !keepIds.includes(id));
@@ -227,6 +234,13 @@ export default function AdminProductForm() {
         .select('id_producto')
         .single();
       if (prodError) { alert(prodError.message); setLoading(false); return; }
+
+      if (newProd) {
+        const { error: invErr } = await supabase
+          .from('inventario')
+          .upsert({ pk_producto: newProd.id_producto, stock_actual: parseInt(stock) || 0, stock_minimo: 0 }, { onConflict: 'pk_producto' });
+        if (invErr) { alert('Error al guardar stock: ' + invErr.message); setLoading(false); return; }
+      }
 
       if (additionalImages.length > 0 && newProd) {
         const inserts = additionalImages.map(img => ({

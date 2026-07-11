@@ -6,4 +6,4 @@ _media/
 
 
 
-src/db/supabase.sql
+docs/db.sql

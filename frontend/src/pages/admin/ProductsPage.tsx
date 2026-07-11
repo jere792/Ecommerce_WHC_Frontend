@@ -26,7 +26,7 @@ export default function AdminProducts() {
     Promise.all([
       supabase
         .from('producto')
-        .select('*, categoria:pk_categoria_producto(*), marca:pk_marca_producto(*), inventario:inventario!pk_producto(*)')
+        .select('*, categoria:pk_categoria_producto(*), marca:pk_marca_producto(*), inventario:inventario!pk_producto!left(*)')
         .order('id_producto', { ascending: false }),
       supabase.from('marca_producto').select('*').order('nombre_marca_producto'),
     ]).then(([prodRes, brandRes]) => {
