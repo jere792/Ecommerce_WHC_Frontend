@@ -122,7 +122,7 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <nav className="text-sm text-gray-500 mb-6">
-        <a href="/" className="hover:text-blue-700 transition-colors">Inicio</a>
+        <a href="/inicio" className="hover:text-blue-700 transition-colors">Inicio</a>
         <span className="mx-2">/</span>
         <a href="/productos" className="hover:text-blue-700 transition-colors">Productos</a>
         <span className="mx-2">/</span>

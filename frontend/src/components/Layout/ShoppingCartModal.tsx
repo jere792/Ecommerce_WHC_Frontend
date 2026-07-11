@@ -12,7 +12,7 @@ interface ShoppingCartModalProps {
 export const ShoppingCartModal: React.FC<ShoppingCartModalProps> = ({ onClose }) => {
   const { items, removeItem, updateQuantity } = useCart();
   const { settings } = useStore();
-  const whatsappNumber = settings?.company_whatsapp || '51949790715';
+  const whatsappNumber = settings?.whatsapp_empresa || '51949790715';
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
 

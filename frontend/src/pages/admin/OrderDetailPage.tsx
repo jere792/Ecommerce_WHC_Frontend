@@ -15,7 +15,7 @@ export default function AdminOrderDetail() {
   const loadOrder = async () => {
     const { data } = await supabase
       .from('pedido')
-      .select('*, usuario:pk_usuario(*), detalles:pedidodetalles(*, producto:pk_producto_pedido(*))')
+      .select('*, usuario:pk_usuario(*), detalles:pedido_detalles(*, producto:pk_producto_pedido(*))')
       .eq('id_pedido', id)
       .single();
     if (data) setOrder(data as unknown as Pedido);

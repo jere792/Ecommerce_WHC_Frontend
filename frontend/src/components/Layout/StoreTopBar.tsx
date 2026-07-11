@@ -20,25 +20,25 @@ export function StoreTopBar() {
   }
 
   let todaySchedule = ''
-  if (day === 0 && settings.sunday_open && settings.sunday_close) {
-    todaySchedule = `${formatTime(settings.sunday_open)} - ${formatTime(settings.sunday_close)}`
+  if (day === 0 && settings.apertura_domingo && settings.cierre_domingo) {
+    todaySchedule = `${formatTime(settings.apertura_domingo)} - ${formatTime(settings.cierre_domingo)}`
   } else if (day === 6) {
-    todaySchedule = `${formatTime(settings.saturday_open)} - ${formatTime(settings.saturday_close)}`
+    todaySchedule = `${formatTime(settings.apertura_sabado)} - ${formatTime(settings.cierre_sabado)}`
   } else {
-    todaySchedule = `${formatTime(settings.weekday_open)} - ${formatTime(settings.weekday_close)}`
+    todaySchedule = `${formatTime(settings.apertura_semana)} - ${formatTime(settings.cierre_semana)}`
   }
 
   return (
     <div className={`w-full text-white text-sm font-medium transition-colors duration-500 ${
-      settings.is_open ? 'bg-green-600' : 'bg-red-600'
+      settings.esta_abierto ? 'bg-green-600' : 'bg-red-600'
     }`}>
       <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-center gap-2">
         <Clock className="w-4 h-4" />
         <span>
-          {settings.is_open ? (
+          {settings.esta_abierto ? (
             <>Abierto ahora — {dayName} {todaySchedule}</>
           ) : (
-            <>Cerrado ahora — Horario: Lun-Sáb {formatTime(settings.weekday_open)} - {formatTime(settings.saturday_close)}</>
+            <>Cerrado ahora — Horario: Lun-Sáb {formatTime(settings.apertura_semana)} - {formatTime(settings.cierre_sabado)}</>
           )}
         </span>
       </div>

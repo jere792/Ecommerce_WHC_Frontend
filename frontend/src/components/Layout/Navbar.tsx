@@ -40,7 +40,7 @@ export function Navbar() {
   const catMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
-  const companyName = settings?.company_name || 'WHC Representaciones';
+  const companyName = settings?.nombre_empresa || 'WHC Representaciones';
 
   useEffect(() => {
     supabase.from("categoria_p").select("*").order("id_categoria_producto")
@@ -84,7 +84,7 @@ export function Navbar() {
   };
 
   const tree = buildTree(categories);
-  const phone = settings?.company_phone || '(+51) 949790715';
+  const phone = settings?.telefono_empresa || '(+51) 949790715';
 
   return (
     <>
@@ -95,7 +95,7 @@ export function Navbar() {
               <Phone className="w-3 h-3" /> {phone}
             </a>
             <span className="flex items-center gap-1.5">
-              <Clock className="w-3 h-3" /> {settings?.company_schedule || 'Lun - Vie: 9:00 a.m. - 6:00 p.m.'}
+              <Clock className="w-3 h-3" /> {settings?.horario_empresa || 'Lun - Vie: 9:00 a.m. - 6:00 p.m.'}
             </span>
           </div>
           <div className="flex items-center gap-4">

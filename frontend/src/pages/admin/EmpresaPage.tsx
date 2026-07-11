@@ -1,39 +1,39 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useStore } from '../../contexts/StoreContext';
-import type { StoreSettings } from '../../lib/supabaseTypes';
+import type { ConfiguracionTienda } from '../../lib/supabaseTypes';
 
-const emptySettings: Partial<StoreSettings> = {
-  company_name: '',
-  company_phone: '',
-  company_whatsapp: '',
-  company_email: '',
-  company_address: '',
-  company_schedule: '',
-  google_maps_url: '',
-  weekday_open: '09:00:00',
-  weekday_close: '18:00:00',
-  saturday_open: '09:00:00',
-  saturday_close: '13:00:00',
-  sunday_open: null,
-  sunday_close: null,
+const emptySettings: Partial<ConfiguracionTienda> = {
+  nombre_empresa: '',
+  telefono_empresa: '',
+  whatsapp_empresa: '',
+  correo_empresa: '',
+  direccion_empresa: '',
+  horario_empresa: '',
+  url_google_maps: '',
+  apertura_semana: '09:00:00',
+  cierre_semana: '18:00:00',
+  apertura_sabado: '09:00:00',
+  cierre_sabado: '13:00:00',
+  apertura_domingo: null,
+  cierre_domingo: null,
 };
 
 export default function EmpresaPage() {
-  const [form, setForm] = useState<Partial<StoreSettings>>(emptySettings);
+  const [form, setForm] = useState<Partial<ConfiguracionTienda>>(emptySettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
-    supabase.from('store_settings').select('*').eq('id', 1).single()
+    supabase.from('configuracion_tienda').select('*').eq('id', 1).single()
       .then(({ data }) => {
-        if (data) setForm(data as StoreSettings);
+        if (data) setForm(data as ConfiguracionTienda);
         setLoading(false);
       });
   }, []);
 
-  const set = (key: keyof StoreSettings, value: string) => {
+  const set = (key: keyof ConfiguracionTienda, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
   };
 
@@ -43,23 +43,23 @@ export default function EmpresaPage() {
     setMsg('');
 
     const { error } = await supabase
-      .from('store_settings')
+      .from('configuracion_tienda')
       .upsert({
         id: 1,
-        is_open: form.is_open ?? false,
-        weekday_open: form.weekday_open,
-        weekday_close: form.weekday_close,
-        saturday_open: form.saturday_open,
-        saturday_close: form.saturday_close,
-        sunday_open: form.sunday_open,
-        sunday_close: form.sunday_close,
-        company_name: form.company_name,
-        company_phone: form.company_phone,
-        company_whatsapp: form.company_whatsapp,
-        company_email: form.company_email,
-        company_address: form.company_address,
-        company_schedule: form.company_schedule,
-        google_maps_url: form.google_maps_url,
+        esta_abierto: form.esta_abierto ?? false,
+        apertura_semana: form.apertura_semana,
+        cierre_semana: form.cierre_semana,
+        apertura_sabado: form.apertura_sabado,
+        cierre_sabado: form.cierre_sabado,
+        apertura_domingo: form.apertura_domingo,
+        cierre_domingo: form.cierre_domingo,
+        nombre_empresa: form.nombre_empresa,
+        telefono_empresa: form.telefono_empresa,
+        whatsapp_empresa: form.whatsapp_empresa,
+        correo_empresa: form.correo_empresa,
+        direccion_empresa: form.direccion_empresa,
+        horario_empresa: form.horario_empresa,
+        url_google_maps: form.url_google_maps,
       });
 
     setSaving(false);
@@ -81,37 +81,37 @@ export default function EmpresaPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Nombre de la empresa</label>
-            <input type="text" value={form.company_name ?? ''} onChange={e => set('company_name', e.target.value)}
+            <input type="text" value={form.nombre_empresa ?? ''} onChange={e => set('nombre_empresa', e.target.value)}
               className="w-full border px-3 py-2 bg-background text-foreground" />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Teléfono</label>
-            <input type="text" value={form.company_phone ?? ''} onChange={e => set('company_phone', e.target.value)}
+            <input type="text" value={form.telefono_empresa ?? ''} onChange={e => set('telefono_empresa', e.target.value)}
               className="w-full border px-3 py-2 bg-background text-foreground" placeholder="(+51) 949790715" />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">WhatsApp (sin +)</label>
-            <input type="text" value={form.company_whatsapp ?? ''} onChange={e => set('company_whatsapp', e.target.value)}
+            <input type="text" value={form.whatsapp_empresa ?? ''} onChange={e => set('whatsapp_empresa', e.target.value)}
               className="w-full border px-3 py-2 bg-background text-foreground" placeholder="51949790715" />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Correo</label>
-            <input type="text" value={form.company_email ?? ''} onChange={e => set('company_email', e.target.value)}
+            <input type="text" value={form.correo_empresa ?? ''} onChange={e => set('correo_empresa', e.target.value)}
               className="w-full border px-3 py-2 bg-background text-foreground" />
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-foreground mb-1">Dirección</label>
-            <input type="text" value={form.company_address ?? ''} onChange={e => set('company_address', e.target.value)}
+            <input type="text" value={form.direccion_empresa ?? ''} onChange={e => set('direccion_empresa', e.target.value)}
               className="w-full border px-3 py-2 bg-background text-foreground" />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Horario</label>
-            <input type="text" value={form.company_schedule ?? ''} onChange={e => set('company_schedule', e.target.value)}
+            <input type="text" value={form.horario_empresa ?? ''} onChange={e => set('horario_empresa', e.target.value)}
               className="w-full border px-3 py-2 bg-background text-foreground" placeholder="Lun - Vie: 9:00 a.m. - 6:00 p.m." />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Google Maps URL</label>
-            <input type="text" value={form.google_maps_url ?? ''} onChange={e => set('google_maps_url', e.target.value)}
+            <input type="text" value={form.url_google_maps ?? ''} onChange={e => set('url_google_maps', e.target.value)}
               className="w-full border px-3 py-2 bg-background text-foreground" placeholder="URL del embed de Google Maps" />
           </div>
         </div>
@@ -121,22 +121,22 @@ export default function EmpresaPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
             <label className="block text-xs text-muted-foreground mb-1">L-V Apertura</label>
-            <input type="time" value={form.weekday_open?.slice(0, 5) ?? '09:00'} onChange={e => set('weekday_open', e.target.value + ':00')}
+            <input type="time" value={form.apertura_semana?.slice(0, 5) ?? '09:00'} onChange={e => set('apertura_semana', e.target.value + ':00')}
               className="w-full border px-2 py-1.5 bg-background text-foreground text-sm" />
           </div>
           <div>
             <label className="block text-xs text-muted-foreground mb-1">L-V Cierre</label>
-            <input type="time" value={form.weekday_close?.slice(0, 5) ?? '18:00'} onChange={e => set('weekday_close', e.target.value + ':00')}
+            <input type="time" value={form.cierre_semana?.slice(0, 5) ?? '18:00'} onChange={e => set('cierre_semana', e.target.value + ':00')}
               className="w-full border px-2 py-1.5 bg-background text-foreground text-sm" />
           </div>
           <div>
             <label className="block text-xs text-muted-foreground mb-1">Sáb Apertura</label>
-            <input type="time" value={form.saturday_open?.slice(0, 5) ?? '09:00'} onChange={e => set('saturday_open', e.target.value + ':00')}
+            <input type="time" value={form.apertura_sabado?.slice(0, 5) ?? '09:00'} onChange={e => set('apertura_sabado', e.target.value + ':00')}
               className="w-full border px-2 py-1.5 bg-background text-foreground text-sm" />
           </div>
           <div>
             <label className="block text-xs text-muted-foreground mb-1">Sáb Cierre</label>
-            <input type="time" value={form.saturday_close?.slice(0, 5) ?? '13:00'} onChange={e => set('saturday_close', e.target.value + ':00')}
+            <input type="time" value={form.cierre_sabado?.slice(0, 5) ?? '13:00'} onChange={e => set('cierre_sabado', e.target.value + ':00')}
               className="w-full border px-2 py-1.5 bg-background text-foreground text-sm" />
           </div>
         </div>

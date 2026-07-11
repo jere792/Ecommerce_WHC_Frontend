@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { uploadToCloudinary } from '../../lib/cloudinary';
 import { uploadPdf } from '../../lib/supabaseStorage';
-import type { CategoriaProducto, MarcaProducto, EstadoProducto, Producto, ProductoImagen } from '../../lib/supabaseTypes';
+import type { CategoriaProducto, MarcaProducto, Producto, ProductoImagen } from '../../lib/supabaseTypes';
 import { Trash2, Upload } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 
@@ -31,10 +31,8 @@ export default function AdminProductForm() {
   const [selectedMain, setSelectedMain] = useState<number>(0);
   const [selectedSub, setSelectedSub] = useState<number>(0);
   const [pkMarca, setPkMarca] = useState<number>(0);
-  const [pkEstado, setPkEstado] = useState<number>(0);
   const [categorias, setCategorias] = useState<CategoriaProducto[]>([]);
   const [marcas, setMarcas] = useState<MarcaProducto[]>([]);
-  const [estados, setEstados] = useState<EstadoProducto[]>([]);
   const [loading, setLoading] = useState(false);
   const [additionalImages, setAdditionalImages] = useState<AdditionalImage[]>([]);
   const [uploadingAdditional, setUploadingAdditional] = useState(false);
@@ -52,11 +50,9 @@ export default function AdminProductForm() {
     Promise.all([
       supabase.from('categoria_p').select('*'),
       supabase.from('marca_p').select('*'),
-      supabase.from('estado_p').select('*'),
-    ]).then(([catData, marData, estData]) => {
+    ]).then(([catData, marData]) => {
       if (catData.data) setCategorias(catData.data as CategoriaProducto[]);
       if (marData.data) setMarcas(marData.data as MarcaProducto[]);
-      if (estData.data) setEstados(estData.data as EstadoProducto[]);
     });
 
     if (isEdit) {
@@ -73,13 +69,11 @@ export default function AdminProductForm() {
             setPrecioCompra(p.precio_compra ? String(p.precio_compra) : '');
             setDescripcion(p.descripcion_producto || '');
             setImagen(p.imagen_producto || '');
-            setStock(String(p.stock_producto));
             setSlugField(p.slug);
             setPkCategoria(p.pk_categoria_producto || 0);
             setEditCatId(p.pk_categoria_producto || null);
             setFichaTecnicaUrl(p.ficha_tecnica_url || '');
             setPkMarca(p.pk_marca_producto || 0);
-            setPkEstado(p.pk_estado_producto || 0);
             if (p.imagenes) {
               setAdditionalImages(
                 p.imagenes
@@ -199,11 +193,9 @@ export default function AdminProductForm() {
       precio_compra: precioCompra ? parseFloat(precioCompra) : null,
       descripcion_producto: descripcion,
       imagen_producto: imagenUrl,
-      stock_producto: parseInt(stock),
       slug: slugField || toSlug(nombre),
       pk_categoria_producto: pkCategoria || null,
       pk_marca_producto: pkMarca || null,
-      pk_estado_producto: pkEstado || null,
       ficha_tecnica_url: fichaTecnicaUrl || null,
     };
 
@@ -523,21 +515,6 @@ export default function AdminProductForm() {
                     {marcas.map((m) => (
                       <option key={m.id_marca_producto} value={m.id_marca_producto}>
                         {m.nombre_marca_producto}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Estado</label>
-                  <select
-                    value={pkEstado}
-                    onChange={(e) => setPkEstado(Number(e.target.value))}
-                    className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  >
-                    <option value={0}>Seleccionar</option>
-                    {estados.map((e) => (
-                      <option key={e.id_estado_producto} value={e.id_estado_producto}>
-                        {e.nombre_estado_producto}
                       </option>
                     ))}
                   </select>

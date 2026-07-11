@@ -60,7 +60,7 @@ interface MonthlyTrend {
 interface InventoryItem {
   id_producto: number
   nombre_producto: string
-  stock_producto: number
+  stock_actual: number
   precio_producto: number
   precio_compra: number | null
 }
@@ -347,11 +347,11 @@ export default function AdminDashboard() {
         offersRes,
       ] = await Promise.all([
         supabase.from('pedido').select('monto_total, fecha').eq('estado_pago', 'atendido').gte('fecha', twelveMonthsAgo.toISOString()).order('fecha', { ascending: true }),
-        supabase.from('producto').select('id_producto, nombre_producto, stock_producto, precio_producto, precio_compra').lt('stock_producto', 10).gte('stock_producto', 1),
-        supabase.from('producto').select('id_producto, nombre_producto, stock_producto, precio_producto, precio_compra').eq('stock_producto', 0),
-        supabase.from('producto').select('id_producto, nombre_producto, stock_producto, precio_producto, precio_compra').order('created_at', { ascending: false }).limit(5),
+        supabase.from('inventario').select('id_producto:pk_producto, stock_actual, producto:pk_producto!inner(nombre_producto, precio_producto, precio_compra)').lt('stock_actual', 10).gte('stock_actual', 1),
+        supabase.from('inventario').select('id_producto:pk_producto, stock_actual, producto:pk_producto!inner(nombre_producto, precio_producto, precio_compra)').eq('stock_actual', 0),
+        supabase.from('producto').select('id_producto, nombre_producto, precio_producto, precio_compra').order('created_at', { ascending: false }).limit(5),
         supabase.from('pedido').select('id_pedido, fecha, monto_total, estado_pago, usuario:pk_usuario(nombre_persona)').eq('estado_pago', 'pendiente').order('fecha', { ascending: false }),
-        supabase.from('producto').select('id_producto, nombre_producto, stock_producto, precio_producto, precio_compra').not('precio_compra', 'is', null),
+        supabase.from('producto').select('id_producto, nombre_producto, precio_producto, precio_compra').not('precio_compra', 'is', null),
         supabase.from('oferta').select('id_oferta, precio_oferta, fecha_fin, fecha_inicio, producto:pk_producto(nombre_producto, precio_producto)').lte('fecha_fin', thirtyDaysFromNow.toISOString().split('T')[0]).gte('fecha_fin', new Date().toISOString().split('T')[0]).order('fecha_fin', { ascending: true }),
       ])
 
@@ -426,8 +426,8 @@ export default function AdminDashboard() {
       setMonthlyTrend(trendArr)
       setWeeklyComparison(weeklyArr)
       setYearComparison(yearArr)
-      setLowStock(lowStockRes.data as InventoryItem[] || [])
-      setNoStock(noStockRes.data as InventoryItem[] || [])
+      setLowStock((lowStockRes.data as any[] || []).map((i: any) => ({ id_producto: i.pk_producto, nombre_producto: i.producto?.nombre_producto || '', stock_actual: i.stock_actual, precio_producto: Number(i.producto?.precio_producto || 0), precio_compra: i.producto?.precio_compra || null })))
+      setNoStock((noStockRes.data as any[] || []).map((i: any) => ({ id_producto: i.pk_producto, nombre_producto: i.producto?.nombre_producto || '', stock_actual: i.stock_actual, precio_producto: Number(i.producto?.precio_producto || 0), precio_compra: i.producto?.precio_compra || null })))
       setRecentProducts(recentProdRes.data as InventoryItem[] || [])
       setPendingOrders((pendingOrdersRes.data as any[] || []).map((o: any) => ({ ...o, usuario: Array.isArray(o.usuario) ? o.usuario[0] : o.usuario })))
       setLossProducts(lossArr)
@@ -858,7 +858,7 @@ export default function AdminDashboard() {
               {lowStock.map((p) => (
                 <div key={p.id_producto} className="flex items-center justify-between text-sm py-1.5 border-b border-border last:border-0">
                   <span className="text-foreground truncate max-w-[180px]">{p.nombre_producto}</span>
-                  <span className="font-medium text-amber-600 dark:text-amber-400">{p.stock_producto}</span>
+                  <span className="font-medium text-amber-600 dark:text-amber-400">{p.stock_actual}</span>
                 </div>
               ))}
             </div>

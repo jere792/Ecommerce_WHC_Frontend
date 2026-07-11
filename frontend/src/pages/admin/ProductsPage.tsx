@@ -26,7 +26,7 @@ export default function AdminProducts() {
     Promise.all([
       supabase
         .from('producto')
-        .select('*, categoria:pk_categoria_producto(*), marca:pk_marca_producto(*), estado:pk_estado_producto(*)')
+        .select('*, categoria:pk_categoria_producto(*), marca:pk_marca_producto(*), inventario:inventario!pk_producto(*)')
         .order('id_producto', { ascending: false }),
       supabase.from('marca_p').select('*').order('nombre_marca_producto'),
     ]).then(([prodRes, brandRes]) => {
@@ -49,7 +49,7 @@ export default function AdminProducts() {
     }
 
     if (view === 'lowStock') {
-      result = result.filter((p) => p.stock_producto <= LOW_STOCK_THRESHOLD);
+      result = result.filter((p) => (p.inventario?.stock_actual ?? 0) <= LOW_STOCK_THRESHOLD);
     }
 
     return result;
@@ -101,22 +101,18 @@ export default function AdminProducts() {
       render: (p) => (
         <span
           className={`font-medium ${
-            p.stock_producto <= LOW_STOCK_THRESHOLD
+            (p.inventario?.stock_actual ?? 0) <= LOW_STOCK_THRESHOLD
               ? 'text-destructive'
               : 'text-foreground'
           }`}
         >
-          {p.stock_producto}
+          {p.inventario?.stock_actual ?? 0}
         </span>
       ),
     },
     {
       header: 'Categoria',
       render: (p) => p.categoria?.nombre_categoria_producto || '-',
-    },
-    {
-      header: 'Estado',
-      render: (p) => p.estado?.nombre_estado_producto || '-',
     },
     {
       header: 'Acciones',
