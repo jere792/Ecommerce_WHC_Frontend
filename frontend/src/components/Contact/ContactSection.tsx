@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { useStore } from '../../contexts/StoreContext';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 
 const MOTIVOS = [
@@ -12,6 +13,7 @@ const MOTIVOS = [
 ];
 
 export const ContactSection = () => {
+  const { settings } = useStore();
   const [nombre, setNombre] = useState("");
   const [apellidos, setApellidos] = useState("");
   const [correo, setCorreo] = useState("");
@@ -62,11 +64,19 @@ export const ContactSection = () => {
     }
   };
 
+  const phone = settings?.company_phone || '(+51) 949790715';
+  const whatsapp = settings?.company_whatsapp || '51949790715';
+  const email = settings?.company_email || 'whcRepresentaciones@gmail.com';
+  const address = settings?.company_address || 'Los Rubies 295, La Victoria, Lima';
+  const schedule = settings?.company_schedule || 'Lun - Vie: 9:00 a.m. - 6:00 p.m.';
+  const mapsUrl = settings?.google_maps_url ||
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3903.594488711491!2d-77.08852892439776!3d-12.06438884214716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c849a17412b7%3A0x316342a24980719b!2sLos%20Rubies%20295%2C%20Lima%2015034!5e0!3m2!1ses-419!2spe!4v1713538117347!5m2!1ses-419!2spe';
+
   const contactInfo = [
-    { icon: Phone, label: "Teléfono", value: "(+51) 949790715", href: "tel:+51949790715" },
-    { icon: Mail, label: "Correo", value: "whsRepresentaciones@gmail.com", href: "mailto:whsRepresentaciones@gmail.com" },
-    { icon: MapPin, label: "Dirección", value: "Los Rubies 295, La Victoria, Lima" },
-    { icon: Clock, label: "Horario", value: "Lun - Vie: 9:00 a.m. - 6:00 p.m." },
+    { icon: Phone, label: "Teléfono", value: phone, href: `tel:+${whatsapp}` },
+    { icon: Mail, label: "Correo", value: email, href: `mailto:${email}` },
+    { icon: MapPin, label: "Dirección", value: address },
+    { icon: Clock, label: "Horario", value: schedule },
   ];
 
   return (
@@ -105,7 +115,7 @@ export const ContactSection = () => {
               <div className="rounded-lg overflow-hidden shadow h-64">
                 <iframe
                   title="Ubicación"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3903.594488711491!2d-77.08852892439776!3d-12.06438884214716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c849a17412b7%3A0x316342a24980719b!2sLos%20Rubies%20295%2C%20Lima%2015034!5e0!3m2!1ses-419!2spe!4v1713538117347!5m2!1ses-419!2spe"
+                  src={mapsUrl}
                   className="w-full h-full border-0"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"

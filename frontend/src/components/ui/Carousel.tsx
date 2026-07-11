@@ -51,7 +51,7 @@ export function Carousel() {
   if (slides.length === 0) return null;
 
   return (
-    <div className="relative w-full h-[500px] overflow-hidden">
+    <div className="relative w-full h-[280px] sm:h-[420px] md:h-[550px] lg:h-[650px] overflow-hidden">
       <div
         className="flex transition-transform duration-700 ease-in-out h-full"
         style={{ transform: `translateX(-${current * 100}%)` }}
@@ -69,7 +69,7 @@ export function Carousel() {
             <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-black/100 to-transparent"></div>
             <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/100 to-transparent"></div>
             {slide.texto && (
-              <div className="absolute bottom-10 left-10 bg-white/10 backdrop-blur-md text-white px-8 py-3 rounded-lg shadow-xl text-xl font-semibold border border-white/20">
+              <div className="absolute bottom-4 sm:bottom-7 md:bottom-10 left-4 sm:left-7 md:left-10 bg-white/10 backdrop-blur-md text-white px-4 sm:px-6 md:px-8 py-2 sm:py-3 shadow-xl text-sm sm:text-lg md:text-xl font-semibold border border-white/20 max-w-[85%]">
                 {slide.texto}
               </div>
             )}
@@ -79,23 +79,25 @@ export function Carousel() {
 
       <button
         onClick={handlePrev}
-        className="absolute top-1/2 left-4 -translate-y-1/2 bg-black/30 hover:bg-black text-gray-200 shadow"
+        className="absolute top-1/2 left-2 sm:left-4 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center transition"
+        aria-label="Anterior"
       >
-        <ChevronLeft className="w-8 h-10" />
+        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
 
       <button
         onClick={handleNext}
-        className="absolute top-1/2 right-4 -translate-y-1/2 bg-black/30 hover:bg-black text-gray-200 shadow"
+        className="absolute top-1/2 right-2 sm:right-4 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center transition"
+        aria-label="Siguiente"
       >
-        <ChevronRight className="w-8 h-10" />
+        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
 
       <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-3">
         {slides.map((_, index) => (
           <div
             key={index}
-            className={`w-2.5 h-2.5 rounded-full ${
+            className={`w-2.5 h-2.5 ${
               index === current ? "bg-blue-600" : "bg-gray-600"
             }`}
           />

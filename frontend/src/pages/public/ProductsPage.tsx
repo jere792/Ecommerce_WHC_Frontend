@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation } from "react-router-dom";
-import PageHeroBanner from '../../components/ui/PageHero';
-import { Publicidad } from '../../components/ui/Publicidad';
 import Marcas from '../../components/ui/Marcas';
 import ProductCard from '../../components/ui/ProductCard';
 import { ProductCardSkeleton } from '../../components/ui/Skeleton';
 import { supabase } from '../../lib/supabaseClient';
 import type { Producto, CategoriaProducto } from '../../lib/supabaseTypes';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, Search, X, SlidersHorizontal } from 'lucide-react';
 
 interface ProductoAdapted {
   idProducto: number;
@@ -36,10 +34,12 @@ const ProductsPage: React.FC = () => {
   const [filtroCategoria, setFiltroCategoria] = useState<number | null>(null);
 
   const [paginaActual, setPaginaActual] = useState(1);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const searchQuery = params.get("search")?.toLowerCase() || "";
+  const [searchText, setSearchText] = useState(searchQuery);
   const categoriaParam = params.get("categoria");
 
   const treeCategorias = useMemo(() => {
@@ -56,6 +56,12 @@ const ProductsPage: React.FC = () => {
     })
     return roots
   }, [categorias])
+
+  const categoriaNombreMap = useMemo(() => {
+    const map = new Map<number, string>();
+    categorias.forEach(c => map.set(c.id_categoria_producto, c.nombre_categoria_producto));
+    return map;
+  }, [categorias]);
 
   useEffect(() => {
     if (categoriaParam) {
@@ -146,7 +152,8 @@ const ProductsPage: React.FC = () => {
     .filter(prod => {
       if (filtroMarcas.length > 0 && !filtroMarcas.includes(prod.marca)) return false
       if (prod.precio > precioMax) return false
-      if (!prod.nombreProducto.toLowerCase().includes(searchQuery)) return false
+      const query = searchText || searchQuery;
+      if (query && !prod.nombreProducto.toLowerCase().includes(query)) return false
       if (categoryFilterIds && prod.pkCategoria && !categoryFilterIds.includes(prod.pkCategoria)) return false
       if (categoryFilterIds && !prod.pkCategoria) return false
       return true
@@ -178,7 +185,7 @@ const ProductsPage: React.FC = () => {
         <button
           key={i + 1}
           onClick={() => cambiarPagina(i + 1)}
-          className={`px-2 py-1 rounded ${paginaActual === i + 1 ? 'bg-blue-600 text-white' : 'text-blue-700 hover:bg-blue-100'}`}
+          className={`px-2 py-1 ${paginaActual === i + 1 ? 'bg-blue-600 text-white' : 'text-blue-700 hover:bg-blue-100'}`}
         >
           {i + 1}
         </button>
@@ -196,91 +203,154 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div>
-      <PageHeroBanner pagina="productos" />
-
-      <div className="block lg:hidden px-4 mb-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col gap-4">
-          <div>
-            <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Categoría</span>
-            <div className="flex flex-wrap gap-2 mt-3">
+      <div className="block lg:hidden px-4 mt-4 mb-4">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar productos..."
+              value={searchText}
+              onChange={e => { setSearchText(e.target.value); setPaginaActual(1); }}
+              className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200  bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            {searchText && (
               <button
-                onClick={() => handleCategoriaChange(null)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                  !filtroCategoria ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
-                }`}
+                onClick={() => { setSearchText(''); setPaginaActual(1); }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                Todas
+                <X className="w-4 h-4" />
               </button>
-              {treeCategorias.map(cat => (
-                <button
-                  key={cat.id_categoria_producto}
-                  onClick={() => handleCategoriaChange(cat.id_categoria_producto)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                    filtroCategoria === cat.id_categoria_producto ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {cat.nombre_categoria_producto}
-                </button>
-              ))}
-            </div>
+            )}
           </div>
-          <div>
-            <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Marca</span>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {MARCAS.map(marca => {
-                const active = filtroMarcas.includes(marca);
-                return (
-                  <button
-                    key={marca}
-                    onClick={() => handleMarcaChange(marca)}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                      active
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {marca}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-            <div className="border-t border-gray-100 pt-3">
-              <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Precio</span>
-              <div className="mt-3">
-                <input
-                  type="range"
-                  min={precioMasBajo}
-                  max={precioMasAlto}
-                  value={precioMax}
-                  onChange={e => setPrecioMax(Number(e.target.value))}
-                  className="w-full h-2 rounded-full appearance-none cursor-pointer
-                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
-                             [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:shadow
-                             [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full
-                             [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full"
-                  style={{
-                    background: `linear-gradient(to right, #2563eb ${porcentajePrecio}%, #e5e7eb ${porcentajePrecio}%)`,
-                  }}
-                />
-                <div className="flex justify-between text-xs mt-1">
-                  <span className="text-gray-400">S/. {precioMasBajo}</span>
-                  <span className="font-semibold text-blue-700">Hasta S/. {precioMax}</span>
-                </div>
-              </div>
-            </div>
-          {filtrosActivos && (
-            <button onClick={limpiarFiltros} className="text-sm text-red-500 hover:text-red-700 font-medium self-start">
-              Limpiar filtros
-            </button>
-          )}
+          <button
+            onClick={() => setMobileFiltersOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-gray-200  text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            Filtros
+            {filtrosActivos && <span className="w-2 h-2  bg-blue-600" />}
+          </button>
         </div>
         <div className="text-sm font-medium text-gray-500 mt-2">{cantidadResultados} Resultados</div>
       </div>
 
+      {mobileFiltersOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
+          <div className="fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white z-50 lg:hidden shadow-2xl overflow-y-auto animate-slide-in-left">
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-gray-800">Filtros</h3>
+              <button
+                onClick={() => setMobileFiltersOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 flex flex-col gap-5">
+              {filtrosActivos && (
+                <button onClick={limpiarFiltros} className="text-sm text-red-500 hover:text-red-700 font-medium self-start">
+                  Limpiar filtros
+                </button>
+              )}
+              <div>
+                <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Categoría</span>
+                <div className="mt-2 flex flex-col gap-0.5">
+                  <button
+                    onClick={() => handleCategoriaChange(null)}
+                    className={`w-full text-left px-3 py-1.5  text-sm transition-all ${
+                      !filtroCategoria ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Todas
+                  </button>
+                  {treeCategorias.map(cat => (
+                    <CategoryFilterItem
+                      key={cat.id_categoria_producto}
+                      cat={cat}
+                      categorias={categorias}
+                      selected={filtroCategoria}
+                      onSelect={handleCategoriaChange}
+                      depth={0}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="border-t border-gray-100 pt-4">
+                <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide block mb-3">Marca</span>
+                <div className="flex flex-col gap-1.5">
+                  {MARCAS.map(marca => {
+                    const active = filtroMarcas.includes(marca);
+                    return (
+                      <button
+                        key={marca}
+                        onClick={() => handleMarcaChange(marca)}
+                        className={`w-full text-left px-3 py-2  text-sm font-medium transition-all ${
+                          active
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                            : 'text-gray-600 hover:bg-gray-50 border border-transparent hover:border-gray-200'
+                        }`}
+                      >
+                        <span className={`inline-block w-4 h-4 mr-2 align-middle border-2 ${
+                          active ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
+                        }`}>
+                          {active && <svg className="w-3 h-3 text-white mx-auto mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                        </span>
+                        {marca}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="border-t border-gray-100 pt-4">
+                <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide block mb-3">Precio</span>
+                {hayProductos && precioMasBajo < precioMasAlto ? (
+                  <div>
+                    <input
+                      type="range"
+                      min={precioMasBajo}
+                      max={precioMasAlto}
+                      value={precioMax}
+                      onChange={e => setPrecioMax(Number(e.target.value))}
+                      className="w-full h-2  appearance-none cursor-pointer
+                                 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
+                                 [&::-webkit-slider-thumb]: [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:shadow
+                                 [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:"
+                      style={{
+                        background: `linear-gradient(to right, #2563eb ${porcentajePrecio}%, #e5e7eb ${porcentajePrecio}%)`,
+                      }}
+                    />
+                    <div className="flex justify-between text-xs mt-1">
+                      <span className="text-gray-400">S/. {precioMasBajo}</span>
+                      <span className="font-semibold text-blue-700">Hasta S/. {precioMax}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-gray-400 text-sm">No hay productos para filtrar</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      <style>{`
+        @keyframes slide-in-left {
+          from { transform: translateX(-100%); }
+          to { transform: translateX(0); }
+        }
+        .animate-slide-in-left {
+          animation: slide-in-left 0.25s ease-out;
+        }
+      `}</style>
+
       <div className="container mx-auto py-8 px-4 flex flex-col lg:flex-row gap-8">
         <aside className="hidden lg:block w-1/5 flex-shrink-0">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-24">
+          <div className="bg-white  shadow-sm border border-gray-100 p-5 sticky top-24">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Filtros</h3>
               {filtrosActivos && (
@@ -294,7 +364,7 @@ const ProductsPage: React.FC = () => {
               <div className="flex flex-col gap-0.5">
                 <button
                   onClick={() => handleCategoriaChange(null)}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-sm transition-all duration-200 ${
+                  className={`w-full text-left px-3 py-1.5  text-sm transition-all duration-200 ${
                     !filtroCategoria ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
@@ -321,13 +391,13 @@ const ProductsPage: React.FC = () => {
                     <button
                       key={marca}
                       onClick={() => handleMarcaChange(marca)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      className={`w-full text-left px-3 py-2  text-sm font-medium transition-all duration-200 ${
                         active
                           ? 'bg-blue-50 text-blue-700 border border-blue-200'
                           : 'text-gray-600 hover:bg-gray-50 border border-transparent hover:border-gray-200'
                       }`}
                     >
-                      <span className={`inline-block w-4 h-4 rounded mr-2 align-middle border-2 transition-all ${
+                      <span className={`inline-block w-4 h-4 mr-2 align-middle border-2 transition-all ${
                         active ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
                       }`}>
                         {active && <svg className="w-3 h-3 text-white mx-auto mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
@@ -348,11 +418,11 @@ const ProductsPage: React.FC = () => {
                     max={precioMasAlto}
                     value={precioMax}
                     onChange={e => setPrecioMax(Number(e.target.value))}
-                    className="w-full h-2 rounded-full appearance-none cursor-pointer
+                    className="w-full h-2  appearance-none cursor-pointer
                                [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
-                               [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:shadow
-                               [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full
-                               [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full"
+                               [&::-webkit-slider-thumb]: [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:shadow
+                               [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:
+                               [&::-moz-range-track]:h-2 [&::-moz-range-track]:"
                     style={{
                       background: `linear-gradient(to right, #2563eb ${porcentajePrecio}%, #e5e7eb ${porcentajePrecio}%)`,
                     }}
@@ -373,8 +443,28 @@ const ProductsPage: React.FC = () => {
         </aside>
 
         <main className="w-full lg:w-4/5">
-          <div className="text-sm font-medium text-gray-500 mb-3 hidden lg:block">{cantidadResultados} Resultados</div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="hidden lg:flex items-center gap-3 mb-4">
+            <div className="text-sm font-medium text-gray-500 whitespace-nowrap">{cantidadResultados} Resultados</div>
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Buscar productos..."
+                value={searchText}
+                onChange={e => { setSearchText(e.target.value); setPaginaActual(1); }}
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200  bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {searchText && (
+                <button
+                  onClick={() => { setSearchText(''); setPaginaActual(1); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {loading ? (
             Array.from({ length: 8 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
@@ -392,6 +482,7 @@ const ProductsPage: React.FC = () => {
                 slug={producto.slug}
                 precio={producto.precio}
                 stock={producto.stockProducto}
+                categoria={producto.pkCategoria ? categoriaNombreMap.get(producto.pkCategoria) : undefined}
               />
             ))
           )}
@@ -400,7 +491,6 @@ const ProductsPage: React.FC = () => {
         </main>
       </div>
 
-      <Publicidad textoPromocional="Delivery gratis a compras mayores a S/.200" />
       <Marcas />
     </div>
   );
@@ -420,7 +510,7 @@ function CategoryFilterItem({ cat, categorias, selected, onSelect, depth }: {
     <div>
       <button
         onClick={() => onSelect(cat.id_categoria_producto)}
-        className={`w-full text-left px-3 py-1.5 rounded-lg text-sm transition-all duration-200 flex items-center gap-1 ${
+        className={`w-full text-left px-3 py-1.5  text-sm transition-all duration-200 flex items-center gap-1 ${
           selected === cat.id_categoria_producto
             ? 'bg-blue-50 text-blue-700 font-medium'
             : 'text-gray-600 hover:bg-gray-50'
@@ -428,7 +518,7 @@ function CategoryFilterItem({ cat, categorias, selected, onSelect, depth }: {
         style={{ paddingLeft: `${12 + depth * 16}px` }}
       >
         {children.length > 0 && (
-          <span onClick={e => { e.stopPropagation(); setExpanded(!expanded) }} className="p-0.5 hover:bg-gray-200 rounded">
+          <span onClick={e => { e.stopPropagation(); setExpanded(!expanded) }} className="p-0.5 hover:bg-gray-200">
             {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
           </span>
         )}

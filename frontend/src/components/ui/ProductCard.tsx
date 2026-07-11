@@ -3,7 +3,7 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "./CartContext";
 
 interface ProductCardProps {
-  id: number; // <-- obligatorio y numérico
+  id: number;
   nombre: string;
   descripcion: string;
   imagen?: string;
@@ -11,6 +11,7 @@ interface ProductCardProps {
   precio: number;
   precioOriginal?: number;
   stock?: number;
+  categoria?: string;
 }
 
 export default function ProductCard({
@@ -22,6 +23,7 @@ export default function ProductCard({
   precio,
   precioOriginal,
   stock,
+  categoria,
 }: ProductCardProps) {
   const navigate = useNavigate();
   const { addItem, items } = useCart();
@@ -68,9 +70,9 @@ export default function ProductCard({
   return (
     <div
       className="
-        bg-white rounded-4xl shadow-md border border-blue-100
+        bg-white shadow-md border border-blue-100
         transition-transform hover:scale-105 hover:shadow-xl cursor-pointer
-        w-[280px] h-[360px] flex flex-col justify-between
+        w-full flex flex-col
         mx-auto
       "
       onClick={handleCardClick}
@@ -81,12 +83,12 @@ export default function ProductCard({
         if (e.key === "Enter" || e.key === " ") navigate(`/productos/${slug}`);
       }}
     >
-      <div className="h-36 w-full flex items-center justify-center bg-white">
+      <div className="h-48 sm:h-56 w-full flex items-center justify-center bg-white p-3">
         {imagen ? (
           <img
             src={imagen}
             alt={nombre}
-            className="object-contain h-32 w-full"
+            className="object-contain h-full w-full"
             loading="lazy"
             onError={e => { e.currentTarget.src = ""; }}
           />
@@ -94,29 +96,26 @@ export default function ProductCard({
           <span className="text-blue-200">Sin imagen</span>
         )}
       </div>
-      <div className="flex-1 flex flex-col px-4 py-3 justify-between">
-        <h4 className="text-blue-800 font-bold text-base truncate mb-2">{nombre}</h4>
-        <p className="text-xs text-gray-600 mb-2 line-clamp-2">{descripcion}</p>
-        <div className="mb-3">
-          {precioOriginal && precioOriginal !== precio ? (
-            <>
-              <span className="bg-red-100 text-red-700 font-bold px-3 py-1 rounded-full text-sm shadow w-fit mr-3">
-                S/. {precio.toFixed(2)}
-              </span>
-              <span className="text-gray-400 line-through text-sm">
-                S/. {precioOriginal.toFixed(2)}
-              </span>
-            </>
-          ) : (
-            <span className="bg-blue-100 text-blue-800 font-semibold px-3 py-1 rounded-full text-sm shadow w-fit">
+      <div className="px-3 sm:px-4 py-2 sm:py-3 flex flex-col gap-1">
+        {categoria && (
+          <span className="text-[10px] sm:text-xs font-medium text-blue-500 uppercase tracking-wider">{categoria}</span>
+        )}
+        <h4 className="text-blue-800 font-bold text-sm sm:text-base truncate">{nombre}</h4>
+        {precioOriginal && precioOriginal !== precio ? (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="bg-red-100 text-red-700 font-bold px-2 sm:px-3 py-0.5 text-xs sm:text-sm shadow">
               S/. {precio.toFixed(2)}
             </span>
-          )}
-        </div>
-        <div className="flex justify-between items-end mt-auto">
-          <span className={`text-xs font-medium mr-2 ${stockDisponible === 0 ? "text-red-600" : "text-green-700"}`}>
-            {stockDisponible === 0 ? "Sin stock" : `Stock: ${stockDisponible}`}
+            <span className="text-gray-400 line-through text-xs">
+              S/. {precioOriginal.toFixed(2)}
+            </span>
+          </div>
+        ) : (
+          <span className="bg-blue-100 text-blue-800 font-semibold px-2 sm:px-3 py-0.5 text-xs sm:text-sm shadow w-fit">
+            S/. {precio.toFixed(2)}
           </span>
+        )}
+        <div className="flex justify-end mt-1">
           <button
             type="button"
             onClick={(e) => {
@@ -125,10 +124,10 @@ export default function ProductCard({
             }}
             className="
               add-to-cart-btn flex items-center justify-center
-              rounded-lg border border-green-500 bg-white
+              border border-green-500 bg-white
               hover:bg-green-100 active:bg-green-200
               transition-all duration-150
-              shadow-sm p-0 w-10 h-10
+              shadow-sm p-0 w-8 h-8 sm:w-10 sm:h-10
               focus:outline-none focus:ring-2 focus:ring-green-300
               group
             "
@@ -137,7 +136,7 @@ export default function ProductCard({
             aria-label="Añadir al carrito"
             disabled={stockDisponible === 0 || cantidadEnCarrito >= stockDisponible}
           >
-            <ShoppingCart className="w-6 h-6 text-green-600 group-hover:text-green-700 transition" />
+            <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 group-hover:text-green-700 transition" />
           </button>
         </div>
       </div>

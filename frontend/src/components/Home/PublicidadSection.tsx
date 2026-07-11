@@ -28,10 +28,10 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
         <div className="container mx-auto px-2">
           <Skeleton className="h-8 w-64 mx-auto mb-8" />
           <div className="flex flex-col md:flex-row gap-6 md:gap-10">
-            <Skeleton className="md:w-1/2 h-[300px] rounded-md" />
+            <Skeleton className="md:w-1/2 h-[300px]" />
             <div className="md:w-1/2 flex flex-col gap-6 md:gap-10">
-              <Skeleton className="h-[140px] rounded-md" />
-              <Skeleton className="h-[140px] rounded-md" />
+              <Skeleton className="h-[140px]" />
+              <Skeleton className="h-[140px]" />
             </div>
           </div>
         </div>
@@ -48,7 +48,7 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
   return (
     <section className="py-6 bg-white">
       <div className="container mx-auto px-2 text-center">
-        <h2 className="text-xl md:text-3xl font-bold text-gray-800 uppercase">
+        <h2 className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800 uppercase">
           {beforeUnderline}{' '}
           <span
             className="underline"
@@ -57,14 +57,14 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
             {underlinedText}
           </span>
         </h2>
-        <div className="h-0.5 w-36 mx-auto mt-1 mb-7"></div>
+        <div className="h-0.5 w-24 sm:w-36 mx-auto mt-1 mb-7"></div>
 
         <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-stretch">
           <a
             href={banner.enlace_principal || undefined}
             target={banner.enlace_principal ? '_blank' : undefined}
             rel="noopener noreferrer"
-            className="md:w-1/2 rounded-md shadow-lg overflow-hidden bg-white block"
+            className="md:w-1/2 shadow-lg overflow-hidden bg-white block"
           >
             <img
               src={banner.imagen_principal}
@@ -110,7 +110,7 @@ export const ImagenPrincipalConSecundarias: React.FC = () => {
           </div>
         </div>
 
-        <div className="h-0.5 w-48 mx-auto mt-8" style={{ backgroundColor: blueLineColor }}></div>
+        <div className="h-0.5 w-32 sm:w-48 mx-auto mt-8" style={{ backgroundColor: blueLineColor }}></div>
       </div>
     </section>
   );

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../hooks/AuthContext';
 import { useStore } from '../contexts/StoreContext';
 import { useToast } from '../components/ui/Toast';
-import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, SlidersHorizontal, LogOut, Moon, Sun, Menu, X, ChevronRight, Store } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, SlidersHorizontal, LogOut, Moon, Sun, Menu, X, ChevronRight, Store, Building2 } from 'lucide-react';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -18,6 +18,7 @@ const navItems = [
   { to: '/admin/formularios', icon: FileText, label: 'Formularios' },
   { to: '/admin/ofertas', icon: Tags, label: 'Ofertas' },
   { to: '/admin/movimientos', icon: Activity, label: 'Movimientos' },
+  { to: '/admin/empresa', icon: Building2, label: 'Empresa' },
 ];
 
 const breadcrumbLabels: Record<string, string> = {}
@@ -62,7 +63,8 @@ function Breadcrumbs() {
 }
 
 export default function AdminLayout() {
-  const { user, isAdmin, loading, logout } = useAuthContext();
+  const location = useLocation();
+  const { logout } = useAuthContext();
   const { isOpenNow, toggleStore, loading: storeLoading, settings } = useStore();
   const { showToast } = useToast();
   const [dark, setDark] = useState(() => localStorage.getItem('admin-dark') === 'true');
@@ -77,14 +79,6 @@ export default function AdminLayout() {
   const handleNavClick = () => {
     if (window.innerWidth < 1024) setSidebarOpen(false)
   };
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen bg-background text-foreground">Cargando...</div>;
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/" replace />;
-  }
 
   return (
     <div className="flex min-h-screen bg-muted dark:bg-background transition-colors duration-300">
@@ -205,7 +199,6 @@ export default function AdminLayout() {
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-sm text-muted-foreground hidden md:block truncate max-w-[160px]">{user.nombre_persona}</span>
               <button
                 onClick={() => {
                   document.documentElement.classList.add('theme-transition');

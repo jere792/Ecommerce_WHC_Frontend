@@ -56,7 +56,7 @@ export default function ComprasSimilares({ categoria, slug }: Props) {
   return (
     <section className="mb-12">
       <div className="flex items-center gap-3 mb-6">
-        <div className="bg-blue-100 p-2 rounded-lg">
+        <div className="bg-blue-100 p-2">
           <ChevronRight className="w-5 h-5 text-blue-700" />
         </div>
         <div>
@@ -75,6 +75,7 @@ export default function ComprasSimilares({ categoria, slug }: Props) {
               slug={p.slug}
               precio={p.precioProducto}
               stock={p.stockProducto}
+              categoria={p.categoria}
             />
           </div>
         ))}

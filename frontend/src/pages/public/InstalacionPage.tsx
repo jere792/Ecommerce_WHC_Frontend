@@ -1,117 +1,169 @@
 import React from 'react';
-import { Wrench, CheckCircle, ShieldCheck, Users, MessageCircle, ChevronRight } from 'lucide-react';
+import { Wrench, CheckCircle, ShieldCheck, Users, MessageCircle, ChevronRight, Phone, Mail, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useStore } from '../../contexts/StoreContext';
 
-const Card: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="bg-white rounded-xl shadow-xl p-8 mb-8 border border-secondary-100 max-w-[750px] mx-auto">
-    {children}
-  </div>
-);
+const InstalacionPage: React.FC = () => {
+  const { settings } = useStore();
+  const companyName = settings?.company_name || 'WHC Representaciones';
+  const email = settings?.company_email || 'whcRepresentaciones@gmail.com';
+  const whatsapp = settings?.company_whatsapp || '51949790715';
+  const phone = settings?.company_phone || '(+51) 949790715';
 
-const iconList = [
-  <Users size={18} className="text-secondary mr-2 inline align-middle" />,
-  <CheckCircle size={18} className="text-secondary mr-2 inline align-middle" />,
-  <ShieldCheck size={18} className="text-secondary mr-2 inline align-middle" />,
-  <MessageCircle size={18} className="text-secondary mr-2 inline align-middle" />,
-];
+  const productos = [
+    { title: 'Tuberías', desc: 'PVC, PPR, cobre, multicapa' },
+    { title: 'Grifería', desc: 'Lavamanos, fregaderos, duchas' },
+    { title: 'Sanitarios', desc: 'Inodoros, lavabos, urinarios' },
+    { title: 'Termas', desc: 'Calentadores de agua' },
+    { title: 'Bombas', desc: 'Sistemas de presión' },
+    { title: 'Ecommerce', desc: 'Productos de nuestra tienda' },
+  ];
 
-const InstalacionPage: React.FC = () => (
-  <div className="px-3 py-10 max-w-[930px] mx-auto text-secondary">
-    {/* HERO */}
-    <div className="flex flex-col items-center gap-1.5 mb-6">
-      <div className="w-16 h-16 rounded-full flex items-center justify-center mb-3 shadow-lg"
-        style={{ background: 'linear-gradient(100deg, #233876 60%, #4f6dbe 100%)' }}>
-        <Wrench size={36} color="#fff" />
-      </div>
-      <h1 className="font-extrabold text-4xl mb-1 tracking-wide text-secondary">Servicio Profesional de Instalación</h1>
-      <p className="text-secondary-300 text-lg text-center font-medium tracking-wide">
-        Soluciones confiables y seguras para tu hogar o empresa con técnicos certificados.
-      </p>
-    </div>
-
-    {/* ¿En qué consiste nuestro servicio? */}
-    <Card>
-      <h2 className="text-secondary font-bold text-xl mb-4">¿En qué consiste nuestro servicio?</h2>
-      <p className="text-lg">
-        En <b>WHS Representaciones</b> ofrecemos instalación profesional de sistemas de gasfitería: tuberías, grifería, sanitarios, termas y más. Nuestro equipo técnico garantiza un trabajo seguro, limpio y conforme a las normas técnicas, con atención a detalle en cada proyecto.
-      </p>
-    </Card>
-
-    {/* ¿Por qué elegirnos? */}
-    <Card>
-      <h2 className="text-secondary font-bold text-xl mb-4">¿Por qué elegirnos?</h2>
-      <ul className="list-none pl-0 space-y-2.5">
-        <li className="flex items-center">{iconList[0]}<b>Personal certificado:</b> Técnicos calificados y experiencia comprobada.</li>
-        <li className="flex items-center">{iconList[1]}<b>Calidad de materiales:</b> Solo primeras marcas y productos garantizados.</li>
-        <li className="flex items-center">{iconList[2]}<b>Garantía real:</b> Cobertura post-servicio y prueba de funcionamiento en cada instalación.</li>
-        <li className="flex items-center">{iconList[3]}<b>Asesoría personalizada:</b> Soluciones adaptadas a tu necesidad y presupuesto.</li>
-      </ul>
-    </Card>
-
-    {/* ¿Qué productos instalamos? */}
-    <Card>
-      <h2 className="text-secondary font-bold text-xl mb-4">¿Qué productos instalamos?</h2>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 text-lg">
-        {[
-          'Tuberías (PVC, PPR, cobre, multicapa)',
-          'Grifería (lavamanos, fregaderos, duchas, etc.)',
-          'Sanitarios (inodoros, lavabos, urinarios)',
-          'Termas y calentadores de agua',
-          'Bombas y sistemas de presión',
-          'Otros equipos comprados en nuestro ecommerce',
-        ].map((text, i) => (
-          <div key={i} className="flex items-center mb-1.5">
-            <ChevronRight size={18} className="text-secondary mr-[7px] shrink-0" />
-            {text}
+  return (
+    <div className="bg-white">
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-16 md:py-24">
+        <div className="container mx-auto px-4 text-center">
+          <div className="w-16 h-16 mx-auto mb-6 bg-white/10 flex items-center justify-center">
+            <Wrench className="w-8 h-8" />
           </div>
-        ))}
-      </div>
-    </Card>
+          <h1 className="text-3xl md:text-5xl font-bold mb-4">Servicio Profesional de Instalación</h1>
+          <p className="text-lg md:text-xl text-blue-200 max-w-2xl mx-auto">
+            Soluciones confiables y seguras para tu hogar o empresa con técnicos certificados.
+          </p>
+        </div>
+      </section>
 
-    {/* ¿Cómo solicitar la instalación? */}
-    <Card>
-      <h2 className="text-secondary font-bold text-xl mb-4">¿Cómo solicitar la instalación?</h2>
-      <ol className="pl-4 m-0 text-lg space-y-2">
-        <li><b>Compra tu producto:</b> Realiza la compra de cualquier artículo con opción de instalación.</li>
-        <li><b>Selecciona el servicio de instalación:</b> Agrégalo al carrito o solicita cotización personalizada.</li>
-        <li><b>Coordinación:</b> Nuestro equipo te contactará para agendar la visita de instalación.</li>
-        <li><b>Instalación:</b> Técnicos certificados realizarán el servicio en la fecha acordada.</li>
-        <li><b>Prueba y garantía:</b> Verificamos el funcionamiento y entregamos garantía.</li>
-      </ol>
-    </Card>
+      {/* Servicio */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white shadow p-8">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">¿En qué consiste nuestro servicio?</h2>
+              <p className="text-gray-600 leading-relaxed">
+                En <strong>{companyName}</strong> ofrecemos instalación profesional de sistemas de gasfitería: tuberías, grifería, sanitarios, termas y más. Nuestro equipo técnico garantiza un trabajo seguro, limpio y conforme a las normas técnicas.
+              </p>
+            </div>
+            <div className="bg-white shadow p-8">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">¿Por qué elegirnos?</h2>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-start gap-3">
+                  <Users className="w-5 h-5 text-blue-700 mt-0.5 shrink-0" />
+                  <span><strong>Personal certificado:</strong> Técnicos calificados con experiencia comprobada.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-blue-700 mt-0.5 shrink-0" />
+                  <span><strong>Calidad de materiales:</strong> Solo primeras marcas y productos garantizados.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <ShieldCheck className="w-5 h-5 text-blue-700 mt-0.5 shrink-0" />
+                  <span><strong>Garantía real:</strong> Cobertura post-servicio en cada instalación.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <MessageCircle className="w-5 h-5 text-blue-700 mt-0.5 shrink-0" />
+                  <span><strong>Asesoría personalizada:</strong> Soluciones adaptadas a tu presupuesto.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    {/* Recomendaciones antes de la instalación */}
-    <Card>
-      <h2 className="text-secondary font-bold text-xl mb-4">Recomendaciones antes de la instalación</h2>
-      <ul className="list-none pl-0 space-y-2">
-        <li className="flex items-center"><ChevronRight size={18} className="text-secondary mr-[7px] shrink-0" />Asegúrate de que el área esté despejada y accesible.</li>
-        <li className="flex items-center"><ChevronRight size={18} className="text-secondary mr-[7px] shrink-0" />Verifica que cuentes con los servicios básicos necesarios (agua, desagüe, energía eléctrica si corresponde).</li>
-        <li className="flex items-center"><ChevronRight size={18} className="text-secondary mr-[7px] shrink-0" />¿Tienes dudas de compatibilidad? Consulta con nuestro equipo antes de la instalación.</li>
-      </ul>
-    </Card>
+      {/* Productos que instalamos */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">¿Qué productos instalamos?</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {productos.map((p, i) => (
+              <div key={i} className="bg-gray-50 p-5 text-center hover:bg-blue-50 transition">
+                <h3 className="font-semibold text-gray-800 mb-1">{p.title}</h3>
+                <p className="text-sm text-gray-500">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-    {/* Preguntas frecuentes */}
-    <Card>
-      <h2 className="text-secondary font-bold text-xl mb-4">Preguntas frecuentes</h2>
-      <div className="mb-3 text-base">
-        <b>¿Puedo pedir instalación si ya tengo el producto?</b><br />
-        Solo instalamos productos comprados en WHS Representaciones para garantizar compatibilidad y respaldo.
-      </div>
-      <div className="mb-3 text-base">
-        <b>¿La instalación tiene costo adicional?</b><br />
-        El costo se muestra en el carrito y puede variar según producto y ubicación.
-      </div>
-      <div className="text-base">
-        <b>¿Ofrecen mantenimiento?</b><br />
-        Sí, revisa nuestra sección de <a href="/mantenimiento" className="text-secondary underline">Mantenimiento</a>.
-      </div>
-    </Card>
+      {/* Cómo solicitar */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">¿Cómo solicitar la instalación?</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+            {[
+              { step: '1', title: 'Compra', desc: 'Compra tu producto en nuestra tienda' },
+              { step: '2', title: 'Selecciona', desc: 'Agrega el servicio de instalación al carrito' },
+              { step: '3', title: 'Coordina', desc: 'Agendamos la visita de instalación' },
+              { step: '4', title: 'Instala', desc: 'Técnicos realizan el servicio' },
+              { step: '5', title: 'Garantía', desc: 'Verificamos y entregamos garantía' },
+            ].map((s) => (
+              <div key={s.step} className="text-center">
+                <div className="w-10 h-10 mx-auto mb-3 bg-blue-900 text-white flex items-center justify-center text-lg font-bold">{s.step}</div>
+                <h3 className="font-semibold text-gray-800 text-sm mb-1">{s.title}</h3>
+                <p className="text-xs text-gray-500">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-    {/* Contacto */}
-    <div className="text-white rounded-xl px-8 py-7 text-center mx-auto mt-8 max-w-[700px] text-lg font-medium shadow-lg"
-      style={{ background: 'linear-gradient(90deg, #233876 80%, #4f6dbe 100%)' }}>
-      ¿Tienes dudas? Escribe a <a href="mailto:soporte@whs.com" className="text-white underline">soporte@whs.com</a> o contáctanos por WhatsApp.
+      {/* FAQ */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Preguntas frecuentes</h2>
+          <div className="space-y-4">
+            {[
+              { q: '¿Puedo pedir instalación si ya tengo el producto?', a: `Solo instalamos productos comprados en ${companyName} para garantizar compatibilidad y respaldo.` },
+              { q: '¿La instalación tiene costo adicional?', a: 'El costo se muestra en el carrito y puede variar según producto y ubicación.' },
+              { q: '¿Ofrecen mantenimiento?', a: 'Sí, revisa nuestra sección de mantenimiento.' },
+            ].map((faq, i) => (
+              <div key={i} className="bg-gray-50 p-5">
+                <h3 className="font-semibold text-gray-800 mb-1">{faq.q}</h3>
+                <p className="text-gray-600 text-sm">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recomendaciones */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Recomendaciones</h2>
+          <div className="space-y-3">
+            {[
+              'Asegúrate de que el área esté despejada y accesible.',
+              'Verifica que cuentes con los servicios básicos necesarios (agua, desagüe, energía eléctrica).',
+              '¿Tienes dudas de compatibilidad? Consulta con nuestro equipo antes de la instalación.',
+            ].map((r, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <ChevronRight className="w-5 h-5 text-blue-700 mt-0.5 shrink-0" />
+                <span className="text-gray-600">{r}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Listo para tu instalación?</h2>
+          <p className="text-blue-200 mb-8 max-w-xl mx-auto">Contáctanos y te asesoramos sin compromiso</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href={`mailto:${email}`} className="flex items-center gap-2 bg-white text-blue-900 px-6 py-3 font-semibold hover:bg-gray-100 transition">
+              <Mail className="w-4 h-4" /> {email}
+            </a>
+            <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 font-semibold hover:bg-green-600 transition">
+              <Phone className="w-4 h-4" /> {phone}
+            </a>
+            <Link to="/productos" className="flex items-center gap-2 border border-white text-white px-6 py-3 font-semibold hover:bg-white/10 transition">
+              Ver productos <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
-  </div>
-);
+  );
+};
 
 export default InstalacionPage;
