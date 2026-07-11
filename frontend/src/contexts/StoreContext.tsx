@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import type { StoreSettings } from '../lib/supabaseTypes'
+import type { ConfiguracionTienda } from '../lib/supabaseTypes'
 
 interface StoreContextType {
-  settings: StoreSettings | null
+  settings: ConfiguracionTienda | null
   loading: boolean
   isOpenNow: boolean
   toggleStore: () => Promise<{ success: boolean; error?: string }>
@@ -11,20 +11,20 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined)
 
-const defaultSettings: StoreSettings = {
+const defaultSettings: ConfiguracionTienda = {
   id: 1,
-  is_open: false,
-  weekday_open: '09:00:00',
-  weekday_close: '18:00:00',
-  saturday_open: '09:00:00',
-  saturday_close: '13:00:00',
-  sunday_open: null,
-  sunday_close: null,
-  updated_at: new Date().toISOString(),
+  esta_abierto: false,
+  apertura_semana: '09:00:00',
+  cierre_semana: '18:00:00',
+  apertura_sabado: '09:00:00',
+  cierre_sabado: '13:00:00',
+  apertura_domingo: null,
+  cierre_domingo: null,
+  actualizado_en: new Date().toISOString(),
 }
 
-function checkIsOpen(settings: StoreSettings): boolean {
-  if (!settings.is_open) return false
+function checkIsOpen(settings: ConfiguracionTienda): boolean {
+  if (!settings.esta_abierto) return false
 
   const now = new Date()
   const day = now.getDay()
@@ -36,31 +36,31 @@ function checkIsOpen(settings: StoreSettings): boolean {
   }
 
   if (day === 0) {
-    if (!settings.sunday_open || !settings.sunday_close) return false
-    return time >= toMinutes(settings.sunday_open) && time < toMinutes(settings.sunday_close)
+    if (!settings.apertura_domingo || !settings.cierre_domingo) return false
+    return time >= toMinutes(settings.apertura_domingo) && time < toMinutes(settings.cierre_domingo)
   }
 
   if (day === 6) {
-    return time >= toMinutes(settings.saturday_open) && time < toMinutes(settings.saturday_close)
+    return time >= toMinutes(settings.apertura_sabado) && time < toMinutes(settings.cierre_sabado)
   }
 
-  return time >= toMinutes(settings.weekday_open) && time < toMinutes(settings.weekday_close)
+  return time >= toMinutes(settings.apertura_semana) && time < toMinutes(settings.cierre_semana)
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<StoreSettings | null>(null)
+  const [settings, setSettings] = useState<ConfiguracionTienda | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchSettings = async () => {
       const { data } = await supabase
-        .from('store_settings')
+        .from('configuracion_tienda')
         .select('*')
         .eq('id', 1)
         .single()
 
       if (data) {
-        setSettings(data as StoreSettings)
+        setSettings(data as ConfiguracionTienda)
       } else {
         setSettings(defaultSettings)
       }
@@ -70,13 +70,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     fetchSettings()
 
     const channel = supabase
-      .channel('store-settings-changes')
+      .channel('configuracion-tienda-changes')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'store_settings', filter: 'id=eq.1' },
+        { event: '*', schema: 'public', table: 'configuracion_tienda', filter: 'id=eq.1' },
         (payload) => {
           if (payload.new) {
-            setSettings(payload.new as StoreSettings)
+            setSettings(payload.new as ConfiguracionTienda)
           }
         }
       )
@@ -90,10 +90,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const isOpenNow = settings ? checkIsOpen(settings) : false
 
   const toggleStore = async (): Promise<{ success: boolean; error?: string }> => {
-    const newValue = !settings?.is_open
+    const newValue = !settings?.esta_abierto
     const { data, error } = await supabase
-      .from('store_settings')
-      .update({ is_open: newValue })
+      .from('configuracion_tienda')
+      .update({ esta_abierto: newValue })
       .eq('id', 1)
       .select()
       .single()
@@ -103,7 +103,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
 
     if (data) {
-      setSettings(data as StoreSettings)
+      setSettings(data as ConfiguracionTienda)
     }
     return { success: true }
   }

@@ -116,7 +116,7 @@ export default function AdminCategories() {
   useEffect(() => { loadCategories(); }, []);
 
   const loadCategories = async () => {
-    const { data } = await supabase.from('categoria_p').select('*').order('id_categoria_producto', { ascending: true });
+    const { data } = await supabase.from('categoria_productos').select('*').order('id_categoria_producto', { ascending: true });
     if (data) setCategories(data as CategoriaProducto[]);
     setLoading(false);
   };
@@ -133,7 +133,7 @@ export default function AdminCategories() {
     const hasChildren = categories.some(c => c.pk_categoria_padre === cat.id_categoria_producto);
     if (hasChildren && !confirm(`"${cat.nombre_categoria_producto}" tiene subcategorías. ¿Eliminar también?`)) return;
     if (!hasChildren && !confirm(`Eliminar "${cat.nombre_categoria_producto}"?`)) return;
-    const { error } = await supabase.from('categoria_p').delete().eq('id_categoria_producto', cat.id_categoria_producto);
+    const { error } = await supabase.from('categoria_productos').delete().eq('id_categoria_producto', cat.id_categoria_producto);
     if (error) { alert('Error al eliminar: ' + error.message); return; }
     loadCategories();
   };
@@ -148,7 +148,7 @@ export default function AdminCategories() {
     ));
 
     const { error } = await supabase
-      .from('categoria_p')
+      .from('categoria_productos')
       .update({ mostrar_en_home: nuevoValor })
       .eq('id_categoria_producto', cat.id_categoria_producto);
 

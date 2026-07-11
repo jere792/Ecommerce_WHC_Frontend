@@ -140,23 +140,23 @@ export default function AdminLayout() {
               onClick={async () => {
                 const result = await toggleStore()
                 if (result.success) {
-                  showToast(`Tienda ${settings?.is_open ? 'abierta' : 'cerrada'}`, settings?.is_open ? 'success' : 'error')
+                  showToast(`Tienda ${settings?.esta_abierto ? 'abierta' : 'cerrada'}`, settings?.esta_abierto ? 'success' : 'error')
                 } else {
                   showToast(result.error || 'Error al cambiar estado', 'error')
                 }
               }}
               disabled={storeLoading}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                settings?.is_open ? 'bg-green-500' : 'bg-muted'
+                settings?.esta_abierto ? 'bg-green-500' : 'bg-muted'
               }`}
             >
               <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                settings?.is_open ? 'translate-x-6' : 'translate-x-1'
+                settings?.esta_abierto ? 'translate-x-6' : 'translate-x-1'
               }`} />
             </button>
           </div>
-          <p className={`text-xs mt-1 px-3 ${settings?.is_open ? 'text-green-600' : 'text-destructive'}`}>
-            {settings?.is_open ? 'Abierto' : 'Cerrado'}
+          <p className={`text-xs mt-1 px-3 ${settings?.esta_abierto ? 'text-green-600' : 'text-destructive'}`}>
+            {settings?.esta_abierto ? 'Abierto' : 'Cerrado'}
           </p>
           <p className={`text-[10px] mt-0.5 px-3 ${isOpenNow ? 'text-green-500' : 'text-muted-foreground'}`}>
             {isOpenNow ? 'En horario de atención' : 'Fuera de horario'}
@@ -165,7 +165,7 @@ export default function AdminLayout() {
 
         <div className="px-3 py-3 border-t border-border shrink-0">
           <Link
-            to="/"
+            to="/inicio"
             onClick={handleNavClick}
             className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted rounded-lg"
           >

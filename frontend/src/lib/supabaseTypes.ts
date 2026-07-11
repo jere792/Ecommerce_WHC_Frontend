@@ -20,11 +20,9 @@ export interface Producto {
   precio_producto: number;
   descripcion_producto: string | null;
   imagen_producto: string | null;
-  stock_producto: number;
   precio_compra: number | null;
   pk_categoria_producto: number | null;
   pk_marca_producto: number | null;
-  pk_estado_producto: number | null;
   ficha_tecnica_url: string | null;
   slug: string;
   created_at: string;
@@ -32,7 +30,7 @@ export interface Producto {
   imagenes?: ProductoImagen[];
   categoria?: CategoriaProducto;
   marca?: MarcaProducto;
-  estado?: EstadoProducto;
+  inventario?: Inventario;
 }
 
 export interface CategoriaProducto {
@@ -49,11 +47,6 @@ export interface MarcaProducto {
   nombre_marca_producto: string;
 }
 
-export interface EstadoProducto {
-  id_estado_producto: number;
-  nombre_estado_producto: string;
-}
-
 export interface Oferta {
   id_oferta: number;
   pk_producto: number;
@@ -66,7 +59,7 @@ export interface Oferta {
 export interface Pedido {
   id_pedido: number;
   fecha: string;
-  pk_extra: number;
+  pk_extra: number | null;
   pk_usuario: number;
   pk_metodopago: number | null;
   estado_pago: string;
@@ -130,10 +123,10 @@ export interface EstadoForm {
   text_estado: string | null;
 }
 
-export interface ExtraServicio {
-  id_servicio: number;
-  nombre_servicio: string;
-  descripcion_servicio: string | null;
+export interface ServicioAdicional {
+  id_servicio_adicional: number;
+  nombre: string;
+  descripcion: string | null;
   costo: number | null;
   duracion_dias: number | null;
   activo: boolean;
@@ -179,23 +172,30 @@ export interface ProductoImagen {
   created_at: string;
 }
 
-export interface StoreSettings {
+export interface ConfiguracionTienda {
   id: number;
-  is_open: boolean;
-  weekday_open: string;
-  weekday_close: string;
-  saturday_open: string;
-  saturday_close: string;
-  sunday_open: string | null;
-  sunday_close: string | null;
-  updated_at: string;
-  company_name?: string | null;
-  company_phone?: string | null;
-  company_whatsapp?: string | null;
-  company_email?: string | null;
-  company_address?: string | null;
-  company_schedule?: string | null;
-  google_maps_url?: string | null;
+  esta_abierto: boolean;
+  apertura_semana: string;
+  cierre_semana: string;
+  apertura_sabado: string;
+  cierre_sabado: string;
+  apertura_domingo: string | null;
+  cierre_domingo: string | null;
+  actualizado_en: string;
+  nombre_empresa?: string | null;
+  telefono_empresa?: string | null;
+  whatsapp_empresa?: string | null;
+  correo_empresa?: string | null;
+  direccion_empresa?: string | null;
+  horario_empresa?: string | null;
+  url_google_maps?: string | null;
+}
+
+export interface Inventario {
+  id_inventario: number;
+  pk_producto: number;
+  stock_actual: number;
+  stock_minimo: number;
 }
 
 export interface MetodoPago {

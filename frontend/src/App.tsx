@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from './pages/public/HomePage';
 import ProductsPage from './pages/public/ProductsPage';
 import ContactPage from './pages/public/ContactPage';
@@ -40,13 +41,25 @@ import AdminPageHero from './pages/admin/PageHeroPage';
 import AdminEmpresa from './pages/admin/EmpresaPage';
 
 const App: React.FC = () => {
+  useEffect(() => {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+      setTimeout(() => {
+        splash.classList.add('splash-hidden');
+        setTimeout(() => {
+          splash.style.display = 'none';
+        }, 600);
+      }, 3000);
+    }
+  }, []);
+
   return (
     <>
       <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/inicio" element={<HomePage />} />
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<Navigate to="/inicio" replace />} />
           <Route path="/productos" element={<ProductsPage />} />
           <Route path="/contacto" element={<ContactPage />} />
           <Route path="/cart" element={<CartPage />} />

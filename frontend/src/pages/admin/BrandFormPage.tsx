@@ -20,7 +20,7 @@ export default function AdminBrandForm() {
   useEffect(() => {
     if (isEdit) {
       supabase
-        .from('marca_p')
+        .from('marca_producto')
         .select('*')
         .eq('id_marca_producto', id)
         .single()
@@ -55,10 +55,10 @@ export default function AdminBrandForm() {
     const payload = { nombre_marca_producto: nombre, descripcion_marca_producto: descripcion || null, logo_url: logoUrl || null, mostrar_en_home: mostrarEnHome };
 
     if (isEdit) {
-      const { error } = await supabase.from('marca_p').update(payload).eq('id_marca_producto', id);
+      const { error } = await supabase.from('marca_producto').update(payload).eq('id_marca_producto', id);
       if (error) { alert(error.message); setLoading(false); return; }
     } else {
-      const { error } = await supabase.from('marca_p').insert(payload);
+      const { error } = await supabase.from('marca_producto').insert(payload);
       if (error) { alert(error.message); setLoading(false); return; }
     }
 
