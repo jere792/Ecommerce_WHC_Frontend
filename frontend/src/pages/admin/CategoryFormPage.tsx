@@ -28,7 +28,7 @@ export default function CategoryFormPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    supabase.from('categoria_p').select('*').order('id_categoria_producto', { ascending: true })
+    supabase.from('categoria_productos').select('*').order('id_categoria_producto', { ascending: true })
       .then(({ data }) => {
         if (data) setCategories(data as CategoriaProducto[]);
         setLoading(false);
@@ -61,9 +61,9 @@ export default function CategoryFormPage() {
       subtitulo_home: subtituloHome || null,
     };
     if (isEditing) {
-      await supabase.from('categoria_p').update(payload).eq('id_categoria_producto', Number(id));
+      await supabase.from('categoria_productos').update(payload).eq('id_categoria_producto', Number(id));
     } else {
-      await supabase.from('categoria_p').insert(payload);
+      await supabase.from('categoria_productos').insert(payload);
     }
     setSaving(false);
     navigate('/admin/categorias');

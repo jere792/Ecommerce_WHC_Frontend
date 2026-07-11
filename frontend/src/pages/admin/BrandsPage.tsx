@@ -18,19 +18,19 @@ export default function AdminBrands() {
   useEffect(() => { loadBrands(); }, []);
 
   const loadBrands = async () => {
-    const { data } = await supabase.from('marca_p').select('*').order('id_marca_producto', { ascending: true });
+    const { data } = await supabase.from('marca_producto').select('*').order('id_marca_producto', { ascending: true });
     if (data) setBrands(data as any);
     setLoading(false);
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('Eliminar esta marca?')) return;
-    await supabase.from('marca_p').delete().eq('id_marca_producto', id);
+    await supabase.from('marca_producto').delete().eq('id_marca_producto', id);
     loadBrands();
   };
 
   const toggleHome = async (brand: any) => {
-    await supabase.from('marca_p').update({ mostrar_en_home: !brand.mostrar_en_home }).eq('id_marca_producto', brand.id_marca_producto);
+    await supabase.from('marca_producto').update({ mostrar_en_home: !brand.mostrar_en_home }).eq('id_marca_producto', brand.id_marca_producto);
     loadBrands();
   };
 

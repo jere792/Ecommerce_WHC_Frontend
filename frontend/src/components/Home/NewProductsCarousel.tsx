@@ -26,7 +26,7 @@ export default function NewProductsCarousel() {
 
       const { data } = await supabase
         .from('producto')
-        .select('*, categoria:pk_categoria_producto(nombre_categoria_producto)')
+        .select('*, categoria:pk_categoria_producto(nombre_categoria_producto), inventario:inventario!pk_producto(stock_actual)')
         .gte('created_at', treintaDiasAtras.toISOString())
         .order('created_at', { ascending: false });
 
@@ -39,7 +39,7 @@ export default function NewProductsCarousel() {
             imagenProducto: p.imagen_producto,
             slug: p.slug,
             precioProducto: Number(p.precio_producto),
-            stockProducto: p.stock_producto,
+            stockProducto: p.inventario?.stock_actual ?? 0,
             categoria: p.categoria?.nombre_categoria_producto || undefined,
           }))
         );

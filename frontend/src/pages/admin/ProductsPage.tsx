@@ -28,7 +28,7 @@ export default function AdminProducts() {
         .from('producto')
         .select('*, categoria:pk_categoria_producto(*), marca:pk_marca_producto(*), inventario:inventario!pk_producto(*)')
         .order('id_producto', { ascending: false }),
-      supabase.from('marca_p').select('*').order('nombre_marca_producto'),
+      supabase.from('marca_producto').select('*').order('nombre_marca_producto'),
     ]).then(([prodRes, brandRes]) => {
       if (prodRes.data) setProducts(prodRes.data as unknown as Producto[]);
       if (brandRes.data) setBrands(brandRes.data as MarcaProducto[]);

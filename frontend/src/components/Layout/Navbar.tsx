@@ -43,7 +43,7 @@ export function Navbar() {
   const companyName = settings?.nombre_empresa || 'WHC Representaciones';
 
   useEffect(() => {
-    supabase.from("categoria_p").select("*").order("id_categoria_producto")
+    supabase.from("categoria_productos").select("*").order("id_categoria_producto")
       .then(({ data }) => { if (data) setCategories(data as CategoriaProducto[]); });
   }, []);
 

@@ -36,7 +36,7 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
     setLoading(true);
     supabase
       .from('producto')
-      .select('*, marca:pk_marca_producto(*), categoria:pk_categoria_producto(*), imagenes:producto_imagen(*)')
+      .select('*, marca:pk_marca_producto(*), categoria:pk_categoria_producto(*), imagenes:producto_imagen(*), inventario:inventario!pk_producto(stock_actual)')
       .eq('slug', slug)
       .single()
       .then(({ data, error }) => {
@@ -57,7 +57,7 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
           imagenProducto: data.imagen_producto,
           slug: data.slug,
           marca: (data as any).marca?.nombre_marca_producto || '',
-          stockProducto: data.stock_producto,
+          stockProducto: (data as any).inventario?.stock_actual ?? 0,
           categoria: (data as any).categoria?.nombre_categoria_producto || '',
           fichaTecnicaUrl: data.ficha_tecnica_url || undefined,
           imagenesAdicionales,

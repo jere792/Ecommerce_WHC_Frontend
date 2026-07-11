@@ -73,8 +73,8 @@ const ProductsPage: React.FC = () => {
     (async () => {
       try {
         const [prodRes, catRes] = await Promise.all([
-          supabase.from('producto').select('*, marca:pk_marca_producto(*)'),
-          supabase.from('categoria_p').select('*').order('id_categoria_producto')
+          supabase.from('producto').select('*, marca:pk_marca_producto(*), inventario:inventario!pk_producto(stock_actual)'),
+          supabase.from('categoria_productos').select('*').order('id_categoria_producto')
         ])
         if (prodRes.data) {
           const adaptados: ProductoAdapted[] = (prodRes.data as unknown as (Producto & { marca?: { nombre_marca_producto: string } })[]).map((p) => ({
@@ -85,7 +85,7 @@ const ProductsPage: React.FC = () => {
             imagenProducto: p.imagen_producto || undefined,
             slug: p.slug,
             marca: p.marca?.nombre_marca_producto || '',
-            stockProducto: p.stock_producto,
+            stockProducto: (p as any).inventario?.stock_actual ?? 0,
             pkCategoria: p.pk_categoria_producto,
           }));
           setProductos(adaptados);

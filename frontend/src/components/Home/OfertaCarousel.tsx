@@ -30,7 +30,7 @@ export default function OfertaCarousel() {
       try {
         const { data, error: err } = await supabase
           .from('oferta')
-          .select('*, producto:pk_producto(*, categoria:pk_categoria_producto(nombre_categoria_producto))')
+          .select('*, producto:pk_producto(*, categoria:pk_categoria_producto(nombre_categoria_producto), inventario:inventario!pk_producto(stock_actual))')
           .lte('fecha_inicio', new Date().toISOString().split('T')[0])
           .gte('fecha_fin', new Date().toISOString().split('T')[0]);
         if (err) throw err;
@@ -44,7 +44,7 @@ export default function OfertaCarousel() {
             slug: o.producto?.slug || '',
             precioProducto: Number(o.producto?.precio_producto || 0),
             precioOferta: Number(o.precio_oferta),
-            stockProducto: o.producto?.stock_producto || 0,
+            stockProducto: o.producto?.inventario?.stock_actual || 0,
             categoria: o.producto?.categoria?.nombre_categoria_producto || undefined,
           }));
           setOfertas(adaptadas);

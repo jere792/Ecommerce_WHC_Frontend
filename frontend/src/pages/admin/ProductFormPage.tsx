@@ -48,8 +48,8 @@ export default function AdminProductForm() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('categoria_p').select('*'),
-      supabase.from('marca_p').select('*'),
+      supabase.from('categoria_productos').select('*'),
+      supabase.from('marca_producto').select('*'),
     ]).then(([catData, marData]) => {
       if (catData.data) setCategorias(catData.data as CategoriaProducto[]);
       if (marData.data) setMarcas(marData.data as MarcaProducto[]);

@@ -13,7 +13,7 @@ function HomePage() {
 
   useEffect(() => {
     supabase
-      .from('categoria_p')
+      .from('categoria_productos')
       .select('*')
       .eq('mostrar_en_home', true)
       .order('id_categoria_producto', { ascending: true })

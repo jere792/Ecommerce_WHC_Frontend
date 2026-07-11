@@ -26,7 +26,7 @@ export default function ComprasSimilares({ categoria, slug }: Props) {
   useEffect(() => {
     supabase
       .from('producto')
-      .select('*, marca:pk_marca_producto(*), categoria:pk_categoria_producto(*)')
+      .select('*, marca:pk_marca_producto(*), categoria:pk_categoria_producto(*), inventario:inventario!pk_producto(stock_actual)')
       .then(({ data }) => {
         if (data) {
           const mismos: ProductoData[] = data
@@ -43,7 +43,7 @@ export default function ComprasSimilares({ categoria, slug }: Props) {
               imagenProducto: p.imagen_producto,
               slug: p.slug,
               marca: p.marca?.nombre_marca_producto || '',
-              stockProducto: p.stock_producto,
+              stockProducto: p.inventario?.stock_actual ?? 0,
               categoria: p.categoria?.nombre_categoria_producto || '',
             }));
           setSimilares(mismos);
