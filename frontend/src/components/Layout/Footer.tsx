@@ -5,12 +5,12 @@ import { useStore } from '../../contexts/StoreContext';
 
 export function Footer() {
   const { settings } = useStore();
-  const companyName = settings?.company_name || 'WHC Representaciones';
-  const whatsapp = settings?.company_whatsapp || '51949790715';
-  const email = settings?.company_email || 'whcRepresentaciones@gmail.com';
-  const phone = settings?.company_phone || '(+51) 949790715';
-  const address = settings?.company_address || 'Los Rubies 295, La Victoria, Lima';
-  const schedule = settings?.company_schedule || 'Lun - Vie: 9:00 a.m. - 6:00 p.m.';
+  const companyName = settings?.nombre_empresa || 'WHC Representaciones';
+  const whatsapp = settings?.whatsapp_empresa || '51949790715';
+  const email = settings?.correo_empresa || 'whcRepresentaciones@gmail.com';
+  const phone = settings?.telefono_empresa || '(+51) 949790715';
+  const address = settings?.direccion_empresa || 'Los Rubies 295, La Victoria, Lima';
+  const schedule = settings?.horario_empresa || 'Lun - Vie: 9:00 a.m. - 6:00 p.m.';
 
   const navLinks = [
     { to: '/inicio', label: 'Inicio' },
@@ -32,7 +32,7 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Columna 1 - Marca */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="inline-block mb-4">
+            <Link to="/inicio" className="inline-block mb-4">
               <span className="text-2xl font-bold text-white">{companyName}</span>
             </Link>
             <p className="text-sm text-gray-400 mb-6 leading-relaxed">

@@ -5,10 +5,10 @@ import { useStore } from '../../contexts/StoreContext';
 
 function MantenimientoPage() {
   const { settings } = useStore();
-  const companyName = settings?.company_name || 'WHC Representaciones';
-  const email = settings?.company_email || 'whcRepresentaciones@gmail.com';
-  const whatsapp = settings?.company_whatsapp || '51949790715';
-  const phone = settings?.company_phone || '(+51) 949790715';
+  const companyName = settings?.nombre_empresa;
+  const email = settings?.correo_empresa;
+  const whatsapp = settings?.whatsapp_empresa;
+  const phone = settings?.telefono_empresa;
 
   return (
     <div className="bg-white">

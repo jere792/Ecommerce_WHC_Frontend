@@ -8,7 +8,7 @@ const Marcas: React.FC = () => {
 
   useEffect(() => {
     supabase
-      .from("marca_p")
+      .from("marca_producto")
       .select("nombre_marca_producto, logo_url")
       .eq("mostrar_en_home", true)
       .then(({ data }) => {

@@ -28,7 +28,7 @@ export function CategoryNav() {
 
   useEffect(() => {
     supabase
-      .from("categoria_p")
+      .from("categoria_productos")
       .select("*")
       .order("id_categoria_producto")
       .then(({ data }) => {

@@ -5,10 +5,10 @@ import { useStore } from '../../contexts/StoreContext';
 
 const InstalacionPage: React.FC = () => {
   const { settings } = useStore();
-  const companyName = settings?.company_name || 'WHC Representaciones';
-  const email = settings?.company_email || 'whcRepresentaciones@gmail.com';
-  const whatsapp = settings?.company_whatsapp || '51949790715';
-  const phone = settings?.company_phone || '(+51) 949790715';
+  const companyName = settings?.nombre_empresa || 'WHC Representaciones';
+  const email = settings?.correo_empresa || 'whcRepresentaciones@gmail.com';
+  const whatsapp = settings?.whatsapp_empresa || '51949790715';
+  const phone = settings?.telefono_empresa || '(+51) 949790715';
 
   const productos = [
     { title: 'Tuberías', desc: 'PVC, PPR, cobre, multicapa' },

@@ -12,7 +12,7 @@ export function Cart() {
   const { settings } = useStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const whatsappNumber = settings?.company_whatsapp || '51949790715';
+  const whatsappNumber = settings?.whatsapp_empresa || '51949790715';
 
   const handleQuantityChange = (id: string, quantity: number) => {
     if (quantity < 1) return;
@@ -69,7 +69,7 @@ export function Cart() {
           pk_producto_pedido: item.productId,
           cantidad_pedido: item.quantity,
         }));
-        await supabase.from("pedidodetalles").insert(detalles);
+        await supabase.from("pedido_detalles").insert(detalles);
         await supabase.from("pedido_estado_pago").insert({
           pk_pedido: pedido.id_pedido,
           estado: "pendiente",
