@@ -55,7 +55,7 @@ export default function AdminFormDetail() {
     navigate('/admin/formularios');
   };
 
-  if (loading) return <div>Cargando...</div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] text-muted-foreground">Cargando...</div>;
   if (!form) return <div>Formulario no encontrado</div>;
 
   return (

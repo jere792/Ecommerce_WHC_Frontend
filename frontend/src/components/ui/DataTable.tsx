@@ -3,6 +3,7 @@ import { type ReactNode } from 'react';
 export interface Column<T> {
   header: string;
   render: (item: T) => ReactNode;
+  width?: string;
 }
 
 interface DataTableProps<T> {
@@ -20,13 +21,14 @@ export default function DataTable<T>({
 }: DataTableProps<T>) {
   return (
     <div className="bg-background rounded-lg shadow overflow-x-auto">
-      <table className="w-full">
+      <table className="w-full table-fixed">
         <thead className="bg-muted">
           <tr>
             {columns.map((col, i) => (
               <th
                 key={i}
                 className="px-4 py-3 text-left text-sm font-medium text-muted-foreground"
+                style={col.width ? { width: col.width } : undefined}
               >
                 {col.header}
               </th>
@@ -47,7 +49,7 @@ export default function DataTable<T>({
             data.map((item) => (
               <tr key={keyExtractor(item)} className="hover:bg-muted transition-colors">
                 {columns.map((col, i) => (
-                  <td key={i} className="px-4 py-3 text-sm text-foreground">
+                  <td key={i} className="px-4 py-3 text-sm text-foreground" style={col.width ? { width: col.width } : undefined}>
                     {col.render(item)}
                   </td>
                 ))}

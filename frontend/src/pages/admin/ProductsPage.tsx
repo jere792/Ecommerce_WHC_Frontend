@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
-import type { MarcaProducto, Producto } from '../../lib/supabaseTypes';
+import type { MarcaProducto, Producto, CategoriaProducto } from '../../lib/supabaseTypes';
 import { Edit, Trash2, Package, AlertTriangle } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
-import ProductFilters from '../../components/ui/ProductFilters';
+import FilterBar from '../../components/ui/FilterBar';
 import DataTable, { type Column } from '../../components/ui/DataTable';
 
 const PAGE_SIZE = 10;
@@ -17,10 +17,18 @@ export default function AdminProducts() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [brandFilter, setBrandFilter] = useState<number>(0);
+  const [categoryFilter, setCategoryFilter] = useState<number>(0);
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
   const [view, setView] = useState<ViewMode>('all');
   const [page, setPage] = useState(1);
   const [brands, setBrands] = useState<MarcaProducto[]>([]);
+  const [categories, setCategories] = useState<CategoriaProducto[]>([]);
   const navigate = useNavigate();
+
+  const maxPrice = useMemo(() =>
+    products.length > 0 ? Math.max(...products.map((p) => Number(p.precio_producto))) : 1000,
+  [products]);
 
   useEffect(() => {
     Promise.all([
@@ -29,9 +37,11 @@ export default function AdminProducts() {
         .select('*, categoria:pk_categoria_producto(*), marca:pk_marca_producto(*), inventario:inventario!pk_producto!left(*)')
         .order('id_producto', { ascending: false }),
       supabase.from('marca_producto').select('*').order('nombre_marca_producto'),
-    ]).then(([prodRes, brandRes]) => {
+      supabase.from('categoria_producto').select('*').order('nombre_categoria_producto'),
+    ]).then(([prodRes, brandRes, catRes]) => {
       if (prodRes.data) setProducts(prodRes.data as unknown as Producto[]);
       if (brandRes.data) setBrands(brandRes.data as MarcaProducto[]);
+      if (catRes.data) setCategories(catRes.data as CategoriaProducto[]);
       setLoading(false);
     });
   }, []);
@@ -48,12 +58,24 @@ export default function AdminProducts() {
       result = result.filter((p) => p.pk_marca_producto === brandFilter);
     }
 
+    if (categoryFilter) {
+      result = result.filter((p) => p.pk_categoria_producto === categoryFilter);
+    }
+
+    if (priceMin !== '' && Number(priceMin) > 0) {
+      result = result.filter((p) => Number(p.precio_producto) >= Number(priceMin));
+    }
+
+    if (priceMax !== '' && Number(priceMax) < maxPrice) {
+      result = result.filter((p) => Number(p.precio_producto) <= Number(priceMax));
+    }
+
     if (view === 'lowStock') {
       result = result.filter((p) => (p.inventario?.stock_actual ?? 0) <= LOW_STOCK_THRESHOLD);
     }
 
     return result;
-  }, [products, search, brandFilter, view]);
+  }, [products, search, brandFilter, categoryFilter, priceMin, priceMax, view]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -66,11 +88,12 @@ export default function AdminProducts() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, brandFilter, view]);
+  }, [search, brandFilter, categoryFilter, priceMin, priceMax, view]);
 
   const columns: Column<Producto>[] = [
     {
       header: 'Imagen',
+      width: '80px',
       render: (p) =>
         p.imagen_producto ? (
           <img
@@ -85,19 +108,22 @@ export default function AdminProducts() {
     {
       header: 'Nombre',
       render: (p) => (
-        <span className="font-medium text-foreground">{p.nombre_producto}</span>
+        <span className="font-medium text-foreground truncate block">{p.nombre_producto}</span>
       ),
     },
     {
       header: 'Marca',
+      width: '120px',
       render: (p) => p.marca?.nombre_marca_producto || '-',
     },
     {
       header: 'Precio venta',
+      width: '110px',
       render: (p) => `S/${Number(p.precio_producto).toFixed(2)}`,
     },
     {
       header: 'Stock',
+      width: '80px',
       render: (p) => (
         <span
           className={`font-medium ${
@@ -112,6 +138,7 @@ export default function AdminProducts() {
     },
     {
       header: 'Categoria',
+      width: '140px',
       render: (p) => p.categoria?.nombre_categoria_producto || '-',
     },
     {
@@ -137,7 +164,7 @@ export default function AdminProducts() {
 
   if (loading)
     return (
-      <div className="text-center py-10 text-muted-foreground">Cargando...</div>
+      <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] text-muted-foreground">Cargando...</div>
     );
 
   return (
@@ -148,22 +175,25 @@ export default function AdminProducts() {
         buttonTo="/admin/productos/nuevo"
       />
 
-      <ProductFilters
-        search={search}
-        onSearchChange={setSearch}
-        brandFilter={brandFilter}
-        onBrandFilterChange={(v) => setBrandFilter(v)}
-        brands={brands}
+      <FilterBar
+        title="productos"
+        onClear={() => { setSearch(''); setBrandFilter(0); setCategoryFilter(0); setPriceMin(''); setPriceMax(''); }}
+        fields={[
+          { type: 'search', label: 'Buscar producto', value: search, onChange: setSearch, placeholder: 'Buscar por nombre...' },
+          { type: 'range', label: 'Rango de precio', min: priceMin, max: priceMax, onMinChange: setPriceMin, onMaxChange: setPriceMax, minLimit: 0, maxLimit: maxPrice },
+        ]}
+        fields2={[
+          { type: 'select', label: 'Categoría', value: categoryFilter, onChange: setCategoryFilter, options: [{ value: 0, label: 'Todas las categorías' }, ...categories.map((c) => ({ value: c.id_categoria_producto, label: c.nombre_categoria_producto }))] },
+          { type: 'select', label: 'Marca', value: brandFilter, onChange: setBrandFilter, options: [{ value: 0, label: 'Todas las marcas' }, ...brands.map((b) => ({ value: b.id_marca_producto, label: b.nombre_marca_producto }))] },
+        ]}
       />
 
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
+        <div className="relative flex items-center bg-muted rounded-lg p-0.5 w-fit">
           <button
             onClick={() => setView('all')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
-              view === 'all'
-                ? 'bg-primary text-white shadow-sm'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-all duration-200 z-10 ${
+              view === 'all' ? 'text-white' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Package className="w-4 h-4" />
@@ -171,15 +201,18 @@ export default function AdminProducts() {
           </button>
           <button
             onClick={() => setView('lowStock')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
-              view === 'lowStock'
-                ? 'bg-destructive text-white shadow-sm'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-all duration-200 z-10 ${
+              view === 'lowStock' ? 'text-white' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <AlertTriangle className="w-4 h-4" />
             Stock bajo (&le;{LOW_STOCK_THRESHOLD})
           </button>
+          <div
+            className={`absolute top-0.5 bottom-0.5 rounded-md transition-all duration-200 ${
+              view === 'all' ? 'bg-primary left-0.5 right-1/2' : 'bg-destructive left-1/2 right-0.5'
+            }`}
+          />
         </div>
       </div>
 

@@ -69,7 +69,7 @@ export default function CategoryFormPage() {
     navigate('/admin/categorias');
   };
 
-  if (loading) return <div className="text-center py-12 text-muted-foreground">Cargando...</div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] text-muted-foreground">Cargando...</div>;
 
   return (
     <div className="max-w-lg">

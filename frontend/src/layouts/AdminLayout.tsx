@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthContext } from '../hooks/AuthContext';
 import { useStore } from '../contexts/StoreContext';
 import { useToast } from '../components/ui/Toast';
@@ -215,7 +216,17 @@ export default function AdminLayout() {
         </nav>
 
         <div className="flex-1 p-4 sm:p-6">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, x: location.pathname.split('/').length > 3 ? 0 : 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              transition={{ duration: location.pathname.split('/').length > 3 ? 0.15 : 0.25, ease: 'easeInOut' }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
     </div>

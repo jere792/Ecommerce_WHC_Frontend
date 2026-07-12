@@ -43,14 +43,15 @@ import AdminEmpresa from './pages/admin/EmpresaPage';
 const App: React.FC = () => {
   useEffect(() => {
     const splash = document.getElementById('splash-screen');
-    if (splash) {
+    if (!splash) return;
+    const isAdmin = window.location.pathname.startsWith('/admin');
+    const delay = isAdmin ? 1500 : 3000;
+    setTimeout(() => {
+      splash.classList.add('splash-hidden');
       setTimeout(() => {
-        splash.classList.add('splash-hidden');
-        setTimeout(() => {
-          splash.style.display = 'none';
-        }, 600);
-      }, 3000);
-    }
+        splash.style.display = 'none';
+      }, 600);
+    }, delay);
   }, []);
 
   return (

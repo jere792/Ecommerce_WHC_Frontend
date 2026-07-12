@@ -660,7 +660,6 @@ export default function AdminDashboard() {
           <table className="w-full">
             <thead>
               <tr className="text-left text-xs text-muted-foreground">
-                <th className="px-6 py-3 font-medium">ID</th>
                 <th className="px-6 py-3 font-medium">Cliente</th>
                 <th className="px-6 py-3 font-medium">Fecha</th>
                 <th className="px-6 py-3 font-medium">Total</th>
@@ -670,12 +669,11 @@ export default function AdminDashboard() {
             <tbody className="divide-y divide-border">
               {recentOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground text-sm">No hay pedidos aún</td>
+                  <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground text-sm">No hay pedidos aún</td>
                 </tr>
               ) : (
                 recentOrders.map((o: any) => (
                   <tr key={o.id_pedido} className="hover:bg-muted text-sm transition-colors">
-                    <td className="px-6 py-3 font-medium text-foreground">#{o.id_pedido}</td>
                     <td className="px-6 py-3 text-foreground">{o.usuario?.nombre_persona || '-'}</td>
                     <td className="px-6 py-3 text-muted-foreground">{new Date(o.fecha).toLocaleDateString()}</td>
                     <td className="px-6 py-3 font-medium text-foreground">{formatCurrency(Number(o.monto_total))}</td>
