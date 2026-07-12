@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { uploadToCloudinary } from '../../lib/cloudinary';
 import { uploadPdf } from '../../lib/supabaseStorage';
 import type { CategoriaProducto, MarcaProducto, Producto, ProductoImagen } from '../../lib/supabaseTypes';
-import { Trash2, Upload, Package, ChevronUp, ChevronDown } from 'lucide-react';
+import { Trash2, Upload, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 
 interface AdditionalImage {
@@ -158,10 +158,10 @@ export default function AdminProductForm() {
     setAdditionalImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const moveImage = (index: number, direction: 'up' | 'down') => {
+  const moveImage = (index: number, direction: 'left' | 'right') => {
     setAdditionalImages(prev => {
       const next = [...prev];
-      const target = direction === 'up' ? index - 1 : index + 1;
+      const target = direction === 'left' ? index - 1 : index + 1;
       if (target < 0 || target >= next.length) return prev;
       [next[index], next[target]] = [next[target], next[index]];
       return next.map((img, i) => ({ ...img, orden: i + 1 }));
@@ -288,7 +288,7 @@ export default function AdminProductForm() {
           {/* LEFT COLUMN - Images & PDF */}
           <div className="flex flex-col gap-5">
             {/* Main Image */}
-            <div className="flex-none border border-border rounded-lg p-4 bg-background space-y-3">
+            <div className="flex-none w-full border border-border rounded-lg p-4 bg-background space-y-3">
               <label className="block text-sm font-semibold text-foreground">Imagen principal</label>
               {imagen && !uploadingImg ? (
                 <div>
@@ -342,65 +342,70 @@ export default function AdminProductForm() {
             </div>
 
             {/* Gallery */}
-            <div className="flex-none border border-border rounded-lg p-4 bg-background space-y-3">
-              <label className="block text-sm font-semibold text-foreground">Carrusel de fotos</label>
-              {additionalImages.length > 0 && (
-                <div className="space-y-2">
-                  {additionalImages.map((img, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <img
-                        src={img.url}
-                        alt={`Foto ${idx + 1}`}
-                        className="h-14 w-14 object-cover rounded-lg border border-border shrink-0"
-                      />
-                      <span className="text-xs text-muted-foreground flex-1 truncate">Foto {idx + 1}</span>
-                      <div className="flex gap-1">
-                        <button
-                          type="button"
-                          onClick={() => moveImage(idx, 'up')}
-                          disabled={idx === 0}
-                          className="p-1 rounded text-muted-foreground hover:bg-muted disabled:opacity-30 transition-colors"
-                        >
-                          <ChevronUp className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveImage(idx, 'down')}
-                          disabled={idx === additionalImages.length - 1}
-                          className="p-1 rounded text-muted-foreground hover:bg-muted disabled:opacity-30 transition-colors"
-                        >
-                          <ChevronDown className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeAdditionalImage(idx)}
-                          className="p-1 rounded text-destructive hover:bg-destructive/10 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+            <div className="flex-none w-full border border-border rounded-lg p-4 bg-background flex flex-col h-[260px]">
+              <label className="block text-sm font-semibold text-foreground shrink-0">Carrusel de fotos</label>
+              <div className="flex-1 flex flex-col gap-3 min-h-0 pt-3">
+                <label className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded border border-dashed border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors shrink-0">
+                  <Upload className="w-4 h-4" />
+                  Agregar fotos o videos
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleAdditionalImageChange}
+                    className="hidden"
+                    disabled={uploadingAdditional}
+                  />
+                </label>
+                {uploadingAdditional && <p className="text-sm text-primary shrink-0">Subiendo archivos...</p>}
+                {additionalImages.length > 0 && (
+                  <>
+                    <hr className="border-t border-border" />
+                    <div className="flex flex-wrap gap-3 overflow-y-auto flex-1 content-start">
+                      {additionalImages.map((img, idx) => (
+                        <div key={idx} className="flex flex-col items-center gap-1 shrink-0">
+                          <div className="relative group">
+                            <img
+                              src={img.url}
+                              alt={`Foto ${idx + 1}`}
+                              className="h-20 w-20 object-cover rounded-lg border border-border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeAdditionalImage(idx)}
+                              className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveImage(idx, 'left')}
+                              disabled={idx === 0}
+                              className="p-0.5 rounded text-muted-foreground hover:bg-muted disabled:opacity-30 transition-colors"
+                            >
+                              <ChevronLeft className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveImage(idx, 'right')}
+                              disabled={idx === additionalImages.length - 1}
+                              className="p-0.5 rounded text-muted-foreground hover:bg-muted disabled:opacity-30 transition-colors"
+                            >
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
-              <hr className="border-t border-border" />
-              <label className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
-                <Upload className="w-4 h-4" />
-                Subir fotos
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleAdditionalImageChange}
-                  className="hidden"
-                  disabled={uploadingAdditional}
-                />
-              </label>
-              {uploadingAdditional && <p className="text-sm text-primary">Subiendo imágenes...</p>}
+                  </>
+                )}
+              </div>
             </div>
 
             {/* PDF */}
-            <div className="flex-none border border-border rounded-lg p-4 bg-background space-y-3">
+            <div className="mt-auto flex-none w-full border border-border rounded-lg p-4 bg-background space-y-3">
               <label className="block text-sm font-semibold text-foreground">Ficha técnica</label>
               {fichaTecnicaUrl ? (
                 <div className="flex items-center gap-3">

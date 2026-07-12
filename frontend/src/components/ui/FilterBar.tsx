@@ -52,13 +52,13 @@ export default function FilterBar({ title, fields, fields2, onClear }: FilterBar
         </div>
       </div>
       <hr className="border-t border-border mb-4" />
-      <div className="flex flex-wrap items-end gap-4">
+      <div className="flex flex-wrap items-start gap-4">
         {fields.map((f, i) => (
           <FilterField key={i} field={f} />
         ))}
       </div>
       {fields2 && showFields2 && (
-        <div className="flex flex-wrap items-end gap-4 mt-4">
+        <div className="flex flex-wrap items-start gap-4 mt-4">
           {fields2.map((f, i) => (
             <FilterField key={i} field={f} />
           ))}
@@ -153,10 +153,6 @@ function DoubleRangeSlider({
 
   return (
     <div className="w-full pt-1">
-      <div className="flex justify-between text-sm text-foreground font-medium mb-2">
-        <span>S/{minVal}</span>
-        <span>S/{maxVal}</span>
-      </div>
       <div className="relative h-6 flex items-center">
         <div className="absolute inset-x-0 h-1.5 rounded-full bg-muted" />
         <div
@@ -185,6 +181,10 @@ function DoubleRangeSlider({
           }}
           className="absolute inset-x-0 w-full h-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
         />
+      </div>
+      <div className="flex justify-between text-sm text-foreground mt-1.5">
+        <span>S/{minVal}</span>
+        <span>S/{maxVal}</span>
       </div>
     </div>
   );
