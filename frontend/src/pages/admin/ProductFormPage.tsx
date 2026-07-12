@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { uploadToCloudinary } from '../../lib/cloudinary';
 import { uploadPdf } from '../../lib/supabaseStorage';
 import type { CategoriaProducto, MarcaProducto, Producto, ProductoImagen } from '../../lib/supabaseTypes';
-import { Trash2, Upload, Package } from 'lucide-react';
+import { Trash2, Upload, Package, ChevronUp, ChevronDown } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 
 interface AdditionalImage {
@@ -158,6 +158,16 @@ export default function AdminProductForm() {
     setAdditionalImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const moveImage = (index: number, direction: 'up' | 'down') => {
+    setAdditionalImages(prev => {
+      const next = [...prev];
+      const target = direction === 'up' ? index - 1 : index + 1;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next.map((img, i) => ({ ...img, orden: i + 1 }));
+    });
+  };
+
   const handleFichaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -279,35 +289,14 @@ export default function AdminProductForm() {
           <div className="flex flex-col gap-5">
             {/* Main Image */}
             <div className="flex-none border border-border rounded-lg p-4 bg-background space-y-3">
-              <label className="block text-sm font-medium text-foreground">Imagen</label>
+              <label className="block text-sm font-semibold text-foreground">Imagen principal</label>
               {imagen && !uploadingImg ? (
-                <div className="space-y-3">
+                <div>
                   <img
                     src={imagen}
                     alt="Vista previa"
                     className="w-full h-48 object-cover rounded-lg border border-border"
                   />
-                  <div className="flex gap-2">
-                    <label className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
-                      <Upload className="w-4 h-4" />
-                      Cambiar
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                        disabled={uploadingImg}
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => { setImagen(''); setImagenFile(null); }}
-                      className="flex items-center gap-1.5 px-3 py-2 text-sm rounded border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Quitar
-                    </button>
-                  </div>
                 </div>
               ) : (
                 <label className="flex flex-col items-center justify-center h-48 rounded-lg border-2 border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors">
@@ -328,14 +317,76 @@ export default function AdminProductForm() {
                   />
                 </label>
               )}
+              <hr className="border-t border-border" />
+              <div className="flex gap-2">
+                <label className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
+                  <Upload className="w-4 h-4" />
+                  Cambiar
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    disabled={uploadingImg}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => { setImagen(''); setImagenFile(null); }}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm rounded border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Quitar
+                </button>
+              </div>
             </div>
 
-            {/* Gallery Images */}
-            <div className="flex-1 border border-border rounded-lg p-4 bg-background space-y-3">
-              <label className="block text-sm font-medium text-foreground">Galería</label>
+            {/* Gallery */}
+            <div className="flex-none border border-border rounded-lg p-4 bg-background space-y-3">
+              <label className="block text-sm font-semibold text-foreground">Carrusel de fotos</label>
+              {additionalImages.length > 0 && (
+                <div className="space-y-2">
+                  {additionalImages.map((img, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <img
+                        src={img.url}
+                        alt={`Foto ${idx + 1}`}
+                        className="h-14 w-14 object-cover rounded-lg border border-border shrink-0"
+                      />
+                      <span className="text-xs text-muted-foreground flex-1 truncate">Foto {idx + 1}</span>
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => moveImage(idx, 'up')}
+                          disabled={idx === 0}
+                          className="p-1 rounded text-muted-foreground hover:bg-muted disabled:opacity-30 transition-colors"
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImage(idx, 'down')}
+                          disabled={idx === additionalImages.length - 1}
+                          className="p-1 rounded text-muted-foreground hover:bg-muted disabled:opacity-30 transition-colors"
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeAdditionalImage(idx)}
+                          className="p-1 rounded text-destructive hover:bg-destructive/10 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <hr className="border-t border-border" />
               <label className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
                 <Upload className="w-4 h-4" />
-                Subir imágenes
+                Subir fotos
                 <input
                   type="file"
                   accept="image/*"
@@ -346,34 +397,14 @@ export default function AdminProductForm() {
                 />
               </label>
               {uploadingAdditional && <p className="text-sm text-primary">Subiendo imágenes...</p>}
-              {additionalImages.length > 0 && (
-                <div className="grid grid-cols-2 gap-2">
-                  {additionalImages.map((img, idx) => (
-                    <div key={idx} className="relative group">
-                      <img
-                        src={img.url}
-                        alt={`Adicional ${idx + 1}`}
-                        className="h-24 w-full object-cover rounded-lg border border-border"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeAdditionalImage(idx)}
-                        className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* PDF */}
             <div className="flex-none border border-border rounded-lg p-4 bg-background space-y-3">
-              <label className="block text-sm font-medium text-foreground">Ficha técnica (PDF)</label>
+              <label className="block text-sm font-semibold text-foreground">Ficha técnica</label>
               {fichaTecnicaUrl ? (
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-[var(--success)]">&#10003; PDF cargado</span>
+                  <span className="text-sm text-green-600">&#10003; PDF cargado</span>
                   <a href={fichaTecnicaUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
                     Ver
                   </a>
