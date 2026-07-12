@@ -25,6 +25,9 @@ export interface Producto {
   pk_marca_producto: number | null;
   ficha_tecnica_url: string | null;
   slug: string;
+  estado: string;
+  destacado: boolean;
+  nuevo: boolean;
   created_at: string;
   updated_at: string;
   imagenes?: ProductoImagen[];

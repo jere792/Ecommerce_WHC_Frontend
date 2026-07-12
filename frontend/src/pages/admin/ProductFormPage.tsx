@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { uploadToCloudinary } from '../../lib/cloudinary';
 import { uploadPdf } from '../../lib/supabaseStorage';
 import type { CategoriaProducto, MarcaProducto, Producto, ProductoImagen } from '../../lib/supabaseTypes';
-import { Trash2, Upload } from 'lucide-react';
+import { Trash2, Upload, Package } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 
 interface AdditionalImage {
@@ -31,6 +31,9 @@ export default function AdminProductForm() {
   const [selectedMain, setSelectedMain] = useState<number>(0);
   const [selectedSub, setSelectedSub] = useState<number>(0);
   const [pkMarca, setPkMarca] = useState<number>(0);
+  const [estado, setEstado] = useState('activo');
+  const [destacado, setDestacado] = useState(false);
+  const [nuevo, setNuevo] = useState(false);
   const [categorias, setCategorias] = useState<CategoriaProducto[]>([]);
   const [marcas, setMarcas] = useState<MarcaProducto[]>([]);
   const [loading, setLoading] = useState(false);
@@ -75,6 +78,9 @@ export default function AdminProductForm() {
             setFichaTecnicaUrl(p.ficha_tecnica_url || '');
             setPkMarca(p.pk_marca_producto || 0);
             setStock(String((p as any).inventario?.stock_actual ?? ''));
+            setEstado(p.estado || 'activo');
+            setDestacado(p.destacado || false);
+            setNuevo(p.nuevo || false);
             if (p.imagenes) {
               setAdditionalImages(
                 p.imagenes
@@ -198,6 +204,9 @@ export default function AdminProductForm() {
       pk_categoria_producto: pkCategoria || null,
       pk_marca_producto: pkMarca || null,
       ficha_tecnica_url: fichaTecnicaUrl || null,
+      estado,
+      destacado,
+      nuevo,
     };
 
     if (isEdit) {
@@ -258,7 +267,11 @@ export default function AdminProductForm() {
 
   return (
     <div>
-      <PageHeader title={isEdit ? 'Editar producto' : 'Nuevo producto'} />
+      <PageHeader
+        title={isEdit ? 'Editar producto' : 'Nuevo producto'}
+        description={isEdit ? 'Modifica los datos del producto' : 'Agrega un nuevo producto a la tienda'}
+        icon={<Package className="w-5 h-5" />}
+      />
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
@@ -458,7 +471,7 @@ export default function AdminProductForm() {
             <div className="flex-1 border border-border rounded-lg p-4 bg-background space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Categoría</label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs text-muted-foreground mb-1">Categoría</label>
                     <select
@@ -515,23 +528,73 @@ export default function AdminProductForm() {
                       ))}
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">Marca</label>
+                    <select
+                      value={pkMarca}
+                      onChange={(e) => setPkMarca(Number(e.target.value))}
+                      className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    >
+                      <option value={0}>Seleccionar</option>
+                      {marcas.map((m) => (
+                        <option key={m.id_marca_producto} value={m.id_marca_producto}>
+                          {m.nombre_marca_producto}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Marca</label>
-                  <select
-                    value={pkMarca}
-                    onChange={(e) => setPkMarca(Number(e.target.value))}
-                    className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  >
-                    <option value={0}>Seleccionar</option>
-                    {marcas.map((m) => (
-                      <option key={m.id_marca_producto} value={m.id_marca_producto}>
-                        {m.nombre_marca_producto}
-                      </option>
+              <div className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card flex-wrap">
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
+                  <span className="text-xs font-medium text-muted-foreground">Estado</span>
+                  <div className="flex rounded-md border border-border overflow-hidden">
+                    {['activo', 'inactivo'].map((op) => (
+                      <button
+                        key={op}
+                        type="button"
+                        onClick={() => setEstado(op)}
+                        className={`px-3 py-1.5 text-xs font-medium transition-all ${
+                          estado === op
+                            ? op === 'activo'
+                              ? 'bg-green-500 text-white shadow-sm'
+                              : 'bg-red-500 text-white shadow-sm'
+                            : 'bg-background text-muted-foreground hover:bg-muted'
+                        }`}
+                      >
+                        {op === 'activo' ? 'Activo' : 'Inactivo'}
+                      </button>
                     ))}
-                  </select>
+                  </div>
+                </div>
+                <span className="text-muted-foreground/40 text-lg select-none">|</span>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
+                  <span className="text-xs font-medium text-muted-foreground">Destacado</span>
+                  <button
+                    type="button"
+                    onClick={() => setDestacado(!destacado)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                      destacado ? 'bg-yellow-500' : 'bg-muted'
+                    }`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
+                      destacado ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
+                  </button>
+                </div>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
+                  <span className="text-xs font-medium text-muted-foreground">Nuevo</span>
+                  <button
+                    type="button"
+                    onClick={() => setNuevo(!nuevo)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                      nuevo ? 'bg-blue-500' : 'bg-muted'
+                    }`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
+                      nuevo ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
+                  </button>
                 </div>
               </div>
             </div>

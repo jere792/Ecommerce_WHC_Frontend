@@ -93,7 +93,7 @@ export default function AdminProducts() {
   const columns: Column<Producto>[] = [
     {
       header: 'Imagen',
-      width: '80px',
+      width: '100px',
       render: (p) =>
         p.imagen_producto ? (
           <img
@@ -118,12 +118,14 @@ export default function AdminProducts() {
     },
     {
       header: 'Precio venta',
-      width: '110px',
+      width: '120px',
+      align: 'right',
       render: (p) => `S/${Number(p.precio_producto).toFixed(2)}`,
     },
     {
       header: 'Stock',
-      width: '80px',
+      width: '120px',
+      align: 'center',
       render: (p) => (
         <span
           className={`font-medium ${
@@ -138,13 +140,51 @@ export default function AdminProducts() {
     },
     {
       header: 'Categoria',
-      width: '140px',
+      width: '150px',
       render: (p) => p.categoria?.nombre_categoria_producto || '-',
     },
     {
+      header: 'Estado',
+      width: '120px',
+      align: 'center',
+      render: (p) => {
+        const colors: Record<string, string> = {
+          activo: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+          inactivo: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+        };
+        return (
+          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${colors[p.estado] || 'bg-muted text-muted-foreground'}`}>
+            {p.estado}
+          </span>
+        );
+      },
+    },
+    {
+      header: 'Destacado',
+      width: '120px',
+      align: 'center',
+      render: (p) =>
+        p.destacado ? (
+          <span className="text-yellow-500 text-lg">★</span>
+        ) : (
+          <span className="text-muted-foreground/30 text-lg">☆</span>
+        ),
+    },
+    {
+      header: 'Nuevo',
+      width: '120px',
+      align: 'center',
+      render: (p) =>
+        p.nuevo ? (
+          <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Nuevo</span>
+        ) : null,
+    },
+    {
       header: 'Acciones',
+      width: '100px',
+      align: 'right',
       render: (p) => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center justify-end gap-1">
           <button
             onClick={() => navigate(`/admin/productos/editar/${p.slug}`)}
             className="p-1.5 rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
@@ -171,6 +211,8 @@ export default function AdminProducts() {
     <div>
       <PageHeader
         title="Productos"
+        description="Gestiona los productos de tu tienda"
+        icon={<Package className="w-5 h-5" />}
         buttonLabel="Agregar producto"
         buttonTo="/admin/productos/nuevo"
       />

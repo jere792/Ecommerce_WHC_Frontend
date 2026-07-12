@@ -4,6 +4,7 @@ export interface Column<T> {
   header: string;
   render: (item: T) => ReactNode;
   width?: string;
+  align?: 'left' | 'center' | 'right';
 }
 
 interface DataTableProps<T> {
@@ -27,7 +28,7 @@ export default function DataTable<T>({
             {columns.map((col, i) => (
               <th
                 key={i}
-                className="px-4 py-3 text-left text-sm font-medium text-muted-foreground"
+                className={`px-5 py-3.5 text-sm font-medium text-muted-foreground ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}
                 style={col.width ? { width: col.width } : undefined}
               >
                 {col.header}
@@ -49,7 +50,7 @@ export default function DataTable<T>({
             data.map((item) => (
               <tr key={keyExtractor(item)} className="hover:bg-muted transition-colors">
                 {columns.map((col, i) => (
-                  <td key={i} className="px-4 py-3 text-sm text-foreground" style={col.width ? { width: col.width } : undefined}>
+                  <td key={i} className={`px-5 py-3.5 text-sm text-foreground ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`} style={col.width ? { width: col.width } : undefined}>
                     {col.render(item)}
                   </td>
                 ))}
