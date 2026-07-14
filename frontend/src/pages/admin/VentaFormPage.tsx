@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import type { Producto } from '../../lib/supabaseTypes';
-import { Trash2, ShoppingCart, Search, User, Phone, Plus } from 'lucide-react';
+import { Trash2, ShoppingCart, Search, User, Phone, Plus, Check } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
 
@@ -22,9 +22,12 @@ export default function AdminVentaForm() {
   const [telefono, setTelefono] = useState('');
   const [productos, setProductos] = useState<(Producto & { stock?: number })[]>([]);
   const [productoSearch, setProductoSearch] = useState('');
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
   const [saving, setSaving] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase
@@ -40,6 +43,16 @@ export default function AdminVentaForm() {
           setProductos(mapped);
         }
       });
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const showResults = productoSearch.length >= 3;
@@ -60,9 +73,11 @@ export default function AdminVentaForm() {
     setLineItems([...lineItems, ...toAdd.map(p => ({ producto: p, cantidad: 1 }))]);
     setSelectedIds(new Set());
     setProductoSearch('');
+    setShowDropdown(false);
   };
 
   const updateCantidad = (idx: number, cantidad: number) => {
+    if (confirmed) return;
     const items = [...lineItems];
     items[idx].cantidad = Math.max(1, cantidad);
     setLineItems(items);
@@ -70,6 +85,12 @@ export default function AdminVentaForm() {
 
   const removeItem = (idx: number) => {
     setLineItems(lineItems.filter((_, i) => i !== idx));
+  };
+
+  const confirmCart = () => {
+    if (lineItems.length === 0) { showToast('El carrito está vacío.', 'error'); return; }
+    setConfirmed(true);
+    showToast('Carrito confirmado', 'success');
   };
 
   const total = lineItems.reduce((sum, li) => sum + li.producto.precio_producto * li.cantidad, 0);
@@ -117,8 +138,6 @@ export default function AdminVentaForm() {
     navigate('/admin/ventas');
   };
 
-  const anySelected = selectedIds.size > 0;
-
   return (
     <div>
       <PageHeader
@@ -128,113 +147,121 @@ export default function AdminVentaForm() {
       />
 
       <form onSubmit={handleSubmit}>
-        <div className="border-0 border-t border-border pt-6 space-y-8">
-          <div className="border border-border rounded-lg p-5 bg-background">
-            <h3 className="text-sm font-semibold text-foreground mb-4">Datos de venta</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>
-                  <User className="w-3.5 h-3.5 inline mr-1.5 text-muted-foreground" />
-                  Nombres completos
-                </label>
-                <input
-                  type="text"
-                  value={nombre}
-                  onChange={e => setNombre(e.target.value)}
-                  className={inputClass}
-                  placeholder="Ej: Juan Pérez"
-                  required
-                />
-              </div>
-              <div>
-                <label className={labelClass}>
-                  <Phone className="w-3.5 h-3.5 inline mr-1.5 text-muted-foreground" />
-                  Teléfono
-                </label>
-                <input
-                  type="text"
-                  value={telefono}
-                  onChange={e => setTelefono(e.target.value)}
-                  className={inputClass}
-                  placeholder="Ej: 999 888 777"
-                />
-              </div>
+        <div className="border border-border rounded-lg p-5 bg-background">
+          <h3 className="text-sm font-semibold text-foreground mb-4">Datos de venta</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className={labelClass}>
+                <User className="w-3.5 h-3.5 inline mr-1.5 text-muted-foreground" />
+                Nombres completos
+              </label>
+              <input
+                type="text"
+                value={nombre}
+                onChange={e => setNombre(e.target.value)}
+                className={inputClass}
+                placeholder="Ej: Juan Pérez"
+                required
+              />
+            </div>
+            <div>
+              <label className={labelClass}>
+                <Phone className="w-3.5 h-3.5 inline mr-1.5 text-muted-foreground" />
+                Teléfono
+              </label>
+              <input
+                type="text"
+                value={telefono}
+                onChange={e => setTelefono(e.target.value)}
+                className={inputClass}
+                placeholder="Ej: 999 888 777"
+              />
             </div>
           </div>
 
-          <div className="border border-border rounded-lg p-5 bg-background">
-            <h3 className="text-sm font-semibold text-foreground mb-4">Productos</h3>
+          <div className="space-y-4">
+            <label className={labelClass}>Productos</label>
 
-            <div className="relative mb-4">
+            <div ref={searchRef} className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 value={productoSearch}
-                onChange={e => { setProductoSearch(e.target.value); setSelectedIds(new Set()); }}
+                onChange={e => { setProductoSearch(e.target.value); setShowDropdown(true); }}
+                onFocus={() => setShowDropdown(true)}
                 className={`${inputClass} pl-10`}
                 placeholder="Buscar producto (mínimo 3 caracteres)..."
               />
-            </div>
 
-            {showResults && filteredProductos.length > 0 && (
-              <div className="border border-border rounded-lg overflow-hidden mb-4">
-                <table className="w-full">
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th className="w-10 px-3 py-2"></th>
-                      <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2">Producto</th>
-                      <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2 w-28">Precio</th>
-                      <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2 w-20">Stock</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
+              {showResults && showDropdown && filteredProductos.length > 0 && (
+                <div className="absolute z-10 mt-1 w-full bg-background border border-border rounded-lg shadow-lg">
+                  <div className="max-h-48 overflow-y-auto">
                     {filteredProductos.map(p => (
-                      <tr
+                      <div
                         key={p.id_producto}
-                        className={`hover:bg-muted/30 transition-colors cursor-pointer ${selectedIds.has(p.id_producto) ? 'bg-primary/5' : ''}`}
                         onClick={() => toggleSelect(p.id_producto)}
+                        className={`flex items-center gap-3 px-3 py-2.5 text-sm cursor-pointer transition-colors border-b border-border last:border-0 ${
+                          selectedIds.has(p.id_producto) ? 'bg-primary/5' : 'hover:bg-muted/50'
+                        }`}
                       >
-                        <td className="px-3 py-2">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.has(p.id_producto)}
-                            onChange={() => toggleSelect(p.id_producto)}
-                            className="rounded border-border accent-primary w-4 h-4"
-                          />
-                        </td>
-                        <td className="px-3 py-2 text-sm text-foreground">{p.nombre_producto}</td>
-                        <td className="px-3 py-2 text-sm text-right text-foreground">S/{p.precio_producto.toFixed(2)}</td>
-                        <td className="px-3 py-2 text-sm text-center text-muted-foreground">{p.stock ?? 0}</td>
-                      </tr>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(p.id_producto)}
+                          readOnly
+                          className="rounded border-border accent-primary w-4 h-4 pointer-events-none"
+                        />
+                        <span className="flex-1 font-medium text-foreground">{p.nombre_producto}</span>
+                        <span className="text-muted-foreground text-xs">
+                          S/{p.precio_producto.toFixed(2)} — Stock: {p.stock ?? 0}
+                        </span>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-                <div className="flex justify-end p-3 border-t border-border bg-muted/30">
-                  <button
-                    type="button"
-                    onClick={addSelectedToCart}
-                    disabled={!anySelected}
-                    className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      anySelected
-                        ? 'bg-primary text-white hover:bg-primary/90'
-                        : 'bg-muted text-muted-foreground cursor-not-allowed'
-                    }`}
-                  >
-                    <Plus className="w-4 h-4" />
-                    Agregar al carrito ({selectedIds.size})
-                  </button>
+                  </div>
+                  <div className="flex justify-end p-3 border-t border-border bg-muted/30">
+                    <button
+                      type="button"
+                      onClick={addSelectedToCart}
+                      disabled={selectedIds.size === 0}
+                      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        selectedIds.size > 0
+                          ? 'bg-primary text-white hover:bg-primary/90'
+                          : 'bg-muted text-muted-foreground cursor-not-allowed'
+                      }`}
+                    >
+                      <Plus className="w-4 h-4" />
+                      Añadir al carrito ({selectedIds.size})
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {showResults && filteredProductos.length === 0 && (
-              <p className="text-sm text-muted-foreground mb-4">No se encontraron productos.</p>
-            )}
+              {showResults && showDropdown && filteredProductos.length === 0 && (
+                <div className="absolute z-10 mt-1 w-full bg-background border border-border rounded-lg shadow-lg p-4 text-sm text-muted-foreground text-center">
+                  No se encontraron productos.
+                </div>
+              )}
+            </div>
 
             {lineItems.length > 0 && (
               <div className="border border-border rounded-lg overflow-hidden bg-card/50">
-                <div className="px-4 py-3 border-b border-border bg-muted/30">
+                <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                   <h4 className="text-sm font-semibold text-foreground">Carrito de compras</h4>
+                  {!confirmed ? (
+                    <button
+                      type="button"
+                      onClick={confirmCart}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      Confirmar
+                    </button>
+                  ) : (
+                    <span className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" />
+                      Confirmado
+                    </span>
+                  )}
                 </div>
                 <table className="w-full">
                   <thead className="bg-muted/50">
@@ -256,7 +283,10 @@ export default function AdminVentaForm() {
                             value={li.cantidad}
                             onChange={e => updateCantidad(idx, parseInt(e.target.value) || 1)}
                             min={1}
-                            className="w-16 border border-border rounded-md px-2 py-1 text-xs text-center bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            disabled={confirmed}
+                            className={`w-16 border border-border rounded-md px-2 py-1 text-xs text-center bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                              confirmed ? 'opacity-60 cursor-not-allowed' : ''
+                            }`}
                           />
                         </td>
                         <td className="px-4 py-2 text-sm text-right text-foreground">S/{Number(li.producto.precio_producto).toFixed(2)}</td>
