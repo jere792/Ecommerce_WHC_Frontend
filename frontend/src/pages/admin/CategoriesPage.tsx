@@ -180,7 +180,7 @@ export default function AdminCategories() {
     if (targetIdx < 0 || targetIdx >= siblings.length) return;
     const reordered = [...siblings];
     [reordered[idx], reordered[targetIdx]] = [reordered[targetIdx], reordered[idx]];
-    const updates = reordered.map((c, i) => ({ id: c.id_categoria_producto, orden: (i + 1) * 10 }));
+    const updates = reordered.map((c, i) => ({ id: c.id_categoria_producto, orden: i + 1 }));
     setCategories(prev => prev.map(c => {
       const upd = updates.find(u => u.id === c.id_categoria_producto);
       return upd ? { ...c, orden: upd.orden } : c;

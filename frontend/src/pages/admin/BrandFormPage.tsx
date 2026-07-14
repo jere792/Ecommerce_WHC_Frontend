@@ -70,78 +70,87 @@ export default function AdminBrandForm() {
       <PageHeader title={isEdit ? 'Editar marca' : 'Nueva marca'} />
 
       <form onSubmit={handleSubmit}>
-        <div className="border border-border rounded-lg p-4 bg-background max-w-lg mx-auto">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
+        <div className="border border-border rounded-lg p-8 bg-background max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row items-start gap-10">
             {/* Logo */}
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-3 shrink-0">
               <label className="block text-sm font-medium text-foreground">Logo</label>
               {logoUrl && !uploading ? (
-                <div className="flex flex-col items-center gap-2">
-                  <img src={logoUrl} alt="Logo" className="h-24 w-24 object-contain rounded-lg border border-border" />
-                  <label className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
-                    <Upload className="w-3.5 h-3.5" />
+                <div className="flex flex-col items-center gap-3">
+                  <div className="h-72 w-72 rounded-xl border border-border bg-muted flex items-center justify-center overflow-hidden p-4">
+                    <img src={logoUrl} alt="Logo" className="h-full w-full object-contain" />
+                  </div>
+                  <label className="flex items-center gap-1.5 px-5 py-2.5 text-sm rounded-lg border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
+                    <Upload className="w-4 h-4" />
                     Cambiar
                     <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" disabled={uploading} />
                   </label>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center gap-2 h-24 w-24 rounded-lg border-2 border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors">
-                  <Upload className="w-6 h-6 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">{uploading ? 'Subiendo...' : 'Subir'}</span>
+                <label className="flex flex-col items-center justify-center gap-3 h-72 w-72 rounded-xl border-2 border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <Upload className="w-10 h-10 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">{uploading ? 'Subiendo...' : 'Subir imagen'}</span>
                   <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" disabled={uploading} />
                 </label>
               )}
             </div>
 
             {/* Fields */}
-            <div className="flex-1 w-full space-y-4">
+            <div className="flex-1 w-full space-y-6">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Nombre</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Nombre</label>
                 <input
                   type="text"
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
-                  className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  className="w-full border border-border rounded-lg px-5 py-2.5 bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Descripción</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Descripción</label>
                 <textarea
                   value={descripcion}
                   onChange={(e) => setDescripcion(e.target.value)}
-                  className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  rows={3}
+                  className="w-full border border-border rounded-lg px-5 py-2.5 bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  rows={4}
                 />
               </div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={mostrarEnHome}
-                  onChange={(e) => setMostrarEnHome(e.target.checked)}
-                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
-                />
-                <span className="text-sm text-foreground">Mostrar en la página principal</span>
-              </label>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Mostrar en la página principal</label>
+                <button
+                  type="button"
+                  onClick={() => setMostrarEnHome(!mostrarEnHome)}
+                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                    mostrarEnHome ? 'bg-primary' : 'bg-muted-foreground/30'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${
+                      mostrarEnHome ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex gap-3 justify-end mt-6 max-w-lg mx-auto">
-          <button
-            type="submit"
-            className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors text-sm font-medium"
-            disabled={loading}
-          >
-            {loading ? 'Guardando...' : 'Guardar'}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/admin/marcas')}
-            className="bg-muted text-foreground px-5 py-2 rounded-lg hover:bg-muted/80 transition-colors text-sm font-medium"
-          >
-            Cancelar
-          </button>
+          <div className="flex gap-3 justify-end mt-8 pt-4 border-t border-border">
+            <button
+              type="submit"
+              className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors text-sm font-medium"
+              disabled={loading}
+            >
+              {loading ? 'Guardando...' : 'Guardar'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/admin/marcas')}
+              className="bg-muted text-foreground px-6 py-2.5 rounded-lg hover:bg-muted/80 transition-colors text-sm font-medium"
+            >
+              Cancelar
+            </button>
+          </div>
         </div>
       </form>
     </div>

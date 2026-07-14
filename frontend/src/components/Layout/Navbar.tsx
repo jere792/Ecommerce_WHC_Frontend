@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ShoppingCart, Search, Menu, X, ChevronDown, Grid3X3, Phone, Clock, User, LogOut, Shield, Package } from "lucide-react";
+import { ShoppingCart, Search, Menu, X, ChevronDown, ChevronRight, Grid3X3, Phone, Clock, User, LogOut, Shield, Package } from "lucide-react";
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../ui/CartContext';
 import { ShoppingCartModal } from './ShoppingCartModal';
@@ -8,19 +8,10 @@ import { useStore } from '../../contexts/StoreContext';
 import { supabase } from "../../lib/supabaseClient";
 import type { CategoriaProducto } from "../../lib/supabaseTypes";
 
-function buildTree(cats: CategoriaProducto[]): CategoriaProducto[] {
-  const map = new Map<number, CategoriaProducto>();
-  const roots: CategoriaProducto[] = [];
-  cats.forEach((c) => map.set(c.id_categoria_producto, { ...c, subcategorias: [] }));
-  cats.forEach((c) => {
-    const node = map.get(c.id_categoria_producto)!;
-    if (c.pk_categoria_padre && map.has(c.pk_categoria_padre)) {
-      map.get(c.pk_categoria_padre)!.subcategorias!.push(node);
-    } else {
-      roots.push(node);
-    }
-  });
-  return roots;
+function getRoots(cats: CategoriaProducto[]): CategoriaProducto[] {
+  return cats
+    .filter(c => !c.pk_categoria_padre)
+    .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999));
 }
 
 export function Navbar() {
@@ -34,10 +25,9 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
-  const [mobileCatsOpen, setMobileCatsOpen] = useState<string[]>([]);
-  const allCatIds = categories.map(c => String(c.id_categoria_producto));
   const [categories, setCategories] = useState<CategoriaProducto[]>([]);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [expandedSubs, setExpandedSubs] = useState<Set<number>>(new Set());
   const catMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -78,13 +68,15 @@ export function Navbar() {
     }
   };
 
-  const toggleMobileCat = (id: number) => {
-    setMobileCatsOpen(prev =>
-      prev.includes(String(id)) ? prev.filter(x => x !== String(id)) : [...prev, String(id)]
-    );
+  const toggleSub = (id: number) => {
+    setExpandedSubs(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
   };
 
-  const tree = buildTree(categories);
+  const roots = getRoots(categories);
   const phone = settings?.telefono_empresa || '(+51) 949790715';
 
   return (
@@ -205,7 +197,7 @@ export function Navbar() {
                   onMouseLeave={() => setCategoriesOpen(false)}
                 >
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-8">
-                    {tree.map((cat) => (
+                    {roots.map((cat) => (
                       <div key={cat.id_categoria_producto}>
                         <Link
                           to={`/productos?categoria=${cat.id_categoria_producto}`}
@@ -217,16 +209,49 @@ export function Navbar() {
                         {categories
                           .filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
                           .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999))
-                          .map(sub => (
-                            <Link
-                              key={sub.id_categoria_producto}
-                              to={`/productos?categoria=${sub.id_categoria_producto}`}
-                              onClick={() => setCategoriesOpen(false)}
-                              className="block text-sm text-gray-600 hover:text-blue-700 py-0.5"
-                            >
-                              {sub.nombre_categoria_producto}
-                            </Link>
-                          ))}
+                          .map(sub => {
+                            const grandchildren = categories
+                              .filter(c => c.pk_categoria_padre === sub.id_categoria_producto)
+                              .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999));
+                            const isExpanded = expandedSubs.has(sub.id_categoria_producto);
+                            return (
+                              <div key={sub.id_categoria_producto} className="mb-1">
+                                <div className="flex items-center gap-1">
+                                  {grandchildren.length > 0 ? (
+                                    <button
+                                      onClick={() => toggleSub(sub.id_categoria_producto)}
+                                      className="p-0.5 text-gray-400 hover:text-blue-600 shrink-0"
+                                    >
+                                      {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                    </button>
+                                  ) : (
+                                    <span className="w-4 shrink-0" />
+                                  )}
+                                  <Link
+                                    to={`/productos?categoria=${sub.id_categoria_producto}`}
+                                    onClick={() => setCategoriesOpen(false)}
+                                    className="text-sm text-gray-600 hover:text-blue-700"
+                                  >
+                                    {sub.nombre_categoria_producto}
+                                  </Link>
+                                </div>
+                                {grandchildren.length > 0 && isExpanded && (
+                                  <div className="ml-4 mt-0.5 space-y-0.5">
+                                    {grandchildren.map(gg => (
+                                      <Link
+                                        key={gg.id_categoria_producto}
+                                        to={`/productos?categoria=${gg.id_categoria_producto}`}
+                                        onClick={() => setCategoriesOpen(false)}
+                                        className="block text-xs text-gray-400 hover:text-blue-600 py-0.5"
+                                      >
+                                        {gg.nombre_categoria_producto}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                       </div>
                     ))}
                   </div>
@@ -260,7 +285,7 @@ export function Navbar() {
         </nav>
 
         {isOpen && (
-          <div className="lg:hidden border-t border-gray-100 bg-white">
+          <div className="lg:hidden border-t border-gray-100 bg-white max-h-[calc(100vh-4rem)] overflow-y-auto">
             <div className="px-4 py-3">
               <form onSubmit={handleSearchSubmit} className="relative">
                 <input
@@ -282,29 +307,65 @@ export function Navbar() {
 
               <div className="border-t border-gray-100 my-1" />
               <p className="px-3 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">Categorías</p>
-              {tree.map(cat => (
-                <div key={cat.id_categoria_producto}>
-                  <Link
-                    to={`/productos?categoria=${cat.id_categoria_producto}`}
-                    onClick={() => setIsOpen(false)}
-                    className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
-                  >
-                    {cat.nombre_categoria_producto}
-                  </Link>
-                  {categories
-                    .filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
-                    .map(sub => (
-                      <Link
-                        key={sub.id_categoria_producto}
-                        to={`/productos?categoria=${sub.id_categoria_producto}`}
-                        onClick={() => setIsOpen(false)}
-                        className="block pl-8 pr-3 py-2 text-sm text-gray-500 hover:bg-gray-50 transition"
-                      >
-                        {sub.nombre_categoria_producto}
-                      </Link>
-                    ))}
-                </div>
-              ))}
+              {roots.map(cat => {
+                const children = categories
+                  .filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
+                  .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999));
+                return (
+                  <div key={cat.id_categoria_producto}>
+                    <Link
+                      to={`/productos?categoria=${cat.id_categoria_producto}`}
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      {cat.nombre_categoria_producto}
+                    </Link>
+                    {children.length > 0 && children.map(sub => {
+                      const grandchildren = categories
+                        .filter(c => c.pk_categoria_padre === sub.id_categoria_producto)
+                        .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999));
+                      const isExpanded = expandedSubs.has(sub.id_categoria_producto);
+                      return (
+                        <div key={sub.id_categoria_producto}>
+                          <div className="flex items-center pl-8 pr-3">
+                            {grandchildren.length > 0 ? (
+                              <button
+                                onClick={() => toggleSub(sub.id_categoria_producto)}
+                                className="p-1 text-gray-400 hover:text-blue-600 shrink-0"
+                              >
+                                {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                              </button>
+                            ) : (
+                              <span className="w-5 shrink-0" />
+                            )}
+                            <Link
+                              to={`/productos?categoria=${sub.id_categoria_producto}`}
+                              onClick={() => setIsOpen(false)}
+                              className="block py-2 text-sm text-gray-500 hover:text-blue-700 transition"
+                            >
+                              {sub.nombre_categoria_producto}
+                            </Link>
+                          </div>
+                          {grandchildren.length > 0 && isExpanded && (
+                            <div className="pl-12">
+                              {grandchildren.map(gg => (
+                                <Link
+                                  key={gg.id_categoria_producto}
+                                  to={`/productos?categoria=${gg.id_categoria_producto}`}
+                                  onClick={() => setIsOpen(false)}
+                                  className="block py-1.5 text-sm text-gray-400 hover:text-blue-600 transition"
+                                >
+                                  {gg.nombre_categoria_producto}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
 
               <div className="border-t border-gray-100 my-2" />
               <Link to="/contacto" className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Contacto</Link>

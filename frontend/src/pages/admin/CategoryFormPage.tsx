@@ -75,6 +75,14 @@ export default function CategoryFormPage() {
   }, [nombre, isEditing]);
 
   useEffect(() => {
+    if (!isEditing) {
+      const siblings = categories.filter(c => c.pk_categoria_padre === parentId);
+      const maxOrden = Math.max(...siblings.map(c => c.orden ?? 0), 0);
+      setOrden(String(maxOrden + 1));
+    }
+  }, [parentId, categories, isEditing]);
+
+  useEffect(() => {
     if (id && categories.length > 0) {
       const cat = categories.find(c => c.id_categoria_producto === Number(id));
       if (cat) {
@@ -99,12 +107,41 @@ export default function CategoryFormPage() {
     e.preventDefault();
     if (!nombre.trim()) { showToast('El nombre es obligatorio', 'error'); return; }
     setSaving(true);
+
+    const ordenNum = orden ? parseInt(orden) : null;
+
+    if (ordenNum != null) {
+      const conflict = categories.find(c =>
+        c.id_categoria_producto !== Number(id) &&
+        c.pk_categoria_padre === parentId &&
+        c.orden === ordenNum
+      );
+      if (conflict) {
+        if (isEditing) {
+          const currentCat = categories.find(c => c.id_categoria_producto === Number(id));
+          await supabase.from('categoria_productos')
+            .update({ orden: currentCat?.orden ?? null })
+            .eq('id_categoria_producto', conflict.id_categoria_producto);
+        } else {
+          const maxOrden = Math.max(
+            ...categories
+              .filter(c => c.pk_categoria_padre === parentId && c.id_categoria_producto !== conflict.id_categoria_producto)
+              .map(c => c.orden ?? 0),
+            0
+          );
+          await supabase.from('categoria_productos')
+            .update({ orden: maxOrden + 1 })
+            .eq('id_categoria_producto', conflict.id_categoria_producto);
+        }
+      }
+    }
+
     const payload = {
       nombre_categoria_producto: nombre.trim(),
       slug: slug || toSlug(nombre),
       descripcion: descripcion || null,
       estado,
-      orden: orden ? parseInt(orden) : null,
+      orden: ordenNum,
       pk_categoria_padre: parentId,
       mostrar_en_home: mostrarEnHome,
       subtitulo_home: subtituloHome || null,
