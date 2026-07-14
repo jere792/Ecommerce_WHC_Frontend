@@ -71,6 +71,8 @@ export interface Pedido {
   pk_metodopago: number | null;
   estado_pago: string;
   monto_total: number;
+  nombre: string | null;
+  telefono: string | null;
   created_at: string;
   updated_at: string;
   usuario?: Usuario;
@@ -154,19 +156,6 @@ export interface HeroSlide {
   texto: string;
   enlace: string | null;
   orden: number;
-  activo: boolean;
-  created_at: string;
-}
-
-export interface BannerPublicidad {
-  id_banner: number;
-  titulo: string;
-  imagen_principal: string;
-  enlace_principal: string | null;
-  imagen_secundaria_top: string;
-  enlace_secundario_top: string | null;
-  imagen_secundaria_bottom: string;
-  enlace_secundario_bottom: string | null;
   activo: boolean;
   created_at: string;
 }

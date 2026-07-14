@@ -23,8 +23,9 @@ import AdminLayout from './layouts/AdminLayout';
 import AdminDashboard from './pages/admin/DashboardPage';
 import AdminProducts from './pages/admin/ProductsPage';
 import AdminProductForm from './pages/admin/ProductFormPage';
-import AdminOrders from './pages/admin/OrdersPage';
-import AdminOrderDetail from './pages/admin/OrderDetailPage';
+import AdminVentas from './pages/admin/VentasPage';
+import AdminVentaForm from './pages/admin/VentaFormPage';
+import AdminVentaDetail from './pages/admin/VentaDetailPage';
 import AdminUsers from './pages/admin/UsersPage';
 import AdminUserForm from './pages/admin/UserFormPage';
 import AdminForms from './pages/admin/FormsPage';
@@ -36,8 +37,9 @@ import AdminCategoryForm from './pages/admin/CategoryFormPage';
 import AdminBrands from './pages/admin/BrandsPage';
 import AdminBrandForm from './pages/admin/BrandFormPage';
 import AdminHeroSlides from './pages/admin/HeroSlidesPage';
-import AdminBannerPublicidad from './pages/admin/BannerPublicidadPage';
+import AdminHeroSlideForm from './pages/admin/HeroSlideFormPage';
 import AdminPageHero from './pages/admin/PageHeroPage';
+import AdminPageHeroForm from './pages/admin/PageHeroFormPage';
 import AdminEmpresa from './pages/admin/EmpresaPage';
 
 const App: React.FC = () => {
@@ -79,8 +81,9 @@ const App: React.FC = () => {
           <Route path="productos" element={<AdminProducts />} />
           <Route path="productos/nuevo" element={<AdminProductForm />} />
           <Route path="productos/editar/:slug" element={<AdminProductForm />} />
-          <Route path="pedidos" element={<AdminOrders />} />
-          <Route path="pedidos/:id" element={<AdminOrderDetail />} />
+          <Route path="ventas" element={<AdminVentas />} />
+          <Route path="ventas/nueva" element={<AdminVentaForm />} />
+          <Route path="ventas/:id" element={<AdminVentaDetail />} />
           <Route path="usuarios" element={<AdminUsers />} />
           <Route path="usuarios/nuevo" element={<AdminUserForm />} />
           <Route path="usuarios/editar/:id" element={<AdminUserForm />} />
@@ -93,8 +96,11 @@ const App: React.FC = () => {
           <Route path="marcas/nueva" element={<AdminBrandForm />} />
           <Route path="marcas/editar/:id" element={<AdminBrandForm />} />
           <Route path="hero-slides" element={<AdminHeroSlides />} />
-          <Route path="banners-publicidad" element={<AdminBannerPublicidad />} />
+          <Route path="hero-slides/nuevo" element={<AdminHeroSlideForm />} />
+          <Route path="hero-slides/editar/:id" element={<AdminHeroSlideForm />} />
           <Route path="page-hero" element={<AdminPageHero />} />
+          <Route path="page-hero/nuevo" element={<AdminPageHeroForm />} />
+          <Route path="page-hero/editar/:id" element={<AdminPageHeroForm />} />
           <Route path="empresa" element={<AdminEmpresa />} />
           <Route path="ofertas" element={<AdminOffers />} />
           <Route path="movimientos" element={<AdminMovements />} />

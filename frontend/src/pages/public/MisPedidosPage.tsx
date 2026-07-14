@@ -43,7 +43,7 @@ const MisPedidosPage: React.FC = () => {
         fecha,
         monto_total,
         estado_pago,
-        detalles:pedidodetalles(
+        detalles:pedido_detalles(
           pk_producto_pedido,
           cantidad_pedido
         ),

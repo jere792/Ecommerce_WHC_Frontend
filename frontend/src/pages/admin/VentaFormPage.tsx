@@ -1,0 +1,316 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabaseClient';
+import type { Producto } from '../../lib/supabaseTypes';
+import { Trash2, ShoppingCart, Search, User, Phone, Plus } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import { useToast } from '../../components/ui/Toast';
+
+interface LineItem {
+  producto: Producto;
+  cantidad: number;
+}
+
+const inputClass = "w-full border border-border rounded-lg px-4 py-2.5 bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
+const labelClass = "block text-sm font-medium text-foreground mb-1.5";
+
+export default function AdminVentaForm() {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+
+  const [nombre, setNombre] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [productos, setProductos] = useState<(Producto & { stock?: number })[]>([]);
+  const [productoSearch, setProductoSearch] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from('producto')
+      .select('*, inventario:inventario!pk_producto(*)')
+      .eq('estado', 'activo')
+      .then(({ data }) => {
+        if (data) {
+          const mapped = (data as any[]).map(p => ({
+            ...p,
+            stock: p.inventario?.stock_actual ?? 0,
+          }));
+          setProductos(mapped);
+        }
+      });
+  }, []);
+
+  const showResults = productoSearch.length >= 3;
+  const filteredProductos = productos.filter(p =>
+    p.nombre_producto.toLowerCase().includes(productoSearch.toLowerCase()) &&
+    !lineItems.some(li => li.producto.id_producto === p.id_producto)
+  );
+
+  const toggleSelect = (id: number) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const addSelectedToCart = () => {
+    const toAdd = filteredProductos.filter(p => selectedIds.has(p.id_producto));
+    if (toAdd.length === 0) { showToast('Selecciona al menos un producto.', 'error'); return; }
+    setLineItems([...lineItems, ...toAdd.map(p => ({ producto: p, cantidad: 1 }))]);
+    setSelectedIds(new Set());
+    setProductoSearch('');
+  };
+
+  const updateCantidad = (idx: number, cantidad: number) => {
+    const items = [...lineItems];
+    items[idx].cantidad = Math.max(1, cantidad);
+    setLineItems(items);
+  };
+
+  const removeItem = (idx: number) => {
+    setLineItems(lineItems.filter((_, i) => i !== idx));
+  };
+
+  const total = lineItems.reduce((sum, li) => sum + li.producto.precio_producto * li.cantidad, 0);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nombre.trim()) { showToast('Debes ingresar el nombre del cliente.', 'error'); return; }
+    if (lineItems.length === 0) { showToast('Debes agregar al menos un producto.', 'error'); return; }
+
+    setSaving(true);
+
+    const { data: newPedido, error: pedidoError } = await supabase
+      .from('pedido')
+      .insert({
+        pk_usuario: 1,
+        nombre: nombre.trim(),
+        telefono: telefono.trim() || null,
+        estado_pago: 'pendiente',
+        monto_total: total,
+        fecha: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (pedidoError || !newPedido) {
+      showToast('Error al crear la venta: ' + (pedidoError?.message || ''), 'error');
+      setSaving(false);
+      return;
+    }
+
+    const detalles = lineItems.map(li => ({
+      pk_pedido: (newPedido as any).id_pedido,
+      pk_producto_pedido: li.producto.id_producto,
+      cantidad_pedido: li.cantidad,
+    }));
+
+    const { error: detalleError } = await supabase.from('pedido_detalles').insert(detalles);
+    if (detalleError) {
+      showToast('Error al guardar detalles: ' + detalleError.message, 'error');
+      setSaving(false);
+      return;
+    }
+
+    showToast('Venta creada correctamente', 'success');
+    navigate('/admin/ventas');
+  };
+
+  const anySelected = selectedIds.size > 0;
+
+  return (
+    <div>
+      <PageHeader
+        title="Generar venta"
+        description="Registra una nueva venta en el sistema"
+        icon={<ShoppingCart className="w-5 h-5" />}
+      />
+
+      <form onSubmit={handleSubmit}>
+        <div className="border-0 border-t border-border pt-6 space-y-8">
+          <div className="border border-border rounded-lg p-5 bg-background">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Datos de venta</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>
+                  <User className="w-3.5 h-3.5 inline mr-1.5 text-muted-foreground" />
+                  Nombres completos
+                </label>
+                <input
+                  type="text"
+                  value={nombre}
+                  onChange={e => setNombre(e.target.value)}
+                  className={inputClass}
+                  placeholder="Ej: Juan Pérez"
+                  required
+                />
+              </div>
+              <div>
+                <label className={labelClass}>
+                  <Phone className="w-3.5 h-3.5 inline mr-1.5 text-muted-foreground" />
+                  Teléfono
+                </label>
+                <input
+                  type="text"
+                  value={telefono}
+                  onChange={e => setTelefono(e.target.value)}
+                  className={inputClass}
+                  placeholder="Ej: 999 888 777"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="border border-border rounded-lg p-5 bg-background">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Productos</h3>
+
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                value={productoSearch}
+                onChange={e => { setProductoSearch(e.target.value); setSelectedIds(new Set()); }}
+                className={`${inputClass} pl-10`}
+                placeholder="Buscar producto (mínimo 3 caracteres)..."
+              />
+            </div>
+
+            {showResults && filteredProductos.length > 0 && (
+              <div className="border border-border rounded-lg overflow-hidden mb-4">
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="w-10 px-3 py-2"></th>
+                      <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2">Producto</th>
+                      <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2 w-28">Precio</th>
+                      <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2 w-20">Stock</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filteredProductos.map(p => (
+                      <tr
+                        key={p.id_producto}
+                        className={`hover:bg-muted/30 transition-colors cursor-pointer ${selectedIds.has(p.id_producto) ? 'bg-primary/5' : ''}`}
+                        onClick={() => toggleSelect(p.id_producto)}
+                      >
+                        <td className="px-3 py-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(p.id_producto)}
+                            onChange={() => toggleSelect(p.id_producto)}
+                            className="rounded border-border accent-primary w-4 h-4"
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-sm text-foreground">{p.nombre_producto}</td>
+                        <td className="px-3 py-2 text-sm text-right text-foreground">S/{p.precio_producto.toFixed(2)}</td>
+                        <td className="px-3 py-2 text-sm text-center text-muted-foreground">{p.stock ?? 0}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="flex justify-end p-3 border-t border-border bg-muted/30">
+                  <button
+                    type="button"
+                    onClick={addSelectedToCart}
+                    disabled={!anySelected}
+                    className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      anySelected
+                        ? 'bg-primary text-white hover:bg-primary/90'
+                        : 'bg-muted text-muted-foreground cursor-not-allowed'
+                    }`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Agregar al carrito ({selectedIds.size})
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {showResults && filteredProductos.length === 0 && (
+              <p className="text-sm text-muted-foreground mb-4">No se encontraron productos.</p>
+            )}
+
+            {lineItems.length > 0 && (
+              <div className="border border-border rounded-lg overflow-hidden bg-card/50">
+                <div className="px-4 py-3 border-b border-border bg-muted/30">
+                  <h4 className="text-sm font-semibold text-foreground">Carrito de compras</h4>
+                </div>
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">Producto</th>
+                      <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-24">Cantidad</th>
+                      <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-28">Precio</th>
+                      <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-28">Subtotal</th>
+                      <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-12"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {lineItems.map((li, idx) => (
+                      <tr key={`cart-${li.producto.id_producto}-${idx}`} className="hover:bg-muted/30">
+                        <td className="px-4 py-2 text-sm text-foreground">{li.producto.nombre_producto}</td>
+                        <td className="px-4 py-2 text-center">
+                          <input
+                            type="number"
+                            value={li.cantidad}
+                            onChange={e => updateCantidad(idx, parseInt(e.target.value) || 1)}
+                            min={1}
+                            className="w-16 border border-border rounded-md px-2 py-1 text-xs text-center bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                          />
+                        </td>
+                        <td className="px-4 py-2 text-sm text-right text-foreground">S/{Number(li.producto.precio_producto).toFixed(2)}</td>
+                        <td className="px-4 py-2 text-sm text-right font-medium text-foreground">
+                          S/{(li.producto.precio_producto * li.cantidad).toFixed(2)}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <button
+                            type="button"
+                            onClick={() => removeItem(idx)}
+                            className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="flex justify-end px-4 py-3 border-t border-border bg-muted/30">
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="text-xl font-bold text-foreground">S/{total.toFixed(2)}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {lineItems.length === 0 && !showResults && (
+              <div className="text-center py-8 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
+                Busca productos y agrégalos al carrito
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex gap-3 justify-end mt-6">
+          <button
+            type="submit"
+            className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors text-sm font-medium"
+            disabled={saving}
+          >
+            {saving ? 'Guardando...' : 'Guardar venta'}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/admin/ventas')}
+            className="bg-muted text-foreground px-6 py-2.5 rounded-lg hover:bg-muted/80 transition-colors text-sm font-medium"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

@@ -211,11 +211,11 @@ export default function AdminDashboard() {
         supabase.from('pedido').select('monto_total').eq('estado_pago', 'atendido').gte('fecha', start).lte('fecha', end),
         supabase.from('pedido').select('monto_total').eq('estado_pago', 'atendido').gte('fecha', prevStart).lte('fecha', prevEnd),
         supabase
-          .from('pedidodetalles')
+          .from('pedido_detalles')
           .select('cantidad_pedido, producto:pk_producto_pedido(nombre_producto, precio_producto, precio_compra), pedido:pk_pedido!inner(fecha)')
           .gte('pedido.fecha', start).lte('pedido.fecha', end),
         supabase
-          .from('pedidodetalles')
+          .from('pedido_detalles')
           .select('cantidad_pedido, producto:pk_producto_pedido(nombre_producto, precio_producto, precio_compra), pedido:pk_pedido!inner(fecha)')
           .gte('pedido.fecha', prevStart).lte('pedido.fecha', prevEnd),
         supabase.from('pedido').select('estado_pago').gte('fecha', start).lte('fecha', end),
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
           .order('fecha', { ascending: false }).limit(5),
         supabase.from('pedido').select('monto_total', { count: 'exact', head: true }).eq('estado_pago', 'atendido').gte('fecha', start).lte('fecha', end),
         supabase
-          .from('pedidodetalles')
+          .from('pedido_detalles')
           .select('cantidad_pedido, producto:pk_producto_pedido(nombre_producto, precio_producto, categoria:pk_categoria_producto(nombre_categoria_producto), marca:pk_marca_producto(nombre_marca_producto)), pedido:pk_pedido!inner(fecha)')
           .gte('pedido.fecha', start).lte('pedido.fecha', end),
       ])

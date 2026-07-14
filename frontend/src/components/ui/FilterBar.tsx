@@ -6,8 +6,10 @@ type SelectOption = { value: number; label: string };
 type FilterField = {
   label?: string;
   placeholder?: string;
+  width?: string;
 } & (
   | { type: 'search' | 'number'; value: string; onChange: (value: string) => void }
+  | { type: 'date'; value: string; onChange: (value: string) => void }
   | { type: 'select'; value: number; onChange: (value: number) => void; options: SelectOption[] }
   | { type: 'range'; min: string; max: string; onMinChange: (value: string) => void; onMaxChange: (value: string) => void; minLimit?: number; maxLimit?: number }
 );
@@ -17,19 +19,21 @@ interface FilterBarProps {
   fields: FilterField[];
   fields2?: FilterField[];
   onClear?: () => void;
+  alwaysShow?: boolean;
 }
 
 const inputClass = "border rounded-lg px-3 py-2 text-sm bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
 
-export default function FilterBar({ title, fields, fields2, onClear }: FilterBarProps) {
-  const [showFields2, setShowFields2] = useState(false);
+export default function FilterBar({ title, fields, fields2, onClear, alwaysShow }: FilterBarProps) {
+  const [showFields2, setShowFields2] = useState(alwaysShow ?? false);
+  const showToggle = fields2 && !alwaysShow;
 
   return (
     <div className="p-4 border border-border rounded-lg bg-background mb-6">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           <h3 className="text-sm font-semibold text-foreground">Filtros de {title}</h3>
-          {fields2 && (
+          {showToggle && (
             <button
               onClick={() => setShowFields2(!showFields2)}
               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -57,7 +61,7 @@ export default function FilterBar({ title, fields, fields2, onClear }: FilterBar
           <FilterField key={i} field={f} />
         ))}
       </div>
-      {fields2 && showFields2 && (
+      {fields2 && (alwaysShow || showFields2) && (
         <div className="flex flex-wrap items-start gap-4 mt-4">
           {fields2.map((f, i) => (
             <FilterField key={i} field={f} />
@@ -77,7 +81,7 @@ function FilterField({ field }: { field: FilterField }) {
   };
 
   return (
-    <div className={`flex flex-col gap-1 ${widths[field.type] || ''}`}>
+    <div className={`flex flex-col gap-1 ${field.width || widths[field.type] || ''}`}>
       {field.label && (
         <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
       )}
@@ -102,11 +106,20 @@ function FilterField({ field }: { field: FilterField }) {
           className={`${inputClass} w-full`}
         />
       )}
+      {field.type === 'date' && (
+        <input
+          type="date"
+          value={field.value}
+          onChange={(e) => field.onChange(e.target.value)}
+          className={`${inputClass} w-full`}
+        />
+      )}
       {field.type === 'select' && (
         <select
           value={field.value}
           onChange={(e) => field.onChange(Number(e.target.value))}
-          className={`${inputClass} w-full`}
+          className={`${inputClass} w-full pr-8 appearance-none`}
+          style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundPosition: "right 0.5rem center", backgroundRepeat: "no-repeat", backgroundSize: "1.5em 1.5em" }}
         >
           {field.options.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>

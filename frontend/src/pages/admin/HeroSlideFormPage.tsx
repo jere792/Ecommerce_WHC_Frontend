@@ -2,46 +2,46 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { uploadToCloudinary } from '../../lib/cloudinary';
-import { Upload, Tag } from 'lucide-react';
+import { Upload, Image as ImageIcon } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
 
-export default function AdminBrandForm() {
+const inputClass = "w-full border border-border rounded-lg px-4 py-3 bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
+
+export default function AdminHeroSlideForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const isEdit = !!id;
 
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [logoUrl, setLogoUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [mostrarEnHome, setMostrarEnHome] = useState(false);
-  const [activo, setActivo] = useState(true);
+  const [texto, setTexto] = useState('');
+  const [descripcion, setDescripcion] = useState('');
   const [orden, setOrden] = useState('');
+  const [activo, setActivo] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { showToast } = useToast();
 
   useEffect(() => {
     if (isEdit) {
       supabase
-        .from('marca_producto')
+        .from('hero_slide')
         .select('*')
-        .eq('id_marca_producto', id)
+        .eq('id_hero_slide', id)
         .single()
         .then(({ data }) => {
           if (data) {
-            setNombre(data.nombre_marca_producto);
-            setDescripcion(data.descripcion_marca || '');
-            setLogoUrl(data.logo_url || '');
-            setMostrarEnHome(data.mostrar_en_home || false);
-            setActivo(data.activo !== false);
+            setImageUrl(data.image_url || '');
+            setTexto(data.texto || '');
+            setDescripcion(data.descripcion || '');
             setOrden(data.orden != null ? String(data.orden) : '');
+            setActivo(data.activo);
           }
         });
     } else {
-      supabase.from('marca_producto').select('orden').order('orden', { ascending: false, nullsFirst: false }).limit(1).then(({ data }) => {
+      supabase.from('hero_slide').select('orden').order('orden', { ascending: false }).limit(1).then(({ data }) => {
         if (data && data.length > 0) {
-          setOrden(String((data[0] as any).orden + 1));
+          setOrden(String(data[0].orden + 1));
         } else {
           setOrden('1');
         }
@@ -55,9 +55,9 @@ export default function AdminBrandForm() {
     setUploading(true);
     try {
       const url = await uploadToCloudinary(file);
-      setLogoUrl(url);
+      setImageUrl(url);
     } catch (err) {
-      alert('Error al subir logo: ' + err);
+      showToast('Error al subir imagen: ' + err, 'error');
     } finally {
       setUploading(false);
     }
@@ -65,63 +65,52 @@ export default function AdminBrandForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!imageUrl) { showToast('Debes seleccionar una imagen.', 'error'); return; }
     setLoading(true);
-    const ordenNum = orden ? parseInt(orden) : null;
 
-    if (ordenNum != null) {
-      const { data: existing } = await supabase
-        .from('marca_producto')
-        .select('id_marca_producto, orden')
-        .eq('orden', ordenNum);
-      const conflict = existing?.find((b: any) => isEdit ? b.id_marca_producto !== Number(id) : true);
-      if (conflict) {
-        if (isEdit) {
-          const { data: current } = await supabase
-            .from('marca_producto')
-            .select('orden')
-            .eq('id_marca_producto', id)
-            .single();
-          await supabase.from('marca_producto').update({ orden: (current as any)?.orden ?? null }).eq('id_marca_producto', conflict.id_marca_producto);
-        } else {
-          const { data: maxData } = await supabase.from('marca_producto').select('orden').order('orden', { ascending: false }).limit(1);
-          const maxVal = (maxData?.[0] as any)?.orden ?? 0;
-          await supabase.from('marca_producto').update({ orden: maxVal + 1 }).eq('id_marca_producto', conflict.id_marca_producto);
-        }
+    // Reordenar si hay conflicto
+    const ordenNum = orden ? parseInt(orden) : 1;
+    if (!isEdit) {
+      const { data: existing } = await supabase.from('hero_slide').select('id_hero_slide, orden').eq('orden', ordenNum);
+      if (existing && existing.length > 0) {
+        const maxOrden = await supabase.from('hero_slide').select('orden').order('orden', { ascending: false }).limit(1);
+        const maxVal = maxOrden.data?.[0]?.orden ?? 0;
+        await supabase.from('hero_slide').update({ orden: maxVal + 1 }).eq('id_hero_slide', existing[0].id_hero_slide);
       }
     }
 
-    const payload = { nombre_marca_producto: nombre, descripcion_marca: descripcion || null, logo_url: logoUrl || null, mostrar_en_home: mostrarEnHome, activo, orden: ordenNum };
+    const payload = { image_url: imageUrl, texto, descripcion: descripcion || null, orden: ordenNum, activo };
 
     if (isEdit) {
-      const { error } = await supabase.from('marca_producto').update(payload).eq('id_marca_producto', id);
+      const { error } = await supabase.from('hero_slide').update(payload).eq('id_hero_slide', id);
       if (error) { showToast('Error al guardar: ' + error.message, 'error'); setLoading(false); return; }
     } else {
-      const { error } = await supabase.from('marca_producto').insert(payload);
+      const { error } = await supabase.from('hero_slide').insert(payload);
       if (error) { showToast('Error al guardar: ' + error.message, 'error'); setLoading(false); return; }
     }
 
-    showToast(isEdit ? 'Marca actualizada correctamente' : 'Marca creada correctamente', 'success');
-    navigate('/admin/marcas');
+    showToast(isEdit ? 'Slide actualizado correctamente' : 'Slide creado correctamente', 'success');
+    navigate('/admin/hero-slides');
   };
 
   return (
     <div>
       <PageHeader
-        title={isEdit ? 'Editar marca' : 'Nueva marca'}
-        description={isEdit ? 'Modifica los datos de la marca' : 'Agrega una nueva marca'}
-        icon={<Tag className="w-5 h-5" />}
+        title={isEdit ? 'Editar slide' : 'Nuevo slide'}
+        description={isEdit ? 'Modifica los datos del slide' : 'Agrega un nuevo slide al hero principal'}
+        icon={<ImageIcon className="w-5 h-5" />}
       />
 
       <form onSubmit={handleSubmit}>
         <div className="border border-border rounded-lg p-8 bg-background max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row items-start gap-10">
-            {/* Logo */}
+            {/* Imagen */}
             <div className="flex flex-col items-center gap-3 shrink-0">
-              <label className="block text-sm font-medium text-foreground">Logo</label>
-              {logoUrl && !uploading ? (
+              <label className="block text-sm font-medium text-foreground">Imagen</label>
+              {imageUrl && !uploading ? (
                 <div className="flex flex-col items-center gap-3">
-                  <div className="h-72 w-72 rounded-xl border border-border bg-muted flex items-center justify-center overflow-hidden p-4">
-                    <img src={logoUrl} alt="Logo" className="h-full w-full object-contain" />
+                  <div className="h-72 w-72 rounded-xl border border-border bg-muted flex items-center justify-center overflow-hidden">
+                    <img src={imageUrl} alt="Preview" className="h-full w-full object-cover" />
                   </div>
                   <div className="flex gap-2">
                     <label className="flex items-center gap-1.5 px-5 py-2.5 text-sm rounded-lg border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
@@ -131,7 +120,7 @@ export default function AdminBrandForm() {
                     </label>
                     <button
                       type="button"
-                      onClick={() => setLogoUrl('')}
+                      onClick={() => setImageUrl('')}
                       className="flex items-center gap-1.5 px-5 py-2.5 text-sm rounded-lg border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
                     >
                       Quitar
@@ -140,23 +129,22 @@ export default function AdminBrandForm() {
                 </div>
               ) : (
                 <label className="flex flex-col items-center justify-center gap-3 h-72 w-72 rounded-xl border-2 border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors">
-                  <Upload className="w-10 h-10 text-muted-foreground" />
+                  <ImageIcon className="w-10 h-10 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">{uploading ? 'Subiendo...' : 'Subir imagen'}</span>
                   <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" disabled={uploading} />
                 </label>
               )}
             </div>
 
-            {/* Fields */}
+            {/* Campos */}
             <div className="flex-1 w-full space-y-6">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">Nombre</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Texto</label>
                 <input
                   type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="w-full border border-border rounded-lg px-5 py-2.5 bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  required
+                  value={texto}
+                  onChange={(e) => setTexto(e.target.value)}
+                  className={inputClass}
                 />
               </div>
               <div>
@@ -164,12 +152,11 @@ export default function AdminBrandForm() {
                 <textarea
                   value={descripcion}
                   onChange={(e) => setDescripcion(e.target.value)}
-                  className="w-full border border-border rounded-lg px-5 py-2.5 bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  rows={4}
+                  className={`${inputClass} min-h-[100px] resize-y`}
                 />
               </div>
               <div className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card flex-wrap">
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50 shrink-0">
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
                   <span className="text-xs font-medium text-muted-foreground">Estado</span>
                   <div className="flex rounded-md border border-border overflow-hidden">
                     {['activo', 'inactivo'].map(op => (
@@ -177,11 +164,11 @@ export default function AdminBrandForm() {
                         key={op}
                         type="button"
                         onClick={() => setActivo(op === 'activo')}
-                        className={`w-20 px-3 py-1.5 text-xs font-medium text-left ${
+                        className={`px-3 py-1.5 text-xs font-medium transition-all ${
                           activo === (op === 'activo')
                             ? op === 'activo'
-                              ? 'bg-green-500 text-white'
-                              : 'bg-red-500 text-white'
+                              ? 'bg-green-500 text-white shadow-sm'
+                              : 'bg-red-500 text-white shadow-sm'
                             : 'bg-background text-muted-foreground hover:bg-muted'
                         }`}
                       >
@@ -190,25 +177,8 @@ export default function AdminBrandForm() {
                     ))}
                   </div>
                 </div>
-                <span className="text-muted-foreground/40 text-lg select-none shrink-0">|</span>
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50 shrink-0">
-                  <span className="text-xs font-medium text-muted-foreground">Mostrar en home</span>
-                  <button
-                    type="button"
-                    onClick={() => setMostrarEnHome(!mostrarEnHome)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                      mostrarEnHome ? 'bg-yellow-500' : 'bg-muted'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                        mostrarEnHome ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
-                <span className="text-muted-foreground/40 text-lg select-none shrink-0">|</span>
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50 shrink-0">
+                <span className="text-muted-foreground/40 text-lg select-none">|</span>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
                   <span className="text-xs font-medium text-muted-foreground">Orden</span>
                   <input
                     type="number"
@@ -234,7 +204,7 @@ export default function AdminBrandForm() {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/admin/marcas')}
+            onClick={() => navigate('/admin/hero-slides')}
             className="bg-muted text-foreground px-6 py-2.5 rounded-lg hover:bg-muted/80 transition-colors text-sm font-medium"
           >
             Cancelar

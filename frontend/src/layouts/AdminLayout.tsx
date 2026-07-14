@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthContext } from '../hooks/AuthContext';
 import { useStore } from '../contexts/StoreContext';
 import { useToast } from '../components/ui/Toast';
-import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, SlidersHorizontal, LogOut, Moon, Sun, Menu, X, ChevronRight, Store, Building2 } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, LogOut, Moon, Sun, Menu, X, ChevronRight, Store, Building2, Plus } from 'lucide-react';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -12,9 +12,9 @@ const navItems = [
   { to: '/admin/categorias', icon: List, label: 'Categorías' },
   { to: '/admin/marcas', icon: BookMarked, label: 'Marcas' },
   { to: '/admin/hero-slides', icon: Image, label: 'Hero Slides' },
-  { to: '/admin/banners-publicidad', icon: SlidersHorizontal, label: 'Banners Pub.' },
   { to: '/admin/page-hero', icon: Image, label: 'Hero páginas' },
-  { to: '/admin/pedidos', icon: ShoppingCart, label: 'Pedidos' },
+  { to: '/admin/ventas', icon: ShoppingCart, label: 'Ventas' },
+  { to: '/admin/ventas/nueva', icon: Plus, label: 'Generar venta' },
   { to: '/admin/usuarios', icon: Users, label: 'Usuarios' },
   { to: '/admin/formularios', icon: FileText, label: 'Formularios' },
   { to: '/admin/ofertas', icon: Tags, label: 'Ofertas' },

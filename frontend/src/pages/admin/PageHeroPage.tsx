@@ -1,31 +1,27 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
-import { uploadToCloudinary } from '../../lib/cloudinary';
 import type { PageHero } from '../../lib/supabaseTypes';
-import { useAlert } from '../../components/ui/AlertModal';
+import { Edit, Trash2, Image as ImageIcon } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 
-const PAGINAS = [
-  { value: 'productos', label: 'Productos' },
-  { value: 'contacto', label: 'Contacto' },
-  { value: 'terminos', label: 'Términos' },
-  { value: 'privacidad', label: 'Privacidad' },
-];
+const PAGINA_LABELS: Record<string, string> = {
+  productos: 'Productos',
+  contacto: 'Contacto',
+  terminos: 'Términos',
+  privacidad: 'Privacidad',
+};
 
 export default function AdminPageHero() {
   const [heroes, setHeroes] = useState<PageHero[]>([]);
   const [loading, setLoading] = useState(true);
-  const { alert, modal } = useAlert();
-  const [editing, setEditing] = useState<PageHero | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [pagina, setPagina] = useState('');
-  const [titulo, setTitulo] = useState('');
-  const [subtitulo, setSubtitulo] = useState('');
-  const [imagenUrl, setImagenUrl] = useState('');
-  const [uploading, setUploading] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
 
-  useEffect(() => {
-    loadHeroes();
-  }, []);
+  useEffect(() => { loadHeroes(); }, []);
 
   const loadHeroes = async () => {
     const { data } = await supabase.from('page_hero').select('*').order('pagina');
@@ -33,60 +29,15 @@ export default function AdminPageHero() {
     setLoading(false);
   };
 
-  const resetForm = () => {
-    setPagina('');
-    setTitulo('');
-    setSubtitulo('');
-    setImagenUrl('');
-    setEditing(null);
-  };
-
-  const openNew = () => {
-    resetForm();
-    setShowForm(true);
-  };
-
-  const openEdit = (h: PageHero) => {
-    setEditing(h);
-    setPagina(h.pagina);
-    setTitulo(h.titulo);
-    setSubtitulo(h.subtitulo);
-    setImagenUrl(h.imagen_url || '');
-    setShowForm(true);
-  };
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const url = await uploadToCloudinary(file);
-      setImagenUrl(url);
-    } catch (err) {
-      alert('Error al subir imagen: ' + err, 'error');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const payload = { pagina, titulo, subtitulo, imagen_url: imagenUrl || null };
-
-    if (editing) {
-      await supabase.from('page_hero').update(payload).eq('id_page_hero', editing.id_page_hero);
+  const handleDelete = async () => {
+    if (deleteId == null) return;
+    const { error } = await supabase.from('page_hero').delete().eq('id_page_hero', deleteId);
+    if (error) {
+      showToast('Error al eliminar: ' + error.message, 'error');
     } else {
-      await supabase.from('page_hero').insert(payload);
+      showToast('Hero eliminado correctamente', 'warning');
     }
-
-    setShowForm(false);
-    resetForm();
-    loadHeroes();
-  };
-
-  const handleDelete = async (id: number) => {
-    if (!confirm('Eliminar este hero?')) return;
-    await supabase.from('page_hero').delete().eq('id_page_hero', id);
+    setDeleteId(null);
     loadHeroes();
   };
 
@@ -94,70 +45,82 @@ export default function AdminPageHero() {
 
   return (
     <div>
-      {modal}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Hero de páginas</h1>
-        <button onClick={openNew} className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700">Nuevo</button>
-      </div>
+      <PageHeader
+        title="Hero páginas"
+        description="Administra los heroes de las páginas"
+        icon={<ImageIcon className="w-5 h-5" />}
+      />
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="bg-background rounded-lg shadow p-6 mb-6 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">{editing ? 'Editar' : 'Nuevo'} hero</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Página</label>
-              <select value={pagina} onChange={e => setPagina(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" required>
-                <option value="">Seleccionar</option>
-                {PAGINAS.filter(p => !editing || p.value === editing.pagina).map(p => (
-                  <option key={p.value} value={p.value}>{p.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Imagen de fondo</label>
-              <input type="file" accept="image/*" onChange={handleImageChange} disabled={uploading} className="w-full text-foreground" />
-              {uploading && <p className="text-xs text-primary mt-1">Subiendo...</p>}
-              {imagenUrl && !uploading && <img src={imagenUrl} alt="" className="mt-1 h-16 object-cover rounded border border-border" />}
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-foreground mb-1">Título</label>
-              <input type="text" value={titulo} onChange={e => setTitulo(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" required />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-foreground mb-1">Subtítulo</label>
-              <input type="text" value={subtitulo} onChange={e => setSubtitulo(e.target.value)} className="w-full border border-border rounded px-3 py-2 bg-background text-foreground" />
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Guardar</button>
-            <button type="button" onClick={() => setShowForm(false)} className="bg-secondary text-secondary-foreground px-4 py-2 rounded hover:bg-secondary/80">Cancelar</button>
-          </div>
-        </form>
-      )}
-
-      <div className="bg-background rounded-lg shadow overflow-x-auto">
+      <div className="bg-background rounded-lg border border-border overflow-hidden">
         <table className="w-full">
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Página</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Título</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Acciones</th>
+          <thead>
+            <tr className="border-b border-border bg-muted/50">
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Imagen</th>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Página</th>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Título</th>
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {heroes.map((h) => (
-              <tr key={h.id_page_hero} className="hover:bg-muted">
-                <td className="px-4 py-3 text-sm font-medium text-foreground">{h.pagina}</td>
-                <td className="px-4 py-3 text-sm text-foreground">{h.titulo}</td>
-                <td className="px-4 py-3 text-sm flex gap-2">
-                  <button onClick={() => openEdit(h)} className="text-primary hover:text-primary-800">Editar</button>
-                  <button onClick={() => handleDelete(h.id_page_hero)} className="text-destructive hover:text-destructive/80">Eliminar</button>
-                </td>
+            {heroes.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="text-center py-12 text-muted-foreground text-sm">No hay heroes. Crea el primero.</td>
               </tr>
-            ))}
+            ) : (
+              heroes.map((h) => (
+                <tr key={h.id_page_hero} className="hover:bg-muted/50 transition-colors">
+                  <td className="px-4 py-3">
+                    {h.imagen_url ? (
+                      <img src={h.imagen_url} alt="" className="h-14 w-24 rounded-lg object-cover border border-border" />
+                    ) : (
+                      <div className="h-14 w-24 rounded-lg bg-muted flex items-center justify-center border border-border">
+                        <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                      {PAGINA_LABELS[h.pagina] || h.pagina}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <p className="text-sm font-medium text-foreground">{h.titulo}</p>
+                    {h.subtitulo && <p className="text-xs text-muted-foreground truncate max-w-[250px]">{h.subtitulo}</p>}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => navigate(`/admin/page-hero/editar/${h.id_page_hero}`)}
+                        className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                        title="Editar"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(h.id_page_hero)}
+                        className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        open={deleteId != null}
+        title="Eliminar hero"
+        message="¿Estás seguro de eliminar este hero de página? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        variant="destructive"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }
