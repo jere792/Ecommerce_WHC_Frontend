@@ -67,11 +67,17 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
     });
   }, [pkCategoria]);
 
-  const categoriaNombreMap = useMemo(() => {
-    const map = new Map<number, string>();
-    categorias.forEach(c => map.set(c.id_categoria_producto, c.nombre_categoria_producto));
+  const grupos = useMemo(() => {
+    const map = new Map<string, Producto[]>();
+    const catNombre = new Map<number, string>();
+    categorias.forEach(c => catNombre.set(c.id_categoria_producto, c.nombre_categoria_producto));
+    productos.forEach(p => {
+      const key = p.pkCategoria ? catNombre.get(p.pkCategoria) || 'General' : 'General';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(p);
+    });
     return map;
-  }, [categorias]);
+  }, [productos, categorias]);
 
   return (
     <section className="py-6 sm:py-8 md:py-10 bg-gray-50">
@@ -83,38 +89,48 @@ export default function ProductCarousel({ pkCategoria, titulo, subtitulo }: Prod
           <div className="text-center text-gray-600 mb-4">{subtitulo}</div>
         )}
 
-        <div className="relative">
+        {loading ? (
           <div className="flex gap-3 sm:gap-4 md:gap-6 overflow-x-auto py-4 px-2 pr-8 sm:pr-2 scroll-smooth snap-x snap-mandatory hide-scrollbar"
                style={{ WebkitOverflowScrolling: "touch" }}>
-            {loading ? (
-              Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="min-w-[75%] sm:min-w-[260px] sm:max-w-[280px] snap-start">
-                  <ProductCardSkeleton />
-                </div>
-              ))
-            ) : productos.length === 0 ? (
-              <div className="text-center w-full py-8 text-gray-400">No hay productos para esta categoría.</div>
-            ) : (
-              productos.map(producto => (
-                <div
-                  key={producto.idProducto}
-                  className="min-w-[75%] sm:min-w-[260px] sm:max-w-[280px] snap-start"
-                >
-                  <ProductCard
-                    id={producto.idProducto}
-                    nombre={producto.nombreProducto}
-                    descripcion={producto.descripcionProducto}
-                    imagen={producto.imagenProducto}
-                    slug={producto.slug}
-                    precio={producto.precioProducto}
-                    stock={producto.stockProducto}
-                    categoria={producto.pkCategoria ? categoriaNombreMap.get(producto.pkCategoria) : undefined}
-                  />
-                </div>
-              ))
-            )}
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="min-w-[75%] sm:min-w-[260px] sm:max-w-[280px] snap-start">
+                <ProductCardSkeleton />
+              </div>
+            ))}
           </div>
-        </div>
+        ) : productos.length === 0 ? (
+          <div className="text-center w-full py-8 text-gray-400">No hay productos para esta categoría.</div>
+        ) : (
+          <div className="space-y-6">
+            {Array.from(grupos.entries()).map(([subcatName, prods]) => (
+              <div key={subcatName}>
+                <h3 className="text-base font-bold text-blue-900 mb-2 border-l-4 border-blue-500 pl-3">
+                  {subcatName}
+                </h3>
+                <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory hide-scrollbar"
+                     style={{ WebkitOverflowScrolling: "touch" }}>
+                  {prods.map(producto => (
+                    <div
+                      key={producto.idProducto}
+                      className="min-w-[75%] sm:min-w-[260px] sm:max-w-[280px] snap-start flex-shrink-0"
+                    >
+                      <ProductCard
+                        id={producto.idProducto}
+                        nombre={producto.nombreProducto}
+                        descripcion={producto.descripcionProducto}
+                        imagen={producto.imagenProducto}
+                        slug={producto.slug}
+                        precio={producto.precioProducto}
+                        stock={producto.stockProducto}
+                        categoria={subcatName}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </section>

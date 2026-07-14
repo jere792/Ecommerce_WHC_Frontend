@@ -35,6 +35,7 @@ export function Navbar() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [mobileCatsOpen, setMobileCatsOpen] = useState<string[]>([]);
+  const allCatIds = categories.map(c => String(c.id_categoria_producto));
   const [categories, setCategories] = useState<CategoriaProducto[]>([]);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const catMenuRef = useRef<HTMLDivElement>(null);
@@ -43,7 +44,7 @@ export function Navbar() {
   const companyName = settings?.nombre_empresa || 'WHC Representaciones';
 
   useEffect(() => {
-    supabase.from("categoria_productos").select("*").order("id_categoria_producto")
+    supabase.from("categoria_productos").select("*").order("orden", { ascending: true, nullsFirst: false })
       .then(({ data }) => { if (data) setCategories(data as CategoriaProducto[]); });
   }, []);
 
@@ -215,6 +216,7 @@ export function Navbar() {
                         </Link>
                         {categories
                           .filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
+                          .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999))
                           .map(sub => (
                             <Link
                               key={sub.id_categoria_producto}
@@ -282,19 +284,20 @@ export function Navbar() {
               <p className="px-3 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">Categorías</p>
               {tree.map(cat => (
                 <div key={cat.id_categoria_producto}>
-                  <button
-                    onClick={() => toggleMobileCat(cat.id_categoria_producto)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+                  <Link
+                    to={`/productos?categoria=${cat.id_categoria_producto}`}
+                    onClick={() => setIsOpen(false)}
+                    className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
                   >
                     {cat.nombre_categoria_producto}
-                    <ChevronDown className={`w-4 h-4 transition-transform ${mobileCatsOpen.includes(String(cat.id_categoria_producto)) ? 'rotate-180' : ''}`} />
-                  </button>
-                  {mobileCatsOpen.includes(String(cat.id_categoria_producto)) && categories
+                  </Link>
+                  {categories
                     .filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
                     .map(sub => (
                       <Link
                         key={sub.id_categoria_producto}
                         to={`/productos?categoria=${sub.id_categoria_producto}`}
+                        onClick={() => setIsOpen(false)}
                         className="block pl-8 pr-3 py-2 text-sm text-gray-500 hover:bg-gray-50 transition"
                       >
                         {sub.nombre_categoria_producto}

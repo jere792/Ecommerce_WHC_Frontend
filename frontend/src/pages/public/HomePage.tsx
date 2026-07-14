@@ -16,7 +16,7 @@ function HomePage() {
       .from('categoria_productos')
       .select('*')
       .eq('mostrar_en_home', true)
-      .order('id_categoria_producto', { ascending: true })
+      .order('orden', { ascending: true, nullsFirst: false })
       .then(({ data }) => {
         if (data) setHomeCategories(data as CategoriaProducto[]);
       });

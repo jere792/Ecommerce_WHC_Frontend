@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import type { CategoriaProducto } from '../../lib/supabaseTypes';
-import { ChevronRight, ChevronDown, Plus, Trash2, Edit3 } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronUp, Plus, Trash2, Edit3, LayoutGrid } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 
 function buildTree(cats: CategoriaProducto[]): CategoriaProducto[] {
   const map = new Map<number, CategoriaProducto>()
@@ -31,7 +34,12 @@ function getBreadcrumb(cat: CategoriaProducto, allCats: CategoriaProducto[]): Ca
   return path
 }
 
-function CategoryRow({ cat, categories, depth, onEdit, onAddSub, onDelete, onToggleHome }: {
+const estadoColors: Record<string, string> = {
+  activo: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  inactivo: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+};
+
+function CategoryRow({ cat, categories, depth, onEdit, onAddSub, onDelete, onToggleHome, onMove }: {
   cat: CategoriaProducto
   categories: CategoriaProducto[]
   depth: number
@@ -39,8 +47,11 @@ function CategoryRow({ cat, categories, depth, onEdit, onAddSub, onDelete, onTog
   onAddSub: (c: CategoriaProducto) => void
   onDelete: (c: CategoriaProducto) => void
   onToggleHome: (c: CategoriaProducto) => void
+  onMove: (c: CategoriaProducto, direction: 'up' | 'down') => void
 }) {
-  const children = categories.filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
+  const children = categories.filter(c => c.pk_categoria_padre === cat.id_categoria_producto).sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999))
+  const siblings = categories.filter(c => c.pk_categoria_padre === cat.pk_categoria_padre).sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999))
+  const sibIdx = siblings.findIndex(c => c.id_categoria_producto === cat.id_categoria_producto)
   const hasChildren = children.length > 0
   const [isOpen, setIsOpen] = useState(depth < 2)
   const breadcrumb = getBreadcrumb(cat, categories)
@@ -48,7 +59,7 @@ function CategoryRow({ cat, categories, depth, onEdit, onAddSub, onDelete, onTog
   return (
     <div>
       <div
-        className="flex items-center gap-2 px-4 py-2.5 hover:bg-muted  transition-colors group"
+        className="flex items-center gap-2 px-4 py-2.5 hover:bg-muted transition-colors group"
         style={{ paddingLeft: `${12 + depth * 28}px` }}
       >
         <button
@@ -69,7 +80,31 @@ function CategoryRow({ cat, categories, depth, onEdit, onAddSub, onDelete, onTog
           ))}
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
+            <span className="font-mono tabular-nums">{cat.orden ?? '-'}</span>
+            <div className="flex flex-col gap-0.5">
+              <button
+                onClick={() => onMove(cat, 'up')}
+                disabled={sibIdx <= 0}
+                className="p-0.5 rounded hover:bg-muted disabled:opacity-20 disabled:cursor-not-allowed transition-colors leading-none"
+                title="Subir"
+              >
+                <ChevronUp className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => onMove(cat, 'down')}
+                disabled={sibIdx < 0 || sibIdx >= siblings.length - 1}
+                className="p-0.5 rounded hover:bg-muted disabled:opacity-20 disabled:cursor-not-allowed transition-colors leading-none"
+                title="Bajar"
+              >
+                <ChevronDown className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${estadoColors[cat.estado ?? 'activo'] || 'bg-muted text-muted-foreground'}`}>
+            {cat.estado ?? 'activo'}
+          </span>
           <button
             onClick={() => onToggleHome(cat)}
             className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${cat.mostrar_en_home ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}
@@ -100,6 +135,7 @@ function CategoryRow({ cat, categories, depth, onEdit, onAddSub, onDelete, onTog
               onAddSub={onAddSub}
               onDelete={onDelete}
               onToggleHome={onToggleHome}
+              onMove={onMove}
             />
           ))}
         </div>
@@ -111,51 +147,58 @@ function CategoryRow({ cat, categories, depth, onEdit, onAddSub, onDelete, onTog
 export default function AdminCategories() {
   const [categories, setCategories] = useState<CategoriaProducto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmCat, setConfirmCat] = useState<CategoriaProducto | null>(null);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => { loadCategories(); }, []);
 
   const loadCategories = async () => {
-    const { data } = await supabase.from('categoria_productos').select('*').order('id_categoria_producto', { ascending: true });
+    const { data } = await supabase.from('categoria_productos').select('*').order('orden', { ascending: true, nullsFirst: false });
     if (data) setCategories(data as CategoriaProducto[]);
     setLoading(false);
   };
 
-  const openEdit = (cat: CategoriaProducto) => {
-    navigate(`/admin/categorias/editar/${cat.id_categoria_producto}`);
-  };
-
-  const openNew = () => {
-    navigate('/admin/categorias/nuevo');
-  };
-
-  const handleDelete = async (cat: CategoriaProducto) => {
-    const hasChildren = categories.some(c => c.pk_categoria_padre === cat.id_categoria_producto);
-    if (hasChildren && !confirm(`"${cat.nombre_categoria_producto}" tiene subcategorías. ¿Eliminar también?`)) return;
-    if (!hasChildren && !confirm(`Eliminar "${cat.nombre_categoria_producto}"?`)) return;
+  const handleDelete = async () => {
+    const cat = confirmCat;
+    if (!cat) return;
     const { error } = await supabase.from('categoria_productos').delete().eq('id_categoria_producto', cat.id_categoria_producto);
-    if (error) { alert('Error al eliminar: ' + error.message); return; }
+    if (error) { showToast('Error al eliminar: ' + error.message, 'error'); } else { showToast('Categoría eliminada', 'success'); }
+    setConfirmOpen(false);
+    setConfirmCat(null);
     loadCategories();
+  };
+
+  const handleMove = async (cat: CategoriaProducto, direction: 'up' | 'down') => {
+    const siblings = categories
+      .filter(c => c.pk_categoria_padre === cat.pk_categoria_padre)
+      .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999));
+    const idx = siblings.findIndex(c => c.id_categoria_producto === cat.id_categoria_producto);
+    if (idx === -1) return;
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= siblings.length) return;
+    const reordered = [...siblings];
+    [reordered[idx], reordered[targetIdx]] = [reordered[targetIdx], reordered[idx]];
+    const updates = reordered.map((c, i) => ({ id: c.id_categoria_producto, orden: (i + 1) * 10 }));
+    setCategories(prev => prev.map(c => {
+      const upd = updates.find(u => u.id === c.id_categoria_producto);
+      return upd ? { ...c, orden: upd.orden } : c;
+    }));
+    const results = await Promise.all(updates.map(upd =>
+      supabase.from('categoria_productos').update({ orden: upd.orden }).eq('id_categoria_producto', upd.id)
+    ));
+    if (results.some(r => r.error)) { showToast('Error al reordenar', 'error'); loadCategories(); }
   };
 
   const toggleHome = async (cat: CategoriaProducto) => {
     const nuevoValor = !(cat.mostrar_en_home ?? false);
-
     setCategories(prev => prev.map(c =>
-      c.id_categoria_producto === cat.id_categoria_producto
-        ? { ...c, mostrar_en_home: nuevoValor }
-        : c
+      c.id_categoria_producto === cat.id_categoria_producto ? { ...c, mostrar_en_home: nuevoValor } : c
     ));
-
-    const { error } = await supabase
-      .from('categoria_productos')
-      .update({ mostrar_en_home: nuevoValor })
-      .eq('id_categoria_producto', cat.id_categoria_producto);
-
-    if (error) {
-      alert('Error al guardar: ' + error.message);
-      loadCategories();
-    }
+    const { error } = await supabase.from('categoria_productos').update({ mostrar_en_home: nuevoValor }).eq('id_categoria_producto', cat.id_categoria_producto);
+    if (error) { showToast('Error al guardar: ' + error.message, 'error'); loadCategories(); }
+    else { showToast('Actualizado correctamente', 'success'); }
   };
 
   const tree = buildTree(categories)
@@ -164,12 +207,15 @@ export default function AdminCategories() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Categorías</h1>
-        <button onClick={openNew} className="bg-primary text-white px-4 py-2 hover:bg-primary/90 flex items-center gap-2"><Plus className="w-4 h-4" /> Nueva</button>
-      </div>
+      <PageHeader
+        title="Categorías"
+        description="Gestiona las categorías y subcategorías de productos"
+        icon={<LayoutGrid className="w-5 h-5" />}
+        buttonLabel="Nueva categoría"
+        buttonTo="/admin/categorias/nuevo"
+      />
 
-      <div className="bg-background shadow overflow-hidden">
+      <div className="bg-background rounded-lg border border-border overflow-hidden">
         <div className="divide-y divide-border">
           {tree.map(root => (
             <CategoryRow
@@ -177,10 +223,11 @@ export default function AdminCategories() {
               cat={root}
               categories={categories}
               depth={0}
-              onEdit={openEdit}
-              onAddSub={openNew}
-              onDelete={handleDelete}
+              onEdit={(cat) => navigate(`/admin/categorias/editar/${cat.id_categoria_producto}`)}
+              onAddSub={(cat) => navigate('/admin/categorias/nuevo')}
+              onDelete={(cat) => { setConfirmCat(cat); setConfirmOpen(true); }}
               onToggleHome={toggleHome}
+              onMove={handleMove}
             />
           ))}
         </div>
@@ -188,8 +235,16 @@ export default function AdminCategories() {
           <div className="text-center py-12 text-muted-foreground">No hay categorías. Crea la primera.</div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Eliminar categoría"
+        message={confirmCat ? `¿Eliminar "${confirmCat.nombre_categoria_producto}"${categories.some(c => c.pk_categoria_padre === confirmCat.id_categoria_producto) ? ' y todas sus subcategorías' : ''}?` : ''}
+        confirmText="Eliminar"
+        variant="destructive"
+        onConfirm={handleDelete}
+        onCancel={() => { setConfirmOpen(false); setConfirmCat(null); }}
+      />
     </div>
   );
 }
-
-

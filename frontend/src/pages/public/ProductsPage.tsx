@@ -74,7 +74,7 @@ const ProductsPage: React.FC = () => {
       try {
         const [prodRes, catRes] = await Promise.all([
           supabase.from('producto').select('*, marca:pk_marca_producto(*), inventario:inventario!pk_producto!left(stock_actual)'),
-          supabase.from('categoria_productos').select('*').order('id_categoria_producto')
+          supabase.from('categoria_productos').select('*').order('orden', { ascending: true, nullsFirst: false })
         ])
         if (prodRes.data) {
           const adaptados: ProductoAdapted[] = (prodRes.data as unknown as (Producto & { marca?: { nombre_marca_producto: string } })[]).map((p) => ({
@@ -504,7 +504,7 @@ function CategoryFilterItem({ cat, categorias, selected, onSelect, depth }: {
   depth: number;
 }) {
   const children = categorias.filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(true)
 
   return (
     <div>

@@ -6,6 +6,7 @@ import { uploadPdf } from '../../lib/supabaseStorage';
 import type { CategoriaProducto, MarcaProducto, Producto, ProductoImagen } from '../../lib/supabaseTypes';
 import { Trash2, Upload, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
+import { useToast } from '../../components/ui/Toast';
 
 interface AdditionalImage {
   id?: number;
@@ -16,6 +17,7 @@ interface AdditionalImage {
 export default function AdminProductForm() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const isEdit = !!slug;
 
   const [nombre, setNombre] = useState('');
@@ -129,7 +131,7 @@ export default function AdminProductForm() {
       const url = await uploadToCloudinary(file);
       setImagen(url);
     } catch (err) {
-      alert('Error al subir imagen: ' + err);
+      showToast('Error al subir imagen: ' + err, 'error');
     } finally {
       setUploadingImg(false);
     }
@@ -147,7 +149,7 @@ export default function AdminProductForm() {
       const results = await Promise.all(uploads);
       setAdditionalImages(prev => [...prev, ...results.map(r => ({ url: r.url, orden: r.orden }))]);
     } catch (err) {
-      alert('Error al subir imágenes: ' + err);
+      showToast('Error al subir imágenes: ' + err, 'error');
     } finally {
       setUploadingAdditional(false);
       e.target.value = '';
@@ -177,7 +179,7 @@ export default function AdminProductForm() {
       const url = await uploadPdf(file);
       setFichaTecnicaUrl(url);
     } catch (err) {
-      alert('Error al subir PDF: ' + err);
+      showToast('Error al subir PDF: ' + err, 'error');
     } finally {
       setUploadingPdf(false);
     }
@@ -187,8 +189,8 @@ export default function AdminProductForm() {
     e.preventDefault();
     setLoading(true);
 
-    if (!imagen && !imagenFile) {
-      alert('Debes seleccionar una imagen.');
+      if (!imagen && !imagenFile) {
+      showToast('Debes seleccionar una imagen.', 'error');
       setLoading(false);
       return;
     }
@@ -198,7 +200,7 @@ export default function AdminProductForm() {
       try {
         imagenUrl = await uploadToCloudinary(imagenFile);
       } catch (err) {
-        alert('Error al subir imagen: ' + err);
+        showToast('Error al subir imagen: ' + err, 'error');
         setLoading(false);
         return;
       }
@@ -226,14 +228,14 @@ export default function AdminProductForm() {
         .eq('slug', slug)
         .select('id_producto')
         .single();
-      if (prodError) { alert(prodError.message); setLoading(false); return; }
+      if (prodError) { showToast(prodError.message, 'error'); setLoading(false); return; }
 
       const productId = existingProd.id_producto;
 
       const { error: invErr } = await supabase
         .from('inventario')
         .upsert({ pk_producto: productId, stock_actual: parseInt(stock) || 0, stock_minimo: 0 }, { onConflict: 'pk_producto' });
-      if (invErr) { alert('Error al guardar stock: ' + invErr.message); setLoading(false); return; }
+      if (invErr) { showToast('Error al guardar stock: ' + invErr.message, 'error'); setLoading(false); return; }
 
       const existingIds = (await supabase.from('producto_imagen').select('id_producto_imagen').eq('id_producto', productId)).data?.map(i => i.id_producto_imagen) || [];
       const keepIds = additionalImages.filter(img => img.id).map(img => img.id!);
@@ -244,7 +246,7 @@ export default function AdminProductForm() {
       const toInsert = additionalImages.filter(img => !img.id).map(img => ({ id_producto: productId, url: img.url, orden: img.orden }));
       if (toInsert.length > 0) {
         const { error: insError } = await supabase.from('producto_imagen').insert(toInsert);
-        if (insError) { alert('Error al guardar imágenes adicionales: ' + insError.message); setLoading(false); return; }
+        if (insError) { showToast('Error al guardar imágenes adicionales: ' + insError.message, 'error'); setLoading(false); return; }
       }
     } else {
       const { data: newProd, error: prodError } = await supabase
@@ -252,13 +254,13 @@ export default function AdminProductForm() {
         .insert(productData)
         .select('id_producto')
         .single();
-      if (prodError) { alert(prodError.message); setLoading(false); return; }
+      if (prodError) { showToast(prodError.message, 'error'); setLoading(false); return; }
 
       if (newProd) {
         const { error: invErr } = await supabase
           .from('inventario')
           .upsert({ pk_producto: newProd.id_producto, stock_actual: parseInt(stock) || 0, stock_minimo: 0 }, { onConflict: 'pk_producto' });
-        if (invErr) { alert('Error al guardar stock: ' + invErr.message); setLoading(false); return; }
+        if (invErr) { showToast('Error al guardar stock: ' + invErr.message, 'error'); setLoading(false); return; }
       }
 
       if (additionalImages.length > 0 && newProd) {
@@ -268,10 +270,11 @@ export default function AdminProductForm() {
           orden: img.orden,
         }));
         const { error: imgError } = await supabase.from('producto_imagen').insert(inserts);
-        if (imgError) { alert('Error al guardar imágenes adicionales: ' + imgError.message); setLoading(false); return; }
+        if (imgError) { showToast('Error al guardar imágenes adicionales: ' + imgError.message, 'error'); setLoading(false); return; }
       }
     }
 
+    showToast(isEdit ? 'Producto actualizado correctamente' : 'Producto creado correctamente', 'success');
     navigate('/admin/productos');
   };
 

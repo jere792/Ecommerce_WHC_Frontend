@@ -6,6 +6,8 @@ import { Edit, Trash2, Package, AlertTriangle } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import FilterBar from '../../components/ui/FilterBar';
 import DataTable, { type Column } from '../../components/ui/DataTable';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 
 const PAGE_SIZE = 10;
 const LOW_STOCK_THRESHOLD = 10;
@@ -80,10 +82,25 @@ export default function AdminProducts() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Eliminar este producto?')) return;
-    await supabase.from('producto').delete().eq('id_producto', id);
-    setProducts((prev) => prev.filter((p) => p.id_producto !== id));
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmProduct, setConfirmProduct] = useState<Producto | null>(null);
+  const { showToast } = useToast();
+
+  const handleToggleEstado = async () => {
+    if (!confirmProduct) return;
+    const newEstado = confirmProduct.estado === 'activo' ? 'inactivo' : 'activo';
+    const { error } = await supabase
+      .from('producto')
+      .update({ estado: newEstado })
+      .eq('id_producto', confirmProduct.id_producto);
+    if (error) {
+      showToast('Error al cambiar estado: ' + error.message, 'error');
+    } else {
+      setProducts((prev) => prev.map((p) => p.id_producto === confirmProduct.id_producto ? { ...p, estado: newEstado } : p));
+      showToast(`Producto ${newEstado === 'activo' ? 'activado' : 'inactivado'} correctamente`, 'success');
+    }
+    setConfirmOpen(false);
+    setConfirmProduct(null);
   };
 
   useEffect(() => {
@@ -192,10 +209,15 @@ export default function AdminProducts() {
             <Edit className="w-4 h-4" />
           </button>
           <button
-            onClick={() => handleDelete(p.id_producto)}
-            className="p-1.5 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+            onClick={() => { setConfirmProduct(p); setConfirmOpen(true); }}
+            className={`p-1.5 rounded-md transition-colors ${
+              p.estado === 'activo'
+                ? 'text-muted-foreground hover:bg-destructive/10 hover:text-destructive'
+                : 'text-muted-foreground hover:bg-green-500/10 hover:text-green-600'
+            }`}
+            title={p.estado === 'activo' ? 'Inactivar' : 'Activar'}
           >
-            <Trash2 className="w-4 h-4" />
+            {p.estado === 'activo' ? <Trash2 className="w-4 h-4" /> : <Package className="w-4 h-4" />}
           </button>
         </div>
       ),
@@ -296,6 +318,15 @@ export default function AdminProducts() {
           </button>
         </div>
       )}
+      <ConfirmDialog
+        open={confirmOpen}
+        title={confirmProduct?.estado === 'activo' ? 'Inactivar producto' : 'Activar producto'}
+        message={confirmProduct?.estado === 'activo' ? `¿Inactivar "${confirmProduct?.nombre_producto}"?` : `¿Activar "${confirmProduct?.nombre_producto}"?`}
+        confirmText={confirmProduct?.estado === 'activo' ? 'Inactivar' : 'Activar'}
+        variant={confirmProduct?.estado === 'activo' ? 'destructive' : 'primary'}
+        onConfirm={handleToggleEstado}
+        onCancel={() => { setConfirmOpen(false); setConfirmProduct(null); }}
+      />
     </div>
   );
 }

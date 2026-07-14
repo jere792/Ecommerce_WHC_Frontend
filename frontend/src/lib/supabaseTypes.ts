@@ -39,6 +39,10 @@ export interface Producto {
 export interface CategoriaProducto {
   id_categoria_producto: number;
   nombre_categoria_producto: string;
+  slug?: string | null;
+  descripcion?: string | null;
+  estado?: string;
+  orden?: number | null;
   mostrar_en_home?: boolean;
   subtitulo_home?: string | null;
   pk_categoria_padre?: number | null;

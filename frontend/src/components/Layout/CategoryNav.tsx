@@ -30,7 +30,7 @@ export function CategoryNav() {
     supabase
       .from("categoria_productos")
       .select("*")
-      .order("id_categoria_producto")
+      .order("orden", { ascending: true, nullsFirst: false })
       .then(({ data }) => {
         if (data) setCategories(data as CategoriaProducto[]);
       });
@@ -72,42 +72,34 @@ export function CategoryNav() {
             <div
               className="absolute left-0 top-full bg-white shadow-xl border border-gray-200 rounded-b-xl z-50 py-5 px-6"
               onMouseLeave={() => setIsOpen(false)}
-              style={{ width: "750px" }}
+              style={{ width: "900px", maxHeight: "80vh", overflowY: "auto" }}
             >
-              <div className="flex gap-10">
+              <div className="grid grid-cols-3 gap-x-8 gap-y-6">
                 {tree.map((cat) => (
-                  <div
-                    key={cat.id_categoria_producto}
-                    className="flex-1 min-w-0"
-                  >
+                  <div key={cat.id_categoria_producto}>
                     <Link
                       to={`/productos?categoria=${cat.id_categoria_producto}`}
                       onClick={() => setIsOpen(false)}
-                      className="block text-sm font-bold text-blue-900 border-b border-blue-100 pb-1.5 mb-3 hover:text-blue-700"
+                      className="block text-sm font-bold text-blue-900 border-b border-blue-100 pb-1.5 mb-2 hover:text-blue-700"
                     >
                       {cat.nombre_categoria_producto}
                     </Link>
                     {categories
-                      .filter(
-                        (c) =>
-                          c.pk_categoria_padre === cat.id_categoria_producto,
-                      )
-                      .map((sub) => (
-                        <div key={sub.id_categoria_producto} className="mb-2">
+                      .filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
+                      .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999))
+                      .map(sub => (
+                        <div key={sub.id_categoria_producto} className="mb-1">
                           <Link
                             to={`/productos?categoria=${sub.id_categoria_producto}`}
                             onClick={() => setIsOpen(false)}
-                            className="block text-sm font-medium text-gray-600 hover:text-blue-700"
+                            className="block text-sm text-gray-600 hover:text-blue-700"
                           >
                             {sub.nombre_categoria_producto}
                           </Link>
                           {categories
-                            .filter(
-                              (c) =>
-                                c.pk_categoria_padre ===
-                                sub.id_categoria_producto,
-                            )
-                            .map((subsub) => (
+                            .filter(c => c.pk_categoria_padre === sub.id_categoria_producto)
+                            .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999))
+                            .map(subsub => (
                               <Link
                                 key={subsub.id_categoria_producto}
                                 to={`/productos?categoria=${subsub.id_categoria_producto}`}
