@@ -1,37 +1,60 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import type { Usuario } from '../../lib/supabaseTypes';
-import { Plus, Edit, Trash2 } from 'lucide-react';
-import { useAlert } from '../../components/ui/AlertModal';
+import { Users, Edit, Package } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import FilterBar from '../../components/ui/FilterBar';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [estadoFiltro, setEstadoFiltro] = useState(0);
+  const [confirmAction, setConfirmAction] = useState<{ id: number; mode: 'delete' | 'recover' } | null>(null);
   const navigate = useNavigate();
-  const { alert, modal } = useAlert();
+  const { showToast } = useToast();
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+  useEffect(() => { loadUsers(); }, [estadoFiltro]);
 
   const loadUsers = async () => {
-    const { data } = await supabase
+    let query = supabase
       .from('usuarios')
       .select('*, rol:pk_rol_usuario(*)')
       .order('id_usuario', { ascending: false });
+
+    if (estadoFiltro === 1) query = query.eq('estado', true);
+    else if (estadoFiltro === 2) query = query.eq('estado', false);
+
+    const { data } = await query;
     if (data) setUsers(data as unknown as Usuario[]);
     setLoading(false);
   };
 
-  const handleDelete = async (id: number, authUserId?: string) => {
-    if (!confirm('Eliminar este usuario?')) return;
-    if (authUserId) {
-      const { error } = await supabase.auth.admin.deleteUser(authUserId);
-      if (error) { alert('Error al eliminar de auth: ' + error.message, 'error'); return; }
+  const filtered = useMemo(() => {
+    if (!search || search.length < 3) return users;
+    const q = search.toLowerCase();
+    return users.filter(u =>
+      `${u.nombres} ${u.apellidos || ''}`.toLowerCase().includes(q) ||
+      u.correo_persona.toLowerCase().includes(q)
+    );
+  }, [users, search]);
+
+  const handleConfirmAction = async () => {
+    if (confirmAction == null) return;
+    const { id, mode } = confirmAction;
+    setConfirmAction(null);
+
+    if (mode === 'delete') {
+      const { error } = await supabase.from('usuarios').update({ estado: false }).eq('id_usuario', id);
+      if (error) { showToast('Error al eliminar: ' + error.message, 'error'); } else { showToast('Usuario eliminado correctamente', 'warning'); }
+    } else {
+      const { error } = await supabase.from('usuarios').update({ estado: true }).eq('id_usuario', id);
+      if (error) { showToast('Error al recuperar: ' + error.message, 'error'); } else { showToast('Usuario recuperado correctamente', 'success'); }
     }
-    const { error } = await supabase.from('usuarios').delete().eq('id_usuario', id);
-    if (error) { alert('Error al eliminar: ' + error.message, 'error'); return; }
+
     loadUsers();
   };
 
@@ -39,42 +62,112 @@ export default function AdminUsers() {
 
   return (
     <div>
-      {modal}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Usuarios</h1>
-        <Link to="/admin/usuarios/nuevo" className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-700">
-          <Plus className="w-4 h-4" /> Nuevo usuario
-        </Link>
-      </div>
-      <div className="bg-background rounded-lg shadow overflow-x-auto">
+      <PageHeader
+        title="Usuarios"
+        description="Gestiona los usuarios del sistema"
+        icon={<Users className="w-5 h-5" />}
+        buttonLabel="Nuevo usuario"
+        onButtonClick={() => navigate('/admin/usuarios/nuevo')}
+      />
+
+      <FilterBar
+        title="usuarios"
+        fields={[
+          { type: 'search', label: 'Buscar', value: search, onChange: setSearch, placeholder: 'Buscar por nombre o email (mín 3 caracteres)...' },
+          { type: 'select', label: 'Estado', value: estadoFiltro, onChange: setEstadoFiltro, options: [
+            { value: 0, label: 'Todos' },
+            { value: 1, label: 'Activo' },
+            { value: 2, label: 'Inactivo' },
+          ]},
+        ]}
+        onClear={() => { setSearch(''); setEstadoFiltro(0); }}
+      />
+
+      <div className="bg-background rounded-lg border border-border overflow-hidden">
         <table className="w-full">
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">ID</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Nombre</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Email</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Rol</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Acciones</th>
+          <thead>
+            <tr className="border-b border-border bg-muted/50">
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Nombre</th>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Email</th>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Teléfono</th>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Rol</th>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Estado</th>
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {users.map((u) => (
-              <tr key={u.id_usuario} className="hover:bg-muted">
-                <td className="px-4 py-3 text-sm text-foreground">{u.id_usuario}</td>
-                <td className="px-4 py-3 text-sm font-medium text-foreground">{u.nombre_persona}</td>
-                <td className="px-4 py-3 text-sm text-foreground">{u.correo_persona}</td>
-                <td className="px-4 py-3 text-sm">
-                  <span className="px-2 py-1 rounded text-xs font-medium bg-primary-100 text-primary-800">{u.rol?.nombre_rol}</span>
-                </td>
-                <td className="px-4 py-3 text-sm flex gap-2">
-                  <button onClick={() => navigate(`/admin/usuarios/editar/${u.id_usuario}`)} className="text-primary hover:text-primary-800"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(u.id_usuario, u.auth_user_id)} className="text-destructive hover:text-destructive/80"><Trash2 className="w-4 h-4" /></button>
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-12 text-muted-foreground text-sm">
+                  {search ? 'No se encontraron usuarios.' : 'No hay usuarios registrados.'}
                 </td>
               </tr>
-            ))}
+            ) : (
+              filtered.map((u) => (
+                <tr key={u.id_usuario} className="hover:bg-muted/50 transition-colors">
+                  <td className="px-4 py-3">
+                    <p className="text-sm font-medium text-foreground">{u.nombres} {u.apellidos || ''}</p>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-foreground">{u.correo_persona}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{u.telefono || '—'}</td>
+                  <td className="px-4 py-3">
+                    <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                      {u.rol?.nombre_rol || '—'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                      u.estado !== false
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {u.estado !== false ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => navigate(`/admin/usuarios/editar/${u.id_usuario}`)}
+                        className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                        title="Editar"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      {u.estado !== false ? (
+                        <button
+                          onClick={() => setConfirmAction({ id: u.id_usuario, mode: 'delete' })}
+                          className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                          title="Eliminar"
+                        >
+                          <Package className="w-4 h-4 rotate-45" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmAction({ id: u.id_usuario, mode: 'recover' })}
+                          className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                          title="Recuperar"
+                        >
+                          <Package className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        open={confirmAction != null}
+        title={confirmAction?.mode === 'delete' ? 'Eliminar usuario' : 'Recuperar usuario'}
+        message={confirmAction?.mode === 'delete' ? '¿Estás seguro de eliminar este usuario? Se desactivará de forma lógica.' : '¿Estás seguro de recuperar este usuario?'}
+        confirmText={confirmAction?.mode === 'delete' ? 'Eliminar' : 'Recuperar'}
+        variant={confirmAction?.mode === 'delete' ? 'destructive' : 'primary'}
+        onConfirm={handleConfirmAction}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

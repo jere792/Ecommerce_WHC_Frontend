@@ -147,7 +147,7 @@ export default function AdminVentaForm() {
       />
 
       <form onSubmit={handleSubmit}>
-        <div className="border border-border rounded-lg p-5 bg-background">
+        <div className="border border-border rounded-lg p-5 bg-background mb-6">
           <h3 className="text-sm font-semibold text-foreground mb-4">Datos de venta</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -242,93 +242,97 @@ export default function AdminVentaForm() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
 
-            {lineItems.length > 0 && (
-              <div className="border border-border rounded-lg overflow-hidden bg-card/50">
-                <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
-                  <h4 className="text-sm font-semibold text-foreground">Carrito de compras</h4>
-                  {!confirmed ? (
-                    <button
-                      type="button"
-                      onClick={confirmCart}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                      Confirmar
-                    </button>
-                  ) : (
-                    <span className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
-                      <Check className="w-3.5 h-3.5" />
-                      Confirmado
-                    </span>
-                  )}
-                </div>
-                <table className="w-full">
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">Producto</th>
-                      <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-24">Cantidad</th>
-                      <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-28">Precio</th>
-                      <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-28">Subtotal</th>
-                      <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-12"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {lineItems.map((li, idx) => (
-                      <tr key={`cart-${li.producto.id_producto}-${idx}`} className="hover:bg-muted/30">
-                        <td className="px-4 py-2 text-sm text-foreground">{li.producto.nombre_producto}</td>
-                        <td className="px-4 py-2 text-center">
-                          <input
-                            type="number"
-                            value={li.cantidad}
-                            onChange={e => updateCantidad(idx, parseInt(e.target.value) || 1)}
-                            min={1}
-                            disabled={confirmed}
-                            className={`w-16 border border-border rounded-md px-2 py-1 text-xs text-center bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${
-                              confirmed ? 'opacity-60 cursor-not-allowed' : ''
-                            }`}
-                          />
-                        </td>
-                        <td className="px-4 py-2 text-sm text-right text-foreground">S/{Number(li.producto.precio_producto).toFixed(2)}</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-foreground">
-                          S/{(li.producto.precio_producto * li.cantidad).toFixed(2)}
-                        </td>
-                        <td className="px-4 py-2 text-center">
-                          <button
-                            type="button"
-                            onClick={() => removeItem(idx)}
-                            className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <div className="flex justify-end px-4 py-3 border-t border-border bg-muted/30">
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Total</p>
-                    <p className="text-xl font-bold text-foreground">S/{total.toFixed(2)}</p>
-                  </div>
-                </div>
-              </div>
+        <div className="border border-border rounded-lg bg-background overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Carrito de compras</h3>
+            {lineItems.length > 0 && !confirmed && (
+              <button
+                type="button"
+                onClick={confirmCart}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
+              >
+                <Check className="w-3.5 h-3.5" />
+                Confirmar
+              </button>
             )}
-
-            {lineItems.length === 0 && !showResults && (
-              <div className="text-center py-8 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
-                Busca productos y agrégalos al carrito
-              </div>
+            {confirmed && (
+              <span className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
+                <Check className="w-3.5 h-3.5" />
+                Confirmado
+              </span>
             )}
           </div>
+
+          {lineItems.length > 0 && (
+            <div className="p-5">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">Producto</th>
+                    <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-24">Cantidad</th>
+                    <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-28">Precio</th>
+                    <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-28">Subtotal</th>
+                    <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2 w-12"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {lineItems.map((li, idx) => (
+                    <tr key={`cart-${li.producto.id_producto}-${idx}`} className="hover:bg-muted/30">
+                      <td className="px-4 py-2 text-sm text-foreground">{li.producto.nombre_producto}</td>
+                      <td className="px-4 py-2 text-center">
+                        <input
+                          type="number"
+                          value={li.cantidad}
+                          onChange={e => updateCantidad(idx, parseInt(e.target.value) || 1)}
+                          min={1}
+                          disabled={confirmed}
+                          className={`w-16 border border-border rounded-md px-2 py-1 text-xs text-center bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                            confirmed ? 'opacity-60 cursor-not-allowed' : ''
+                          }`}
+                        />
+                      </td>
+                      <td className="px-4 py-2 text-sm text-right text-foreground">S/{Number(li.producto.precio_producto).toFixed(2)}</td>
+                      <td className="px-4 py-2 text-sm text-right font-medium text-foreground">
+                        S/{(li.producto.precio_producto * li.cantidad).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => removeItem(idx)}
+                          className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="flex justify-end mt-4 pt-4 border-t border-border">
+                <div className="text-right">
+                  <p className="text-sm text-muted-foreground">Total</p>
+                  <p className="text-2xl font-bold text-foreground">S/{total.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {lineItems.length === 0 && (
+            <div className="p-5 text-center py-8 text-sm text-muted-foreground">
+              <p>Busca productos desde el panel de arriba y agrégalos al carrito</p>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3 justify-end mt-6">
           <button
             type="submit"
             className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors text-sm font-medium"
-            disabled={saving}
+            disabled={saving || !confirmed}
           >
             {saving ? 'Guardando...' : 'Guardar venta'}
           </button>

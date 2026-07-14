@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { uploadToCloudinary } from '../../lib/cloudinary';
 import { useStore } from '../../contexts/StoreContext';
+import { Upload, Image as ImageIcon } from 'lucide-react';
 import type { ConfiguracionTienda } from '../../lib/supabaseTypes';
 
 const emptySettings: Partial<ConfiguracionTienda> = {
@@ -11,6 +13,7 @@ const emptySettings: Partial<ConfiguracionTienda> = {
   direccion_empresa: '',
   horario_empresa: '',
   url_google_maps: '',
+  url_logo: '',
   apertura_semana: '09:00:00',
   cierre_semana: '18:00:00',
   apertura_sabado: '09:00:00',
@@ -23,6 +26,7 @@ export default function EmpresaPage() {
   const [form, setForm] = useState<Partial<ConfiguracionTienda>>(emptySettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
@@ -35,6 +39,20 @@ export default function EmpresaPage() {
 
   const set = (key: keyof ConfiguracionTienda, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadToCloudinary(file);
+      setForm(prev => ({ ...prev, url_logo: url }));
+    } catch (err) {
+      setMsg('Error al subir logo: ' + err);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,6 +78,7 @@ export default function EmpresaPage() {
         direccion_empresa: form.direccion_empresa,
         horario_empresa: form.horario_empresa,
         url_google_maps: form.url_google_maps,
+        url_logo: form.url_logo,
       });
 
     setSaving(false);
@@ -78,6 +97,39 @@ export default function EmpresaPage() {
       <h1 className="text-2xl font-bold text-foreground mb-6">Datos de la Empresa</h1>
 
       <form onSubmit={handleSubmit} className="bg-background shadow p-6 space-y-5">
+        <div className="flex items-start gap-6">
+          {form.url_logo ? (
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              <div className="w-28 h-28 rounded-xl border border-border bg-muted flex items-center justify-center overflow-hidden p-2">
+                <img src={form.url_logo} alt="Logo" className="h-full w-full object-contain" />
+              </div>
+              <div className="flex gap-1">
+                <label className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg border border-border bg-background text-foreground hover:bg-muted cursor-pointer transition-colors">
+                  <Upload className="w-3 h-3" />
+                  Cambiar
+                  <input type="file" accept="image/*" onChange={handleLogoChange} className="hidden" disabled={uploading} />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, url_logo: '' }))}
+                  className="px-3 py-1.5 text-xs rounded-lg border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  Quitar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <label className="flex flex-col items-center justify-center gap-2 w-28 h-28 rounded-xl border-2 border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors shrink-0">
+              <ImageIcon className="w-8 h-8 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">{uploading ? 'Subiendo...' : 'Logo'}</span>
+              <input type="file" accept="image/*" onChange={handleLogoChange} className="hidden" disabled={uploading} />
+            </label>
+          )}
+          <div className="flex-1 text-sm text-muted-foreground pt-2">
+            Logo de la empresa para cotizaciones y documentos PDF.
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Nombre de la empresa</label>

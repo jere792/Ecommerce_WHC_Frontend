@@ -2,8 +2,11 @@ export interface Usuario {
   id_usuario: number;
   auth_user_id: string;
   correo_persona: string;
-  nombre_persona: string;
+  nombres: string;
+  apellidos?: string | null;
+  telefono?: string | null;
   pk_rol_usuario: number;
+  estado?: boolean;
   created_at: string;
   updated_at: string;
   rol?: RolUsuario;
@@ -185,6 +188,7 @@ export interface ConfiguracionTienda {
   direccion_empresa?: string | null;
   horario_empresa?: string | null;
   url_google_maps?: string | null;
+  url_logo?: string | null;
 }
 
 export interface Inventario {

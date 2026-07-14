@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import type { Pedido } from '../../lib/supabaseTypes';
-import { ShoppingCart, ArrowLeft, FileText } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, FileText, User, Phone, CalendarDays, Tag } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { generateCotizacion } from '../../lib/generatePdf';
 import { useToast } from '../../components/ui/Toast';
@@ -34,10 +34,10 @@ export default function AdminVentaDetail() {
     setLoading(false);
   };
 
-  const handlePdf = () => {
+  const handlePdf = async () => {
     if (!venta) return;
     try {
-      generateCotizacion(venta);
+      await generateCotizacion(venta);
     } catch {
       showToast('Error al generar PDF', 'error');
     }
@@ -49,88 +49,103 @@ export default function AdminVentaDetail() {
   return (
     <div>
       <PageHeader
-        title={`Venta #${venta.id_pedido}`}
+        title="Detalle de venta"
         description="Detalle de la venta"
         icon={<ShoppingCart className="w-5 h-5" />}
       />
 
-      <div className="border border-border rounded-lg p-6 bg-background max-w-4xl mx-auto mb-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Cliente</p>
-            <p className="text-sm font-medium text-foreground">{venta.nombre || '—'}</p>
-            {venta.telefono && <p className="text-xs text-muted-foreground">{venta.telefono}</p>}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Columna izquierda: Datos del cliente */}
+        <div className="border border-border rounded-lg bg-background overflow-hidden flex flex-col">
+          <div className="px-5 py-4 border-b border-border bg-muted/30">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <User className="w-4 h-4 text-muted-foreground" />
+              Datos del cliente
+            </h3>
           </div>
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Fecha</p>
-            <p className="text-sm text-foreground">{new Date(venta.fecha).toLocaleString()}</p>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Estado</p>
-            <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[venta.estado_pago] || 'bg-muted text-muted-foreground'}`}>
-              {venta.estado_pago}
-            </span>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Total</p>
-            <p className="text-xl font-bold text-foreground">S/{Number(venta.monto_total).toFixed(2)}</p>
+          <div className="p-5 flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3">
+                <User className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Nombres completos</p>
+                  <p className="text-sm font-medium text-foreground">{venta.nombre || '—'}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Phone className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Teléfono</p>
+                  <p className="text-sm text-foreground">{venta.telefono || '—'}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <CalendarDays className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Fecha</p>
+                  <p className="text-sm text-foreground">{new Date(venta.fecha).toLocaleString()}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Tag className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Estado</p>
+                  <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[venta.estado_pago] || 'bg-muted text-muted-foreground'}`}>
+                    {venta.estado_pago}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {venta.estado_pago === 'pendiente' && (
-          <div className="mt-4 pt-4 border-t border-border flex justify-end">
-            <button
-              onClick={handlePdf}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background text-foreground hover:bg-muted transition-colors"
-            >
-              <FileText className="w-4 h-4" />
-              Descargar cotización PDF
-            </button>
+        {/* Columna derecha: Productos */}
+        <div className="border border-border rounded-lg bg-background overflow-hidden flex flex-col">
+          <div className="px-5 py-4 border-b border-border bg-muted/30">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <ShoppingCart className="w-4 h-4 text-muted-foreground" />
+              Productos
+            </h3>
           </div>
-        )}
-      </div>
-
-      <div className="border border-border rounded-lg bg-background max-w-4xl mx-auto overflow-hidden">
-        <div className="px-6 py-4 border-b border-border">
-          <h3 className="text-sm font-semibold text-foreground">Productos</h3>
+          <div className="overflow-x-auto flex-1">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border bg-muted/50">
+                  <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-5 py-3">Producto</th>
+                  <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 w-20">Cantidad</th>
+                  <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 w-24">Precio</th>
+                  <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-5 py-3 w-24">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {(venta.detalles || []).map((d: any) => (
+                  <tr key={d.id_pedido_detalle || Math.random()} className="hover:bg-muted/30">
+                    <td className="px-5 py-3 text-sm text-foreground">
+                      {d.producto?.nombre_producto || `Producto #${d.pk_producto_pedido}`}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-center text-foreground">{d.cantidad_pedido}</td>
+                    <td className="px-4 py-3 text-sm text-right text-foreground">
+                      S/{Number(d.producto?.precio_producto || 0).toFixed(2)}
+                    </td>
+                    <td className="px-5 py-3 text-sm text-right font-medium text-foreground">
+                      S/{((d.cantidad_pedido || 0) * Number(d.producto?.precio_producto || 0)).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="px-5 py-4 border-t border-border bg-muted/20">
+            <div className="flex items-center justify-end gap-4">
+              <span className="text-sm font-medium text-foreground">Total</span>
+              <span className="text-xl font-bold text-foreground">S/{Number(venta.monto_total).toFixed(2)}</span>
+            </div>
+          </div>
         </div>
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Producto</th>
-              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Cantidad</th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Precio</th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {(venta.detalles || []).map((d: any) => (
-              <tr key={d.id_pedido_detalle || Math.random()} className="hover:bg-muted/30">
-                <td className="px-6 py-3 text-sm text-foreground">
-                  {d.producto?.nombre_producto || `Producto #${d.pk_producto_pedido}`}
-                </td>
-                <td className="px-4 py-3 text-sm text-center text-foreground">{d.cantidad_pedido}</td>
-                <td className="px-4 py-3 text-sm text-right text-foreground">
-                  S/{Number(d.producto?.precio_producto || 0).toFixed(2)}
-                </td>
-                <td className="px-6 py-3 text-sm text-right font-medium text-foreground">
-                  S/{((d.cantidad_pedido || 0) * Number(d.producto?.precio_producto || 0)).toFixed(2)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot className="bg-muted/30">
-            <tr>
-              <td colSpan={3} className="px-6 py-3 text-sm font-medium text-right text-foreground">Total</td>
-              <td className="px-6 py-3 text-sm font-bold text-right text-foreground">
-                S/{Number(venta.monto_total).toFixed(2)}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
       </div>
 
-      <div className="flex justify-center max-w-4xl mx-auto mt-6">
+      {/* Botones inferiores */}
+      <div className="flex items-center justify-end gap-3 mt-6">
         <button
           onClick={() => navigate('/admin/ventas')}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -138,6 +153,15 @@ export default function AdminVentaDetail() {
           <ArrowLeft className="w-4 h-4" />
           Volver a ventas
         </button>
+        {venta.estado_pago === 'pendiente' && (
+          <button
+            onClick={handlePdf}
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background text-foreground hover:bg-muted transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            Descargar cotización PDF
+          </button>
+        )}
       </div>
     </div>
   );

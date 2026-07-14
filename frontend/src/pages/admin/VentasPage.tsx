@@ -126,7 +126,7 @@ export default function AdminVentas() {
         .select('*, detalles:pedido_detalles(*, producto:pk_producto_pedido(*))')
         .eq('id_pedido', v.id_pedido)
         .single();
-      if (data) generateCotizacion(data as unknown as Pedido);
+      if (data) await generateCotizacion(data as unknown as Pedido);
     } catch {
       showToast('Error al generar PDF', 'error');
     }
@@ -148,7 +148,6 @@ export default function AdminVentas() {
 
       <FilterBar
         title="ventas"
-        alwaysShow
         fields={[
           { type: 'search', label: 'Cliente', value: searchNombre, onChange: setSearchNombre, placeholder: 'Buscar por nombre...' },
           { type: 'date', label: 'Fecha desde', value: fechaDesde, onChange: setFechaDesde, width: 'min-w-[200px]' },
