@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthContext } from '../hooks/AuthContext';
 import { useStore } from '../contexts/StoreContext';
 import { useToast } from '../components/ui/Toast';
-import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Tags, Activity, List, BookMarked, Image, LogOut, Moon, Sun, Menu, X, ChevronRight, Store, Building2, Plus } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, BookOpen, Tags, Activity, List, BookMarked, Image, LogOut, Moon, Sun, Menu, X, ChevronRight, Store, Building2, Plus } from 'lucide-react';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -16,7 +16,7 @@ const navItems = [
   { to: '/admin/ventas', icon: ShoppingCart, label: 'Ventas' },
   { to: '/admin/ventas/nueva', icon: Plus, label: 'Generar venta' },
   { to: '/admin/usuarios', icon: Users, label: 'Usuarios' },
-  { to: '/admin/formularios', icon: FileText, label: 'Formularios' },
+  { to: '/admin/libro-reclamos', icon: BookOpen, label: 'Libro reclamos' },
   { to: '/admin/ofertas', icon: Tags, label: 'Ofertas' },
   { to: '/admin/movimientos', icon: Activity, label: 'Movimientos' },
   { to: '/admin/empresa', icon: Building2, label: 'Empresa' },

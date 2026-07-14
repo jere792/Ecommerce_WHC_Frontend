@@ -28,8 +28,8 @@ import AdminVentaForm from './pages/admin/VentaFormPage';
 import AdminVentaDetail from './pages/admin/VentaDetailPage';
 import AdminUsers from './pages/admin/UsersPage';
 import AdminUserForm from './pages/admin/UserFormPage';
-import AdminForms from './pages/admin/FormsPage';
-import AdminFormDetail from './pages/admin/FormDetailPage';
+import AdminLibroReclamos from './pages/admin/FormsPage';
+import AdminLibroReclamoDetail from './pages/admin/FormDetailPage';
 import AdminOffers from './pages/admin/OffersPage';
 import AdminMovements from './pages/admin/MovementsPage';
 import AdminCategories from './pages/admin/CategoriesPage';
@@ -87,8 +87,8 @@ const App: React.FC = () => {
           <Route path="usuarios" element={<AdminUsers />} />
           <Route path="usuarios/nuevo" element={<AdminUserForm />} />
           <Route path="usuarios/editar/:id" element={<AdminUserForm />} />
-          <Route path="formularios" element={<AdminForms />} />
-          <Route path="formularios/:id" element={<AdminFormDetail />} />
+          <Route path="libro-reclamos" element={<AdminLibroReclamos />} />
+          <Route path="libro-reclamos/:id" element={<AdminLibroReclamoDetail />} />
           <Route path="categorias" element={<AdminCategories />} />
           <Route path="categorias/nuevo" element={<AdminCategoryForm />} />
           <Route path="categorias/editar/:id" element={<AdminCategoryForm />} />

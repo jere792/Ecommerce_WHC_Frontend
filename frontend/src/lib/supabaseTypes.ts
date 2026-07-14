@@ -203,6 +203,22 @@ export interface MetodoPago {
   nombre_metodo_pago: string;
 }
 
+export interface LibroReclamacion {
+  id_reclamo: number;
+  nombre: string;
+  apellidos: string | null;
+  dni: string | null;
+  telefono: string | null;
+  correo: string | null;
+  tipo_reclamo: string | null;
+  domicilio: string | null;
+  descripcion: string | null;
+  responsable: string | null;
+  estado: string | null;
+  created_at: string | null;
+  update_at: string | null;
+}
+
 export interface FormularioRequest {
   nombreFormulario: string;
   dniFormulario: string;
