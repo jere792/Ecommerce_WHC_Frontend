@@ -31,7 +31,14 @@ import AdminUserForm from './pages/admin/UserFormPage';
 import AdminLibroReclamos from './pages/admin/FormsPage';
 import AdminLibroReclamoDetail from './pages/admin/FormDetailPage';
 import AdminOffers from './pages/admin/OffersPage';
+import AdminOfferForm from './pages/admin/OfertaFormPage';
 import AdminMovements from './pages/admin/MovementsPage';
+import AdminMovementsDetail from './pages/admin/MovimientoDetailPage';
+import AdminIngresos from './pages/admin/IngresoMercaderiaPage';
+import AdminIngresoForm from './pages/admin/IngresoMercaderiaFormPage';
+import AdminIngresoDetail from './pages/admin/IngresoDetailPage';
+import AdminAjustes from './pages/admin/AjusteStockPage';
+import AdminAjusteForm from './pages/admin/AjusteStockFormPage';
 import AdminCategories from './pages/admin/CategoriesPage';
 import AdminCategoryForm from './pages/admin/CategoryFormPage';
 import AdminBrands from './pages/admin/BrandsPage';
@@ -103,7 +110,15 @@ const App: React.FC = () => {
           <Route path="page-hero/editar/:id" element={<AdminPageHeroForm />} />
           <Route path="empresa" element={<AdminEmpresa />} />
           <Route path="ofertas" element={<AdminOffers />} />
+          <Route path="ofertas/nuevo" element={<AdminOfferForm />} />
+          <Route path="ofertas/editar/:id" element={<AdminOfferForm />} />
           <Route path="movimientos" element={<AdminMovements />} />
+          <Route path="movimientos/:id" element={<AdminMovementsDetail />} />
+          <Route path="ingresos" element={<AdminIngresos />} />
+          <Route path="ingresos/nuevo" element={<AdminIngresoForm />} />
+          <Route path="ingresos/:id" element={<AdminIngresoDetail />} />
+          <Route path="ajustes" element={<AdminAjustes />} />
+          <Route path="ajustes/nuevo" element={<AdminAjusteForm />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

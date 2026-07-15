@@ -127,7 +127,6 @@ export default function AdminHeroSlides() {
                     </td>
                     <td className="px-4 py-3">
                       <p className="text-sm font-medium text-foreground">{s.texto || 'Sin texto'}</p>
-                      {s.enlace && <p className="text-xs text-muted-foreground truncate max-w-[200px]">{s.enlace}</p>}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">

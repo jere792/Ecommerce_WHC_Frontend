@@ -54,7 +54,7 @@ export default function AdminProducts() {
         .select("*")
         .order("nombre_marca_producto"),
       supabase
-        .from("categoria_producto")
+        .from("categoria_productos")
         .select("*")
         .order("nombre_categoria_producto"),
     ]).then(([prodRes, brandRes, catRes]) => {

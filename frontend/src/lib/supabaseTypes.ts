@@ -61,8 +61,11 @@ export interface Oferta {
   id_oferta: number;
   pk_producto: number;
   precio_oferta: number;
+  tipo_descuento: string;
+  valor_descuento: number;
   fecha_inicio: string;
   fecha_fin: string;
+  estado: string;
   producto?: Producto;
 }
 
@@ -76,6 +79,7 @@ export interface Pedido {
   monto_total: number;
   nombre: string | null;
   telefono: string | null;
+  codigo_transaccion?: string | null;
   created_at: string;
   updated_at: string;
   usuario?: Usuario;
@@ -106,33 +110,9 @@ export interface Movimiento {
   cantidad: number | null;
   fecha: string | null;
   observacion: string | null;
-}
-
-export interface Formulario {
-  id_formulario: number;
-  nombre_formulario: string | null;
-  fecha_formulario: string | null;
-  dni_formulario: string;
-  correo_formulario: string | null;
-  telefono_formulario: string | null;
-  pk_tipo_formulario: number;
-  pk_estado_formulario: number;
-  text_estado: string | null;
-  user_atencion: number | null;
-  tipo?: TipoForm;
-  estado?: EstadoForm;
-  usuario_atencion?: Usuario;
-}
-
-export interface TipoForm {
-  id_tipo_form: number;
-  nombre_tipo: string | null;
-}
-
-export interface EstadoForm {
-  id_estado_form: number;
-  nombre_estado: string | null;
-  text_estado: string | null;
+  responsable: string | null;
+  stock_anterior: number | null;
+  stock_posterior: number | null;
 }
 
 export interface ServicioAdicional {
@@ -157,7 +137,6 @@ export interface HeroSlide {
   id_hero_slide: number;
   image_url: string;
   texto: string;
-  enlace: string | null;
   orden: number;
   activo: boolean;
   created_at: string;
@@ -191,6 +170,24 @@ export interface ConfiguracionTienda {
   url_logo?: string | null;
 }
 
+export interface IngresoMercaderia {
+  id_ingreso: number;
+  fecha: string;
+  observacion: string | null;
+  created_at: string;
+  codigo_transaccion?: string | null;
+  detalles?: IngresoDetalle[];
+}
+
+export interface IngresoDetalle {
+  id_ingreso_detalle: number;
+  pk_ingreso: number;
+  pk_producto: number;
+  cantidad: number;
+  precio_compra: number | null;
+  producto?: Producto;
+}
+
 export interface Inventario {
   id_inventario: number;
   pk_producto: number;
@@ -217,16 +214,6 @@ export interface LibroReclamacion {
   estado: string | null;
   created_at: string | null;
   update_at: string | null;
-}
-
-export interface FormularioRequest {
-  nombreFormulario: string;
-  dniFormulario: string;
-  correoFormulario: string;
-  telefonoFormulario: string;
-  pkTipoFormulario: number;
-  pkEstadoFormulario: number;
-  textEstado: string;
 }
 
 export interface LoginRequest {

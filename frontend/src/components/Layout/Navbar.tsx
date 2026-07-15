@@ -130,7 +130,7 @@ export function Navbar() {
                       className="flex items-center gap-1.5 p-2 hover:bg-gray-100 transition text-sm font-medium text-gray-700"
                     >
                       <User className="w-5 h-5" />
-                      <span className="hidden sm:inline">{user.nombre_persona}</span>
+                      <span className="hidden sm:inline">{user.nombres}</span>
                     </button>
                     {userMenuOpen && (
                       <div className="absolute right-0 top-full mt-1 w-48 bg-white shadow-lg border border-gray-200 z-50 py-1">

@@ -142,7 +142,7 @@ export default function LoginModal() {
                             <User className="w-8 h-8 text-blue-600" />
                           </div>
                           <span className="text-lg text-gray-800">
-                            ¡Hola, <b>{user.nombre_persona}</b>!
+                            ¡Hola, <b>{user.nombres}</b>!
                           </span>
                           <button
                             onClick={() => {

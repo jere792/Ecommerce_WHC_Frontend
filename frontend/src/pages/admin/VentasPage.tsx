@@ -7,6 +7,7 @@ import PageHeader from '../../components/ui/PageHeader';
 import FilterBar from '../../components/ui/FilterBar';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
+import { useAuthContext } from '../../hooks/AuthContext';
 import { generateCotizacion } from '../../lib/generatePdf';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -16,6 +17,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminVentas() {
+  const { user } = useAuthContext();
   const [ventas, setVentas] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [estadoFiltro, setEstadoFiltro] = useState(0);
@@ -64,6 +66,13 @@ export default function AdminVentas() {
       const { error } = await supabase.from('pedido').update({ estado_pago: 'pagado' }).eq('id_pedido', id);
       if (error) { showToast('Error al pagar: ' + error.message, 'error'); return; }
 
+      const { data: pedido } = await supabase
+        .from('pedido')
+        .select('codigo_transaccion')
+        .eq('id_pedido', id)
+        .single();
+      const codigo = (pedido as any)?.codigo_transaccion || `VTA-${id}`;
+
       const { data: detalles } = await supabase
         .from('pedido_detalles')
         .select('*')
@@ -75,7 +84,8 @@ export default function AdminVentas() {
           id_producto: d.pk_producto_pedido,
           tipo_movimiento: 'VENTA',
           cantidad: d.cantidad_pedido,
-          observacion: `Venta #${id}`,
+          observacion: codigo,
+          responsable: user?.nombres || 'Admin',
         });
       }
 
@@ -89,6 +99,13 @@ export default function AdminVentas() {
       if (error) { showToast('Error al anular: ' + error.message, 'error'); return; }
 
       if (venta.estado_pago === 'pagado') {
+        const { data: pedido } = await supabase
+          .from('pedido')
+          .select('codigo_transaccion')
+          .eq('id_pedido', id)
+          .single();
+        const codigo = (pedido as any)?.codigo_transaccion || `ANULA-${id}`;
+
         const { data: detalles } = await supabase
           .from('pedido_detalles')
           .select('*')
@@ -100,7 +117,8 @@ export default function AdminVentas() {
             id_producto: d.pk_producto_pedido,
             tipo_movimiento: 'ANULACION',
             cantidad: d.cantidad_pedido,
-            observacion: `Anulación - Venta #${id}`,
+            observacion: codigo,
+            responsable: user?.nombres || 'Admin',
           });
         }
       }
@@ -176,7 +194,8 @@ export default function AdminVentas() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-border bg-muted/50">
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 w-[40%]">Cliente</th>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 w-[15%]">Código</th>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 w-[25%]">Cliente</th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 w-[18%]">Fecha</th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 w-[15%]">Total</th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 w-[12%]">Estado</th>
@@ -186,11 +205,12 @@ export default function AdminVentas() {
           <tbody className="divide-y divide-border">
             {ventas.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-12 text-muted-foreground text-sm">No hay ventas registradas.</td>
+                <td colSpan={6} className="text-center py-12 text-muted-foreground text-sm">No hay ventas registradas.</td>
               </tr>
             ) : (
               ventas.map((v) => (
                 <tr key={v.id_pedido} className="hover:bg-muted/50 transition-colors">
+                  <td className="px-4 py-3 text-sm font-medium text-foreground font-mono">{v.codigo_transaccion || `#${v.id_pedido}`}</td>
                   <td className="px-4 py-3 text-sm text-foreground">{v.nombre || '—'}</td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{new Date(v.fecha).toLocaleDateString()}</td>
                   <td className="px-4 py-3 text-sm text-foreground font-medium">S/{Number(v.monto_total).toFixed(2)}</td>

@@ -70,7 +70,7 @@ interface PendingOrder {
   fecha: string
   monto_total: number
   estado_pago: string
-  usuario: { nombre_persona: string } | null
+  usuario: { nombres: string } | null
 }
 
 interface ExpiringOffer {
@@ -222,7 +222,7 @@ export default function AdminDashboard() {
         supabase.from('pedido').select('monto_total, fecha, estado_pago').eq('estado_pago', 'atendido').gte('fecha', start).lte('fecha', end).order('fecha', { ascending: true }),
         supabase
           .from('pedido')
-          .select('id_pedido, monto_total, estado_pago, fecha, usuario:pk_usuario(nombre_persona)')
+          .select('id_pedido, monto_total, estado_pago, fecha, usuario:pk_usuario(nombres)')
           .order('fecha', { ascending: false }).limit(5),
         supabase.from('pedido').select('monto_total', { count: 'exact', head: true }).eq('estado_pago', 'atendido').gte('fecha', start).lte('fecha', end),
         supabase
@@ -350,7 +350,7 @@ export default function AdminDashboard() {
         supabase.from('inventario').select('id_producto:pk_producto, stock_actual, producto:pk_producto!inner(nombre_producto, precio_producto, precio_compra)').lt('stock_actual', 10).gte('stock_actual', 1),
         supabase.from('inventario').select('id_producto:pk_producto, stock_actual, producto:pk_producto!inner(nombre_producto, precio_producto, precio_compra)').eq('stock_actual', 0),
         supabase.from('producto').select('id_producto, nombre_producto, precio_producto, precio_compra').order('created_at', { ascending: false }).limit(5),
-        supabase.from('pedido').select('id_pedido, fecha, monto_total, estado_pago, usuario:pk_usuario(nombre_persona)').eq('estado_pago', 'pendiente').order('fecha', { ascending: false }),
+        supabase.from('pedido').select('id_pedido, fecha, monto_total, estado_pago, usuario:pk_usuario(nombres)').eq('estado_pago', 'pendiente').order('fecha', { ascending: false }),
         supabase.from('producto').select('id_producto, nombre_producto, precio_producto, precio_compra').not('precio_compra', 'is', null),
         supabase.from('oferta').select('id_oferta, precio_oferta, fecha_fin, fecha_inicio, producto:pk_producto(nombre_producto, precio_producto)').lte('fecha_fin', thirtyDaysFromNow.toISOString().split('T')[0]).gte('fecha_fin', new Date().toISOString().split('T')[0]).order('fecha_fin', { ascending: true }),
       ])
@@ -507,7 +507,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
-            Bienvenido, {user?.nombre_persona || 'Administrador'}
+            Bienvenido, {user?.nombres || 'Administrador'}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {new Date().toLocaleDateString('es-PE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -674,7 +674,7 @@ export default function AdminDashboard() {
               ) : (
                 recentOrders.map((o: any) => (
                   <tr key={o.id_pedido} className="hover:bg-muted text-sm transition-colors">
-                    <td className="px-6 py-3 text-foreground">{o.usuario?.nombre_persona || '-'}</td>
+                    <td className="px-6 py-3 text-foreground">{o.usuario?.nombres || '-'}</td>
                     <td className="px-6 py-3 text-muted-foreground">{new Date(o.fecha).toLocaleDateString()}</td>
                     <td className="px-6 py-3 font-medium text-foreground">{formatCurrency(Number(o.monto_total))}</td>
                     <td className="px-6 py-3">

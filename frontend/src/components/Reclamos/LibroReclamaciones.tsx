@@ -172,35 +172,32 @@ export function LibroReclamacionesForm() {
       return; // Detiene el envío si hay errores
     }
 
+    const TIPO_LABELS: Record<number, string> = {
+      1: "Reclamo Producto",
+      2: "Reclamo Servicio",
+      3: "Reclamo Instalacion",
+    };
+
     setLoading(true);
     try {
-      const dataToSend = {
-        nombreFormulario: `${formData.nombres} ${formData.apellidos}`,
-        dniFormulario: formData.dni,
-        correoFormulario: formData.email,
-        telefonoFormulario: formData.telefono,
-        pkTipoFormulario: formData.pkTipoFormulario,
-        pkEstadoFormulario: 1,
-        textEstado: `Domicilio: ${formData.domicilio}\n\nDetalle: ${formData.detalle}`,
-      };
-    
       const { error: insertError } = await supabase
-        .from('formulario')
+        .from('libro_reclamacion')
         .insert({
-          nombre_formulario: dataToSend.nombreFormulario,
-          dni_formulario: dataToSend.dniFormulario,
-          correo_formulario: dataToSend.correoFormulario,
-          telefono_formulario: dataToSend.telefonoFormulario,
-          pk_tipo_formulario: dataToSend.pkTipoFormulario,
-          pk_estado_formulario: dataToSend.pkEstadoFormulario,
-          text_estado: dataToSend.textEstado,
+          nombre: formData.nombres,
+          apellidos: formData.apellidos,
+          dni: formData.dni,
+          telefono: formData.telefono,
+          correo: formData.email,
+          tipo_reclamo: TIPO_LABELS[formData.pkTipoFormulario!] || "Otro",
+          domicilio: formData.domicilio,
+          descripcion: formData.detalle,
+          estado: "pendiente",
         });
 
       if (insertError) {
         throw new Error(`Error al enviar el reclamo: ${insertError.message}`);
       }
 
-      // Limpiar formulario tras éxito
       alert("Reclamo enviado correctamente");
       setFormData({
         nombres: "",
@@ -213,7 +210,7 @@ export function LibroReclamacionesForm() {
         detalle: "",
         acepta: false,
       });
-      setErrors({}); // Limpiar errores
+      setErrors({});
 
     } catch (error) {
       if (error instanceof Error) {

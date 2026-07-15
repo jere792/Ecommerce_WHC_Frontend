@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
 import { useStore } from '../../contexts/StoreContext';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 
@@ -37,18 +36,6 @@ export const ContactSection = () => {
     setEnviando(true);
 
     try {
-      const { error: insertError } = await supabase.from('formulario').insert({
-        nombre_formulario: `${nombre} ${apellidos}`,
-        dni_formulario: "",
-        correo_formulario: correo,
-        telefono_formulario: telefono,
-        pk_tipo_formulario: 5,
-        pk_estado_formulario: 1,
-        text_estado: `[${motivo || "Sin motivo"}] ${mensaje}`,
-      });
-
-      if (insertError) throw insertError;
-
       setNombre("");
       setApellidos("");
       setCorreo("");

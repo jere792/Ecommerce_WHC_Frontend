@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
+import { generarCodigoTransaccion } from '../../lib/generateCode';
 import type { Producto } from '../../lib/supabaseTypes';
 import { Trash2, ShoppingCart, Search, User, Phone, Plus, Check } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
@@ -102,12 +103,15 @@ export default function AdminVentaForm() {
 
     setSaving(true);
 
+    const codigo = await generarCodigoTransaccion('VTA');
+
     const { data: newPedido, error: pedidoError } = await supabase
       .from('pedido')
       .insert({
         pk_usuario: 1,
         nombre: nombre.trim(),
         telefono: telefono.trim() || null,
+        codigo_transaccion: codigo,
         estado_pago: 'pendiente',
         monto_total: total,
         fecha: new Date().toISOString(),

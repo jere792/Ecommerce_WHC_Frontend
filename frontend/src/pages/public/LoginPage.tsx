@@ -77,7 +77,7 @@ export default function LoginPage() {
             <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 flex items-center justify-center">
               <User className="w-8 h-8 text-blue-600" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-1">¡Hola, {user.nombre_persona}!</h1>
+            <h1 className="text-xl font-bold text-gray-900 mb-1">¡Hola, {user.nombres}!</h1>
             <p className="text-gray-500 text-sm mb-6">Has iniciado sesión correctamente</p>
             <div className="space-y-3">
               <button

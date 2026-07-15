@@ -37,7 +37,7 @@ export function Cart() {
         .join("\n");
 
       const mensaje = [
-        `*Nuevo Pedido - ${user.nombre_persona}*`,
+        `*Nuevo Pedido - ${user.nombres}*`,
         `*Cliente:* ${user.correo_persona}`,
         ``,
         `*Productos:*`,
