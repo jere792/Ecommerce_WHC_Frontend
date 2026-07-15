@@ -6,6 +6,7 @@ import type { Producto } from '../../lib/supabaseTypes';
 import { Trash2, ShoppingCart, Search, User, Phone, Plus, Check } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
+import { useAuthContext } from '../../hooks/AuthContext';
 
 interface LineItem {
   producto: Producto;
@@ -17,6 +18,7 @@ const labelClass = "block text-sm font-medium text-foreground mb-1.5";
 
 export default function AdminVentaForm() {
   const navigate = useNavigate();
+  const { user } = useAuthContext();
   const { showToast } = useToast();
 
   const [nombre, setNombre] = useState('');
@@ -101,6 +103,15 @@ export default function AdminVentaForm() {
     if (!nombre.trim()) { showToast('Debes ingresar el nombre del cliente.', 'error'); return; }
     if (lineItems.length === 0) { showToast('Debes agregar al menos un producto.', 'error'); return; }
 
+    for (const li of lineItems) {
+      const prod = li.producto as any;
+      if ((prod.stock ?? 0) < li.cantidad) {
+        showToast(`Stock insuficiente para "${prod.nombre_producto}". Disponible: ${prod.stock ?? 0}`, 'error');
+        setSaving(false);
+        return;
+      }
+    }
+
     setSaving(true);
 
     const codigo = await generarCodigoTransaccion('VTA');
@@ -108,7 +119,7 @@ export default function AdminVentaForm() {
     const { data: newPedido, error: pedidoError } = await supabase
       .from('pedido')
       .insert({
-        pk_usuario: 1,
+        pk_usuario: user?.id_usuario,
         nombre: nombre.trim(),
         telefono: telefono.trim() || null,
         codigo_transaccion: codigo,

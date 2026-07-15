@@ -6,6 +6,13 @@ import { ArrowDownUp, Eye, Plus, Package } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import FilterBar from '../../components/ui/FilterBar';
 import DataTable, { type Column } from '../../components/ui/DataTable';
+import Pagination from '../../components/ui/Pagination';
+
+const getDefaultFechaDesde = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 14);
+  return d.toISOString().split('T')[0];
+};
 
 export default function AdminAjusteStock() {
   const navigate = useNavigate();
@@ -13,12 +20,16 @@ export default function AdminAjusteStock() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [tipoFiltro, setTipoFiltro] = useState(0);
-  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaInicio, setFechaInicio] = useState(getDefaultFechaDesde());
   const [fechaFin, setFechaFin] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     loadAjustes();
   }, []);
+
+  useEffect(() => { setPage(1); }, [search, tipoFiltro, fechaInicio, fechaFin]);
 
   const loadAjustes = async () => {
     const { data } = await supabase
@@ -52,6 +63,8 @@ export default function AdminAjusteStock() {
 
     return result;
   }, [movements, search, tipoFiltro, fechaInicio, fechaFin]);
+
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   const columns: Column<Movimiento & { producto?: Producto }>[] = [
     {
@@ -132,7 +145,7 @@ export default function AdminAjusteStock() {
 
       <FilterBar
         title="ajustes"
-        onClear={() => { setSearch(''); setTipoFiltro(0); setFechaInicio(''); setFechaFin(''); }}
+        onClear={() => { setSearch(''); setTipoFiltro(0); setFechaInicio(getDefaultFechaDesde()); setFechaFin(''); }}
         fields={[
           { type: 'search', label: 'Buscar producto', value: search, onChange: setSearch, placeholder: 'Buscar por nombre...' },
           {
@@ -150,9 +163,17 @@ export default function AdminAjusteStock() {
 
       <DataTable
         columns={columns}
-        data={filtered}
+        data={paginated}
         keyExtractor={m => m.id_movimiento}
         emptyMessage="No se encontraron ajustes de stock"
+      />
+
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        total={filtered.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
       />
     </div>
   );

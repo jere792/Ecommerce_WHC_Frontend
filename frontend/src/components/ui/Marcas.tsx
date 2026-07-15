@@ -16,7 +16,7 @@ const Marcas: React.FC = () => {
           setMarcas(
             data.map((m: any) => ({
               nombre: m.nombre_marca_producto,
-              logoSrc: m.logo_url || "/placeholder-marca.png",
+              logoSrc: m.logo_url || "",
             })),
           );
         }
@@ -42,12 +42,11 @@ const Marcas: React.FC = () => {
               key={index}
               className="flex-shrink-0 w-[100px] sm:w-[150px] h-[70px] sm:h-[100px] flex items-center justify-center mx-1.5 sm:mx-2.5"
             >
-              <img
-                src={marca.logoSrc}
-                alt={marca.nombre}
-                className="max-h-full max-w-full object-contain"
-                loading="lazy"
-              />
+              {marca.logoSrc ? (
+                <img src={marca.logoSrc} alt={marca.nombre} className="max-h-full max-w-full object-contain" loading="lazy" />
+              ) : (
+                <div className="max-h-full max-w-full flex items-center justify-center text-gray-400 text-xs font-medium">{marca.nombre.charAt(0)}</div>
+              )}
             </div>
           ))}
         </div>

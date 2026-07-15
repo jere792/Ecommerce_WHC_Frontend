@@ -98,7 +98,11 @@ export default function AdminLayout() {
       `}>
         <div className="shrink-0">
           <div className="relative flex items-center justify-center px-4 py-3">
-            <img src="/logo.png" alt="Logo" className="h-10 object-contain" />
+            {settings?.url_logo ? (
+              <img src={settings.url_logo} alt={settings?.nombre_empresa || 'Logo'} className="h-10 object-contain" />
+            ) : (
+              <span className="text-lg font-bold text-foreground">{settings?.nombre_empresa || 'Admin'}</span>
+            )}
             <button
               onClick={() => setSidebarOpen(false)}
               className="absolute right-3 p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition lg:hidden"

@@ -93,7 +93,7 @@ export default function PrivacidadPage() {
             Si tiene preguntas o inquietudes sobre esta Política de Privacidad o sobre el tratamiento de sus datos personales, puede contactarnos:
           </p>
           <ul className="list-disc list-inside space-y-1">
-            <li><strong>Correo electrónico:</strong> whsRepresentaciones@gmail.com</li>
+            <li><strong>Correo electrónico:</strong> whcRepresentaciones@gmail.com</li>
             <li><strong>WhatsApp:</strong> (+51) 949790715</li>
             <li><strong>Dirección:</strong> Los Rubies 295, La Victoria, Lima, Perú</li>
           </ul>

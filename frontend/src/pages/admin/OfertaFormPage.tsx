@@ -145,6 +145,10 @@ export default function AdminOfferForm() {
       showToast('Debes seleccionar un producto', 'error');
       return;
     }
+    if (formInicio && formFin && formInicio > formFin) {
+      showToast('La fecha de inicio no puede ser mayor a la fecha de fin', 'error');
+      return;
+    }
     setLoading(true);
 
     let precio_oferta: number;

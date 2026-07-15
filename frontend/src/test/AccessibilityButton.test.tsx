@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import AccessibilityButton from './../components/Layout/AccesibilityButton';
+import AccessibilityButton from './../components/Layout/AccessibilityButton';
 
 const STORAGE_KEY = 'site_accessibility_settings_v1';
 

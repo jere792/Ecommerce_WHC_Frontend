@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { BookOpen } from 'lucide-react';
+import { useToast } from '../ui/Toast';
 
 interface FormData {
   nombres: string;
@@ -27,6 +28,7 @@ interface FormErrors {
 }
 
 export function LibroReclamacionesForm() {
+  const { showToast } = useToast();
   const [formData, setFormData] = useState<FormData>({
     nombres: "",
     apellidos: "",
@@ -198,7 +200,7 @@ export function LibroReclamacionesForm() {
         throw new Error(`Error al enviar el reclamo: ${insertError.message}`);
       }
 
-      alert("Reclamo enviado correctamente");
+      showToast("Reclamo enviado correctamente", "success");
       setFormData({
         nombres: "",
         apellidos: "",

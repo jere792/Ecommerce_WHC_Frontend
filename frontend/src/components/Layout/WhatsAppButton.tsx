@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { BsWhatsapp } from 'react-icons/bs';
+import { useStore } from '../../contexts/StoreContext';
 
 export function WhatsAppButton() {
+  const { settings } = useStore();
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
@@ -16,7 +18,7 @@ export function WhatsAppButton() {
   }, []);
 
   const handleClick = () => {
-    const phoneNumber = '992710948';
+    const phoneNumber = settings?.whatsapp_empresa || '51949790715';
     const message = 'Hola, quiero más información.';
     const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappURL, '_blank');

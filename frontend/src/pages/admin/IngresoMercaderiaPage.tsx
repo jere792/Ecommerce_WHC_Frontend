@@ -6,18 +6,29 @@ import { ArrowDownUp, Eye, Package } from "lucide-react";
 import PageHeader from "../../components/ui/PageHeader";
 import FilterBar from "../../components/ui/FilterBar";
 import DataTable, { type Column } from "../../components/ui/DataTable";
+import Pagination from "../../components/ui/Pagination";
+
+const getDefaultFechaDesde = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 14);
+  return d.toISOString().split('T')[0];
+};
 
 export default function AdminIngresoMercaderia() {
   const navigate = useNavigate();
   const [ingresos, setIngresos] = useState<IngresoMercaderia[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaInicio, setFechaInicio] = useState(getDefaultFechaDesde());
   const [fechaFin, setFechaFin] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     loadIngresos();
   }, []);
+
+  useEffect(() => { setPage(1); }, [search, fechaInicio, fechaFin]);
 
   const loadIngresos = async () => {
     const { data } = await supabase
@@ -51,6 +62,8 @@ export default function AdminIngresoMercaderia() {
 
     return result;
   }, [ingresos, search, fechaInicio, fechaFin]);
+
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   const columns: Column<IngresoMercaderia>[] = [
     {
@@ -124,7 +137,7 @@ export default function AdminIngresoMercaderia() {
         title="ingresos"
         onClear={() => {
           setSearch("");
-          setFechaInicio("");
+          setFechaInicio(getDefaultFechaDesde());
           setFechaFin("");
         }}
         fields={[
@@ -152,9 +165,16 @@ export default function AdminIngresoMercaderia() {
 
       <DataTable
         columns={columns}
-        data={filtered}
+        data={paginated}
         keyExtractor={(i) => i.id_ingreso}
         emptyMessage="No se encontraron ingresos"
+      />
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        total={filtered.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
       />
     </div>
   );

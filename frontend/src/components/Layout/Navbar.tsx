@@ -103,7 +103,11 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16 lg:h-20 gap-4">
             <Link to="/inicio" className="flex items-center gap-2 shrink-0">
-              <img src="/logo.png" className="h-10 lg:h-12 w-auto" alt="Logo" />
+              {settings?.url_logo ? (
+                <img src={settings.url_logo} className="h-10 lg:h-12 w-auto" alt={settings?.nombre_empresa || 'Logo'} />
+              ) : (
+                <span className="text-xl font-bold text-blue-900">{settings?.nombre_empresa || 'WHC'}</span>
+              )}
             </Link>
 
             <div className="hidden md:flex flex-1 max-w-xl mx-4">

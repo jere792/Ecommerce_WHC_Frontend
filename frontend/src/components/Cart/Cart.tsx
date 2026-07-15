@@ -48,15 +48,10 @@ export function Cart() {
 
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
 
-      const extraId = 1;
-      const metodoPagoId = 2;
-
       const { data: pedido } = await supabase
         .from("pedido")
         .insert({
           pk_usuario: user.id_usuario,
-          pk_extra: extraId,
-          pk_metodopago: metodoPagoId,
           estado_pago: "pendiente",
           monto_total: total,
         })

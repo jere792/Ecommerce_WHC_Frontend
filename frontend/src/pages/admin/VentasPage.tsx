@@ -9,11 +9,18 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { useAuthContext } from '../../hooks/AuthContext';
 import { generateCotizacion } from '../../lib/generatePdf';
+import Pagination from '../../components/ui/Pagination';
 
 const STATUS_COLORS: Record<string, string> = {
   pendiente: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   pagado: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   rechazado: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+};
+
+const getDefaultFechaDesde = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 14);
+  return d.toISOString().split('T')[0];
 };
 
 export default function AdminVentas() {
@@ -22,15 +29,18 @@ export default function AdminVentas() {
   const [loading, setLoading] = useState(true);
   const [estadoFiltro, setEstadoFiltro] = useState(0);
   const [searchNombre, setSearchNombre] = useState('');
-  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaDesde, setFechaDesde] = useState(getDefaultFechaDesde());
   const [fechaHasta, setFechaHasta] = useState('');
   const [montoMin, setMontoMin] = useState('');
   const [montoMax, setMontoMax] = useState('');
   const [confirmAction, setConfirmAction] = useState<{ id: number; mode: string } | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const navigate = useNavigate();
   const { showToast } = useToast();
 
   useEffect(() => { loadVentas(); }, [estadoFiltro, searchNombre, fechaDesde, fechaHasta, montoMin, montoMax]);
+  useEffect(() => { setPage(1); }, [estadoFiltro, searchNombre, fechaDesde, fechaHasta, montoMin, montoMax]);
 
   const loadVentas = async () => {
     setLoading(true);
@@ -79,7 +89,11 @@ export default function AdminVentas() {
         .eq('pk_pedido', id);
 
       for (const d of detalles || []) {
-        await supabase.rpc('decrement_stock', { p_producto_id: d.pk_producto_pedido, p_cantidad: d.cantidad_pedido });
+        const { error: rpcError } = await supabase.rpc('decrement_stock', { p_producto_id: d.pk_producto_pedido, p_cantidad: d.cantidad_pedido });
+        if (rpcError) {
+          showToast('Error al actualizar stock: ' + rpcError.message, 'error');
+          continue;
+        }
         await supabase.from('movimiento').insert({
           id_producto: d.pk_producto_pedido,
           tipo_movimiento: 'VENTA',
@@ -112,7 +126,11 @@ export default function AdminVentas() {
           .eq('pk_pedido', id);
 
         for (const d of detalles || []) {
-          await supabase.rpc('increment_stock', { p_producto_id: d.pk_producto_pedido, p_cantidad: d.cantidad_pedido });
+          const { error: rpcError } = await supabase.rpc('increment_stock', { p_producto_id: d.pk_producto_pedido, p_cantidad: d.cantidad_pedido });
+          if (rpcError) {
+            showToast('Error al revertir stock: ' + rpcError.message, 'error');
+            continue;
+          }
           await supabase.from('movimiento').insert({
             id_producto: d.pk_producto_pedido,
             tipo_movimiento: 'ANULACION',
@@ -153,6 +171,7 @@ export default function AdminVentas() {
   if (loading) return <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] text-muted-foreground">Cargando...</div>;
 
   const confirmCfg = getConfirmConfig();
+  const paginatedVentas = ventas.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div>
@@ -183,7 +202,7 @@ export default function AdminVentas() {
         onClear={() => {
           setEstadoFiltro(0);
           setSearchNombre('');
-          setFechaDesde('');
+          setFechaDesde(getDefaultFechaDesde());
           setFechaHasta('');
           setMontoMin('');
           setMontoMax('');
@@ -208,7 +227,7 @@ export default function AdminVentas() {
                 <td colSpan={6} className="text-center py-12 text-muted-foreground text-sm">No hay ventas registradas.</td>
               </tr>
             ) : (
-              ventas.map((v) => (
+              paginatedVentas.map((v) => (
                 <tr key={v.id_pedido} className="hover:bg-muted/50 transition-colors">
                   <td className="px-4 py-3 text-sm font-medium text-foreground font-mono">{v.codigo_transaccion || `#${v.id_pedido}`}</td>
                   <td className="px-4 py-3 text-sm text-foreground">{v.nombre || '—'}</td>
@@ -272,6 +291,8 @@ export default function AdminVentas() {
           </tbody>
         </table>
       </div>
+
+      <Pagination page={page} pageSize={pageSize} total={ventas.length} onPageChange={setPage} onPageSizeChange={setPageSize} />
 
       <ConfirmDialog
         open={confirmAction != null}

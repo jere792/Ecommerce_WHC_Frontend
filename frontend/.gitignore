@@ -7,3 +7,6 @@ _media/
 
 
 docs/db.sql
+wrangler.jsonc
+wrangler.toml
+*.toml

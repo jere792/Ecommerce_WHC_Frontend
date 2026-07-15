@@ -6,6 +6,7 @@ import { ArrowDownUp, Eye, ShoppingBag } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import FilterBar from '../../components/ui/FilterBar';
 import DataTable, { type Column } from '../../components/ui/DataTable';
+import Pagination from '../../components/ui/Pagination';
 
 interface MovementRow {
   id: number;
@@ -18,14 +19,22 @@ interface MovementRow {
   ids: number[];
 }
 
+const getDefaultFechaDesde = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 14);
+  return d.toISOString().split('T')[0];
+};
+
 export default function AdminMovements() {
   const navigate = useNavigate();
   const [movements, setMovements] = useState<(Movimiento & { producto?: Producto })[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [tipoFiltro, setTipoFiltro] = useState(0);
-  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaInicio, setFechaInicio] = useState(getDefaultFechaDesde());
   const [fechaFin, setFechaFin] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     loadMovements();
@@ -106,6 +115,8 @@ export default function AdminMovements() {
     return result;
   }, [grouped, search, tipoFiltro, fechaInicio, fechaFin]);
 
+  useEffect(() => { setPage(1); }, [search, tipoFiltro, fechaInicio, fechaFin]);
+
   const columns: Column<MovementRow>[] = [
     {
       header: 'Origen',
@@ -184,6 +195,8 @@ export default function AdminMovements() {
     },
   ];
 
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+
   if (loading) return <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] text-muted-foreground">Cargando...</div>;
 
   return (
@@ -199,7 +212,7 @@ export default function AdminMovements() {
         onClear={() => {
           setSearch('');
           setTipoFiltro(0);
-          setFechaInicio('');
+          setFechaInicio(getDefaultFechaDesde());
           setFechaFin('');
         }}
         fields={[
@@ -228,9 +241,16 @@ export default function AdminMovements() {
 
       <DataTable
         columns={columns}
-        data={filtered}
+        data={paginated}
         keyExtractor={r => r.id}
         emptyMessage="No se encontraron movimientos"
+      />
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        total={filtered.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
       />
     </div>
   );

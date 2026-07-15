@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { supabase } from "./lib/supabaseClient";
 import HomePage from './pages/public/HomePage';
 import ProductsPage from './pages/public/ProductsPage';
 import ContactPage from './pages/public/ContactPage';
@@ -8,7 +9,7 @@ import CartPage from './pages/public/CartPage';
 import LibroReclamaciones from './pages/public/LibroReclamacionesPage';
 import { DetalleProducto } from "./pages/public/DetalleProductoPage";
 import InstalacionPage from './pages/public/InstalacionPage';
-import MantenimientoPage from './pages/public/MantemientoPage';
+import MantenimientoPage from './pages/public/MantenimientoPage';
 import TerminosPage from './pages/public/TerminosPage';
 import PrivacidadPage from './pages/public/PrivacidadPage';
 import LoginPage from './pages/public/LoginPage';
@@ -61,6 +62,19 @@ const App: React.FC = () => {
         splash.style.display = 'none';
       }, 600);
     }, delay);
+  }, []);
+
+  useEffect(() => {
+    const fetchFavicon = async () => {
+      try {
+        const { data } = await supabase.from('configuracion_tienda').select('url_logo').eq('id', 1).single();
+        if (data?.url_logo) {
+          const link = document.querySelector<HTMLLinkElement>("link[rel*='icon']");
+          if (link) link.href = data.url_logo;
+        }
+      } catch { /* ignore */ }
+    };
+    fetchFavicon();
   }, []);
 
   return (

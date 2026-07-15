@@ -57,7 +57,7 @@ export default function AdminBrandForm() {
       const url = await uploadToCloudinary(file);
       setLogoUrl(url);
     } catch (err) {
-      alert('Error al subir logo: ' + err);
+      showToast('Error al subir logo: ' + err, 'error');
     } finally {
       setUploading(false);
     }

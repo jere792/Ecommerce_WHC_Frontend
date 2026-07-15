@@ -8,7 +8,7 @@ export default function TerminosPage() {
         <section>
           <h2 className="text-2xl font-bold text-[#0D3C6B] mb-3">1. Información General</h2>
         <p>
-          El presente documento establece los Términos y Condiciones aplicables al uso del sitio web y la compra de productos ofrecidos por <strong className="text-[#0D3C6B]">WHC Representaciones</strong> (en adelante, "la Empresa"), con domicilio en Los Rubies 295, La Victoria, Lima, Perú y correo electrónico whsRepresentaciones@gmail.com.
+          El presente documento establece los Términos y Condiciones aplicables al uso del sitio web y la compra de productos ofrecidos por <strong className="text-[#0D3C6B]">WHC Representaciones</strong> (en adelante, "la Empresa"), con domicilio en Los Rubies 295, La Victoria, Lima, Perú y correo electrónico whcRepresentaciones@gmail.com.
         </p>
         <p>
           Al acceder y utilizar este sitio web, usted acepta los presentes Términos y Condiciones en su totalidad. Si no está de acuerdo con alguno de ellos, deberá abstenerse de utilizar el sitio.
@@ -120,7 +120,7 @@ export default function TerminosPage() {
         </p>
         <ul className="list-disc list-inside space-y-1">
           <li>WhatsApp: (+51) 949790715</li>
-          <li>Correo electrónico: whsRepresentaciones@gmail.com</li>
+          <li>Correo electrónico: whcRepresentaciones@gmail.com</li>
           <li>Libro de Reclamaciones: disponible en nuestro sitio web</li>
         </ul>
 
