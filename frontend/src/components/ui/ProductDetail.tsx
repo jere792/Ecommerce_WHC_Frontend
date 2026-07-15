@@ -56,17 +56,18 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
           .map((img: any) => ({ url: img.url, id: img.id_producto_imagen }))
           .sort((a: any, b: any) => a.orden - b.orden);
 
+        const d = data as any;
         setProducto({
-          idProducto: data.id_producto,
-          nombreProducto: data.nombre_producto,
-          precioProducto: Number(data.precio_producto),
-          descripcionProducto: data.descripcion_producto || '',
-          imagenProducto: data.imagen_producto,
-          slug: data.slug,
-          marca: (data as any).marca?.nombre_marca_producto || '',
-          stockProducto: (data as any).inventario?.stock_actual ?? 0,
-          categoria: (data as any).categoria?.nombre_categoria_producto || '',
-          fichaTecnicaUrl: data.ficha_tecnica_url || undefined,
+          idProducto: d.id_producto,
+          nombreProducto: d.nombre_producto,
+          precioProducto: Number(d.precio_producto),
+          descripcionProducto: d.descripcion_producto || '',
+          imagenProducto: d.imagen_producto,
+          slug: d.slug,
+          marca: d.marca?.nombre_marca_producto || '',
+          stockProducto: d.inventario?.stock_actual ?? 0,
+          categoria: d.categoria?.nombre_categoria_producto || '',
+          fichaTecnicaUrl: d.ficha_tecnica_url || undefined,
           imagenesAdicionales,
         });
         setSelectedImage(0);

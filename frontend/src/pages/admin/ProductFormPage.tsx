@@ -70,7 +70,7 @@ export default function AdminProductForm() {
         .single()
         .then(({ data }) => {
           if (data) {
-            const p = data as Producto & { imagenes: ProductoImagen[] };
+            const p = data as unknown as Producto & { imagenes: ProductoImagen[] };
             setNombre(p.nombre_producto);
             setPrecio(String(p.precio_producto));
             setPrecioCompra(p.precio_compra ? String(p.precio_compra) : '');
