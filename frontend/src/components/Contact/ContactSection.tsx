@@ -56,8 +56,10 @@ export const ContactSection = () => {
   const email = settings?.correo_empresa || 'whcRepresentaciones@gmail.com';
   const address = settings?.direccion_empresa || 'Los Rubies 295, La Victoria, Lima';
   const schedule = settings?.horario_empresa || 'Lun - Vie: 9:00 a.m. - 6:00 p.m.';
-  const mapsUrl = settings?.url_google_maps ||
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3903.594488711491!2d-77.08852892439776!3d-12.06438884214716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c849a17412b7%3A0x316342a24980719b!2sLos%20Rubies%20295%2C%20Lima%2015034!5e0!3m2!1ses-419!2spe!4v1713538117347!5m2!1ses-419!2spe';
+  const rawMapsUrl = settings?.url_google_maps;
+  const mapsUrl = rawMapsUrl?.includes('/embed')
+    ? rawMapsUrl
+    : 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3903.594488711491!2d-77.08852892439776!3d-12.06438884214716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c849a17412b7%3A0x316342a24980719b!2sLos%20Rubies%20295%2C%20Lima%2015034!5e0!3m2!1ses-419!2spe!4v1713538117347!5m2!1ses-419!2spe';
 
   const contactInfo = [
     { icon: Phone, label: "Teléfono", value: phone, href: `tel:+${whatsapp}` },

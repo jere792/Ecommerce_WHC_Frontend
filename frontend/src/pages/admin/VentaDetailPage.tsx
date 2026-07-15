@@ -125,10 +125,17 @@ export default function AdminVentaDetail() {
                     </td>
                     <td className="px-4 py-3 text-sm text-center text-foreground">{d.cantidad_pedido}</td>
                     <td className="px-4 py-3 text-sm text-right text-foreground">
-                      S/{Number(d.producto?.precio_producto || 0).toFixed(2)}
+                      {d.precio_unitario != null && d.producto?.precio_producto != null && d.precio_unitario < d.producto.precio_producto ? (
+                        <>
+                          <span className="text-red-600 font-semibold">S/{Number(d.precio_unitario).toFixed(2)}</span>
+                          {' '}<span className="line-through text-muted-foreground text-xs">S/{Number(d.producto.precio_producto).toFixed(2)}</span>
+                        </>
+                      ) : (
+                        <>S/{Number(d.precio_unitario ?? d.producto?.precio_producto ?? 0).toFixed(2)}</>
+                      )}
                     </td>
                     <td className="px-5 py-3 text-sm text-right font-medium text-foreground">
-                      S/{((d.cantidad_pedido || 0) * Number(d.producto?.precio_producto || 0)).toFixed(2)}
+                      S/{((d.cantidad_pedido || 0) * Number(d.precio_unitario ?? d.producto?.precio_producto ?? 0)).toFixed(2)}
                     </td>
                   </tr>
                 ))}

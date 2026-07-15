@@ -115,7 +115,8 @@ export default function AdminOfferForm() {
   const offerPrice = useMemo(() => {
     if (!selectedProduct || !descuentoActivo) return null;
     if (formTipoDescuento === 'fijo') {
-      return parseFloat(formValorDescuento);
+      const discount = parseFloat(formValorDescuento);
+      return Math.max(0, selectedProduct.precio_producto - discount);
     }
     const pct = parseFloat(formValorDescuento);
     return Math.round(selectedProduct.precio_producto * (1 - pct / 100) * 100) / 100;
@@ -156,7 +157,8 @@ export default function AdminOfferForm() {
 
     if (formTipoDescuento === 'fijo') {
       valor_descuento = parseFloat(formValorDescuento);
-      precio_oferta = valor_descuento;
+      const precioOriginal = selectedProduct?.precio_producto || 0;
+      precio_oferta = Math.max(0, precioOriginal - valor_descuento);
     } else {
       const pct = parseFloat(formValorDescuento);
       valor_descuento = pct;
@@ -342,7 +344,7 @@ export default function AdminOfferForm() {
 
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground mb-1">
-                    {formTipoDescuento === 'fijo' ? 'Precio oferta (S/)' : '% Descuento'}
+                    {formTipoDescuento === 'fijo' ? 'Descuento (S/)' : '% Descuento'}
                   </label>
                   <input
                     type="number"

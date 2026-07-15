@@ -2,101 +2,76 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import type { Usuario } from '../lib/supabaseTypes';
 
+const SESSION_KEY = 'session_token';
+
 export function useAuth() {
   const [user, setUser] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (authUserId: string) => {
-    const { data, error } = await supabase
-      .from('usuarios')
-      .select('*, rol:pk_rol_usuario(*)')
-      .eq('auth_user_id', authUserId)
-      .single();
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return null;
-    }
+  const fetchUserByToken = useCallback(async (token: string) => {
+    const { data, error } = await supabase.rpc('validar_session', { p_token: token });
+    if (error || !data) return null;
     return data as Usuario;
   }, []);
 
   useEffect(() => {
-    const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const profile = await fetchProfile(session.user.id);
-        setUser(profile);
-      }
+    const token = localStorage.getItem(SESSION_KEY);
+    if (token) {
+      fetchUserByToken(token).then(u => {
+        if (u) setUser(u);
+        else localStorage.removeItem(SESSION_KEY);
+        setLoading(false);
+      });
+    } else {
       setLoading(false);
-    };
-
-    init();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const profile = await fetchProfile(session.user.id);
-        setUser(profile);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [fetchProfile]);
+    }
+  }, [fetchUserByToken]);
 
   const login = async (correo: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: correo,
-      password,
+    const { data, error } = await supabase.rpc('login_usuario', {
+      p_correo: correo,
+      p_password: password,
     });
     if (error) throw error;
-    if (data.user) {
-      const profile = await fetchProfile(data.user.id);
-      setUser(profile);
-      return profile;
-    }
-    return null;
+    const result = data as any;
+    if (result.error) throw new Error(result.error);
+    localStorage.setItem(SESSION_KEY, result.token);
+    setUser(result.user as Usuario);
+    return result.user as Usuario;
   };
 
   const register = async (nombre: string, correo: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email: correo,
-      password,
-      options: {
-        data: {
-          nombrePersona: nombre,
-          role: 'Cliente',
-        },
-      },
+    const { data, error } = await supabase.rpc('crear_usuario', {
+      p_correo: correo,
+      p_password: password,
+      p_nombres: nombre,
     });
     if (error) throw error;
     return data;
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    const token = localStorage.getItem(SESSION_KEY);
+    if (token) {
+      await supabase.rpc('cerrar_sesion', { p_token: token });
+    }
+    localStorage.removeItem(SESSION_KEY);
     setUser(null);
   };
 
-  const forgotPassword = async (correo: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(correo, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (error) throw error;
+  const forgotPassword = async () => {
+    throw new Error('Función no disponible');
   };
 
-  const updatePassword = async (newPassword: string) => {
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
-    if (error) throw error;
+  const updatePassword = async () => {
+    throw new Error('Función no disponible');
   };
 
   const refreshProfile = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      const profile = await fetchProfile(session.user.id);
-      setUser(profile);
+    const token = localStorage.getItem(SESSION_KEY);
+    if (token) {
+      const u = await fetchUserByToken(token);
+      setUser(u);
     }
   };
 

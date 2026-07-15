@@ -7,6 +7,10 @@ _media/
 
 
 docs/db.sql
+docs/function.sql
+docs/supabase-auth.sql
+
+
 wrangler.jsonc
 wrangler.toml
 *.toml

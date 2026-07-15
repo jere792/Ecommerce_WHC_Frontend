@@ -32,11 +32,14 @@ export default function AdminAjusteStock() {
   useEffect(() => { setPage(1); }, [search, tipoFiltro, fechaInicio, fechaFin]);
 
   const loadAjustes = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('movimiento')
-      .select('*, producto:id_producto(*)')
+      .select('*, producto!movimiento_id_producto_fkey(*)')
       .eq('tipo_movimiento', 'AJUSTE')
       .order('fecha', { ascending: false });
+    if (error) {
+      console.error('Error loading ajustes:', error);
+    }
     if (data) setMovements(data as unknown as (Movimiento & { producto?: Producto })[]);
     setLoading(false);
   };

@@ -17,6 +17,7 @@ const COLORS = {
 interface DetallePedido {
   pk_producto_pedido: number;
   cantidad_pedido: number;
+  precio_unitario?: number;
   producto?: {
     nombre_producto?: string;
     precio_producto?: number;
@@ -186,7 +187,7 @@ export async function generateCotizacion(venta: Pedido): Promise<void> {
   const rows = detalles.map((d) => {
     const nombre = d.producto?.nombre_producto || `Producto #${d.pk_producto_pedido}`;
     const cantidad = d.cantidad_pedido || 0;
-    const precio = Number(d.producto?.precio_producto || 0);
+    const precio = Number(d.precio_unitario ?? d.producto?.precio_producto ?? 0);
     const subtotal = cantidad * precio;
     return [nombre, String(cantidad), `S/ ${precio.toFixed(2)}`, `S/ ${subtotal.toFixed(2)}`];
   });

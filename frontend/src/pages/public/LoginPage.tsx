@@ -48,12 +48,7 @@ export default function LoginPage() {
       navigate('/');
     } catch (err: unknown) {
       if (err instanceof Error) {
-        const msg = err.message.toLowerCase();
-        if (msg.includes('invalid login credentials')) {
-          setError('Correo o contraseña incorrectos');
-        } else {
-          setError(err.message);
-        }
+        setError(err.message);
       } else setError('Error desconocido');
     } finally {
       setIsSubmitting(false);

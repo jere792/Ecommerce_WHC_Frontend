@@ -15,6 +15,9 @@ const emptySettings: Partial<ConfiguracionTienda> = {
   horario_empresa: '',
   url_google_maps: '',
   url_logo: '',
+  url_facebook: '',
+  url_instagram: '',
+  url_tiktok: '',
   apertura_semana: '09:00:00',
   cierre_semana: '18:00:00',
   apertura_sabado: '09:00:00',
@@ -78,6 +81,9 @@ export default function EmpresaPage() {
       horario_empresa: form.horario_empresa,
       url_google_maps: form.url_google_maps,
       url_logo: form.url_logo,
+      url_facebook: form.url_facebook,
+      url_instagram: form.url_instagram,
+      url_tiktok: form.url_tiktok,
     };
 
     const { error } = await supabase.from('configuracion_tienda').upsert(payload);
@@ -195,6 +201,18 @@ export default function EmpresaPage() {
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1">Google Maps URL</label>
                     <input type="text" value={form.url_google_maps ?? ''} onChange={e => set('url_google_maps', e.target.value)} className={inputClass} placeholder="URL del embed de Google Maps" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Facebook URL</label>
+                    <input type="text" value={form.url_facebook ?? ''} onChange={e => set('url_facebook', e.target.value)} className={inputClass} placeholder="https://facebook.com/tu-pagina" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Instagram URL</label>
+                    <input type="text" value={form.url_instagram ?? ''} onChange={e => set('url_instagram', e.target.value)} className={inputClass} placeholder="https://instagram.com/tu-cuenta" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">TikTok URL</label>
+                    <input type="text" value={form.url_tiktok ?? ''} onChange={e => set('url_tiktok', e.target.value)} className={inputClass} placeholder="https://tiktok.com/@tu-cuenta" />
                   </div>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthContext } from '../hooks/AuthContext';
 import { useStore } from '../contexts/StoreContext';
@@ -67,6 +67,7 @@ function Breadcrumbs() {
 
 export default function AdminLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { logout } = useAuthContext();
   const { isOpenNow, toggleStore, loading: storeLoading, settings } = useStore();
   const { showToast } = useToast();
@@ -180,7 +181,10 @@ export default function AdminLayout() {
             <span className="truncate">Ver tienda</span>
           </Link>
           <button
-            onClick={() => logout()}
+            onClick={async () => {
+              try { await logout(); } catch {}
+              navigate('/login');
+            }}
             className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10 rounded-lg w-full"
           >
             <LogOut className="w-4 h-4 shrink-0" />

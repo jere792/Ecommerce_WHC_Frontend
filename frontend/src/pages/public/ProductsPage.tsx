@@ -23,7 +23,7 @@ const MARCAS = [
   "Trébol", "Sloan", "Genebre", "Vainsa", "Helvex", "Leeyes", "Sunmixer"
 ];
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 20;
 
 const ProductsPage: React.FC = () => {
   const [productos, setProductos] = useState<ProductoAdapted[]>([]);
@@ -504,7 +504,7 @@ function CategoryFilterItem({ cat, categorias, selected, onSelect, depth }: {
   depth: number;
 }) {
   const children = categorias.filter(c => c.pk_categoria_padre === cat.id_categoria_producto)
-  const [expanded, setExpanded] = useState(true)
+  const [expanded, setExpanded] = useState(false)
 
   return (
     <div>

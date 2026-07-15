@@ -28,11 +28,13 @@ export default function OfertaCarousel() {
   useEffect(() => {
     (async () => {
       try {
+        const today = new Date().toLocaleDateString('en-CA');
         const { data, error: err } = await supabase
           .from('oferta')
-          .select('*, producto:pk_producto(*, categoria:pk_categoria_producto(nombre_categoria_producto), inventario:inventario!pk_producto!left(stock_actual))')
-          .lte('fecha_inicio', new Date().toISOString().split('T')[0])
-          .gte('fecha_fin', new Date().toISOString().split('T')[0]);
+          .select('*, producto:pk_producto(*, categoria:pk_categoria_producto(nombre_categoria_producto))')
+          .eq('estado', 'activo')
+          .lte('fecha_inicio', today)
+          .gte('fecha_fin', today);
         if (err) throw err;
         if (data) {
           const adaptadas: Oferta[] = data.map((o: any) => ({
@@ -44,7 +46,7 @@ export default function OfertaCarousel() {
             slug: o.producto?.slug || '',
             precioProducto: Number(o.producto?.precio_producto || 0),
             precioOferta: Number(o.precio_oferta),
-            stockProducto: o.producto?.inventario?.stock_actual || 0,
+            stockProducto: 999,
             categoria: o.producto?.categoria?.nombre_categoria_producto || undefined,
           }));
           setOfertas(adaptadas);
@@ -124,6 +126,7 @@ export default function OfertaCarousel() {
                     precioOriginal={oferta.precioProducto}
                     stock={oferta.stockProducto}
                     categoria={oferta.categoria}
+                    precioOferta={oferta.precioOferta}
                   />
                 </div>
               ))

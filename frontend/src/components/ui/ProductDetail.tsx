@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Heart, Truck, Shield, RotateCcw, Minus, Plus, ChevronLeft, ChevronRight, Check, Star, ImageOff } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { useCart } from "./CartContext";
 import { supabase } from '../../lib/supabaseClient';
 import ComprasSimilares from "./ComprasSimilares";
@@ -23,6 +24,7 @@ interface ProductoData {
 }
 
 export default function ProductDetail({ slug }: ProductDetailProps) {
+  const [searchParams] = useSearchParams();
   const [producto, setProducto] = useState<ProductoData | null>(null);
   const [cantidad, setCantidad] = useState<number>(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -31,6 +33,11 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
   const [imgError, setImgError] = useState<Set<number | string>>(new Set());
 
   const { addItem, items } = useCart();
+
+  const precioOferta = useMemo(() => {
+    const po = searchParams.get('po');
+    return po ? Number(po) : null;
+  }, [searchParams]);
 
   useEffect(() => {
     setLoading(true);
@@ -238,16 +245,28 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
           <div className="mb-4">
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-bold text-gray-900">
-                S/. {producto.precioProducto.toFixed(2)}
+                S/. {(precioOferta ?? producto.precioProducto).toFixed(2)}
               </span>
               <span className="text-lg text-gray-400 line-through">
-                S/. {(producto.precioProducto * 1.1).toFixed(2)}
+                S/. {(precioOferta ? producto.precioProducto : producto.precioProducto * 1.1).toFixed(2)}
               </span>
-              <span className="text-xs font-semibold text-white bg-blue-600 px-2 py-0.5 rounded">
-                -10%
-              </span>
+              {precioOferta ? (
+                <span className="text-xs font-semibold text-white bg-red-600 px-2 py-0.5 rounded">
+                  Oferta
+                </span>
+              ) : (
+                <span className="text-xs font-semibold text-white bg-blue-600 px-2 py-0.5 rounded">
+                  -10%
+                </span>
+              )}
             </div>
-            <p className="text-sm text-gray-500 mt-1">Precio Internet · Ahorras S/. {(producto.precioProducto * 0.1).toFixed(2)}</p>
+            {precioOferta ? (
+              <p className="text-sm text-green-600 mt-1 font-medium">
+                Ahorras S/. {(producto.precioProducto - precioOferta).toFixed(2)} en oferta
+              </p>
+            ) : (
+              <p className="text-sm text-gray-500 mt-1">Precio Internet · Ahorras S/. {(producto.precioProducto * 0.1).toFixed(2)}</p>
+            )}
           </div>
 
           <div className="border-t border-gray-100 my-4" />
@@ -296,7 +315,7 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
                 id: producto.idProducto.toString(),
                 productId: producto.idProducto,
                 name: producto.nombreProducto,
-                price: producto.precioProducto,
+                price: precioOferta ?? producto.precioProducto,
                 quantity: cantidad,
                 image: producto.imagenProducto,
                 stock: stockDisponible,

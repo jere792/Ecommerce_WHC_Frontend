@@ -20,11 +20,13 @@ interface FilterBarProps {
   fields2?: FilterField[];
   onClear?: () => void;
   alwaysShow?: boolean;
+  showMoreLabel?: string;
+  showLessLabel?: string;
 }
 
 const inputClass = "border rounded-lg px-3 py-2 text-sm bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
 
-export default function FilterBar({ title, fields, fields2, onClear, alwaysShow }: FilterBarProps) {
+export default function FilterBar({ title, fields, fields2, onClear, alwaysShow, showMoreLabel = 'Mostrar avanzados', showLessLabel = 'Ocultar avanzados' }: FilterBarProps) {
   const [showFields2, setShowFields2] = useState(alwaysShow ?? false);
   const showToggle = fields2 && !alwaysShow;
 
@@ -39,7 +41,7 @@ export default function FilterBar({ title, fields, fields2, onClear, alwaysShow 
               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               {showFields2 ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              {showFields2 ? 'Ocultar avanzados' : 'Mostrar avanzados'}
+              {showFields2 ? showLessLabel : showMoreLabel}
             </button>
           )}
         </div>

@@ -20,13 +20,18 @@ export default function AdminUserForm() {
   const [telefono, setTelefono] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [pkRol, setPkRol] = useState<number>(2);
+  const [pkRol, setPkRol] = useState<number>(0);
   const [roles, setRoles] = useState<RolUsuario[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     supabase.from('rol_usuario').select('*').then(({ data }) => {
-      if (data) setRoles(data as RolUsuario[]);
+      if (data) {
+        setRoles(data as RolUsuario[]);
+        if (!isEdit && data.length > 0) {
+          setPkRol(data[0].id_rol_usuario);
+        }
+      }
     });
     if (isEdit) {
       supabase.from('usuarios').select('*').eq('id_usuario', id).single().then(({ data }) => {
@@ -52,30 +57,38 @@ export default function AdminUserForm() {
     setLoading(true);
 
     if (isEdit) {
-      const updates: Record<string, unknown> = {
-        nombres,
-        apellidos: apellidos || null,
-        correo_persona: correo,
-        telefono: telefono || null,
-        pk_rol_usuario: pkRol,
-      };
-      if (password) updates.password = password;
-      const { error } = await supabase.from('usuarios').update(updates).eq('id_usuario', id);
+      const { error } = await supabase.rpc('actualizar_usuario', {
+        p_id_usuario: Number(id),
+        p_correo: correo,
+        p_password: password || null,
+        p_nombres: nombres,
+        p_apellidos: apellidos || null,
+        p_telefono: telefono || null,
+        p_pk_rol: pkRol,
+      });
       if (error) { showToast('Error al guardar: ' + error.message, 'error'); setLoading(false); return; }
       showToast('Usuario actualizado correctamente', 'success');
     } else {
       if (!password) { showToast('Debes ingresar una contraseña.', 'error'); setLoading(false); return; }
 
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: correo,
-        password,
-        options: {
-          data: { nombrePersona: `${nombres} ${apellidos}`.trim(), role: roles.find(r => r.id_rol_usuario === pkRol)?.nombre_rol },
-        },
+      const { data: createData, error: createError } = await supabase.rpc('crear_usuario', {
+        p_correo: correo,
+        p_password: password,
+        p_nombres: nombres,
+        p_apellidos: apellidos || null,
+        p_telefono: telefono || null,
+        p_pk_rol: pkRol,
       });
-      if (authError) { showToast('Error al crear: ' + authError.message, 'error'); setLoading(false); return; }
-      if (authData.user) {
-        await supabase.from('usuarios').update({ pk_rol_usuario: pkRol }).eq('auth_user_id', authData.user.id);
+      if (createError) {
+        showToast('Error al crear usuario: ' + createError.message, 'error');
+        setLoading(false);
+        return;
+      }
+      const createResult = createData as any;
+      if (createResult?.error) {
+        showToast('Error: ' + createResult.error, 'error');
+        setLoading(false);
+        return;
       }
       showToast('Usuario creado correctamente', 'success');
     }

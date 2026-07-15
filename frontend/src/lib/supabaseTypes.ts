@@ -1,6 +1,5 @@
 export interface Usuario {
   id_usuario: number;
-  auth_user_id: string;
   correo_persona: string;
   nombres: string;
   apellidos?: string | null;
@@ -9,6 +8,7 @@ export interface Usuario {
   estado?: boolean;
   created_at: string;
   updated_at: string;
+  session_token?: string | null;
   rol?: RolUsuario;
 }
 
@@ -90,6 +90,7 @@ export interface Pedido {
 export interface PedidoDetalle {
   id_pedido_detalle: number;
   cantidad_pedido: number | null;
+  precio_unitario: number;
   pk_producto_pedido: number | null;
   pk_pedido: number | null;
   producto?: Producto;
@@ -168,6 +169,9 @@ export interface ConfiguracionTienda {
   horario_empresa?: string | null;
   url_google_maps?: string | null;
   url_logo?: string | null;
+  url_facebook?: string | null;
+  url_instagram?: string | null;
+  url_tiktok?: string | null;
 }
 
 export interface IngresoMercaderia {

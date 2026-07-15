@@ -36,6 +36,8 @@ export function Hero() {
             src={images[currentImage].src}
             alt={images[currentImage].alt}
             className="w-full md:h-[140px] object-cover transition-all duration-500"
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setImgError(true)}
           />
           <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/70 to-transparent" />

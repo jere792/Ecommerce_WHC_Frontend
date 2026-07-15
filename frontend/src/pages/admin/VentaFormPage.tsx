@@ -24,6 +24,7 @@ export default function AdminVentaForm() {
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [productos, setProductos] = useState<(Producto & { stock?: number })[]>([]);
+  const [ofertasMap, setOfertasMap] = useState<Record<number, number>>({});
   const [productoSearch, setProductoSearch] = useState('');
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -33,19 +34,34 @@ export default function AdminVentaForm() {
   const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    supabase
-      .from('producto')
-      .select('*, inventario:inventario!pk_producto(*)')
-      .eq('estado', 'activo')
-      .then(({ data }) => {
-        if (data) {
-          const mapped = (data as any[]).map(p => ({
-            ...p,
-            stock: p.inventario?.stock_actual ?? 0,
-          }));
-          setProductos(mapped);
+    const today = new Date().toLocaleDateString('en-CA');
+    Promise.all([
+      supabase
+        .from('producto')
+        .select('*, inventario:inventario!pk_producto(*)')
+        .eq('estado', 'activo'),
+      supabase
+        .from('oferta')
+        .select('pk_producto, precio_oferta')
+        .eq('estado', 'activo')
+        .lte('fecha_inicio', today)
+        .gte('fecha_fin', today),
+    ]).then(([prodRes, ofertaRes]) => {
+      if (prodRes.data) {
+        const mapped = (prodRes.data as any[]).map(p => ({
+          ...p,
+          stock: p.inventario?.stock_actual ?? 0,
+        }));
+        setProductos(mapped);
+      }
+      if (ofertaRes.data) {
+        const map: Record<number, number> = {};
+        for (const o of ofertaRes.data as any[]) {
+          map[o.pk_producto] = Number(o.precio_oferta);
         }
-      });
+        setOfertasMap(map);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -96,7 +112,9 @@ export default function AdminVentaForm() {
     showToast('Carrito confirmado', 'success');
   };
 
-  const total = lineItems.reduce((sum, li) => sum + li.producto.precio_producto * li.cantidad, 0);
+  const precioEfectivo = (p: Producto) => ofertasMap[p.id_producto] ?? p.precio_producto;
+
+  const total = lineItems.reduce((sum, li) => sum + precioEfectivo(li.producto) * li.cantidad, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,6 +158,7 @@ export default function AdminVentaForm() {
       pk_pedido: (newPedido as any).id_pedido,
       pk_producto_pedido: li.producto.id_producto,
       cantidad_pedido: li.cantidad,
+      precio_unitario: precioEfectivo(li.producto),
     }));
 
     const { error: detalleError } = await supabase.from('pedido_detalles').insert(detalles);
@@ -228,7 +247,15 @@ export default function AdminVentaForm() {
                         />
                         <span className="flex-1 font-medium text-foreground">{p.nombre_producto}</span>
                         <span className="text-muted-foreground text-xs">
-                          S/{p.precio_producto.toFixed(2)} — Stock: {p.stock ?? 0}
+                          {ofertasMap[p.id_producto] ? (
+                            <>
+                              <span className="text-red-600 font-semibold">S/{ofertasMap[p.id_producto].toFixed(2)}</span>
+                              {' '}<span className="line-through">S/{p.precio_producto.toFixed(2)}</span>
+                            </>
+                          ) : (
+                            <>S/{p.precio_producto.toFixed(2)}</>
+                          )}
+                          {' — Stock: '}{p.stock ?? 0}
                         </span>
                       </div>
                     ))}
@@ -309,9 +336,18 @@ export default function AdminVentaForm() {
                           }`}
                         />
                       </td>
-                      <td className="px-4 py-2 text-sm text-right text-foreground">S/{Number(li.producto.precio_producto).toFixed(2)}</td>
+                      <td className="px-4 py-2 text-sm text-right text-foreground">
+                        {precioEfectivo(li.producto) !== li.producto.precio_producto ? (
+                          <>
+                            <span className="text-red-600 font-semibold">S/{precioEfectivo(li.producto).toFixed(2)}</span>
+                            {' '}<span className="line-through text-muted-foreground">S/{li.producto.precio_producto.toFixed(2)}</span>
+                          </>
+                        ) : (
+                          <>S/{li.producto.precio_producto.toFixed(2)}</>
+                        )}
+                      </td>
                       <td className="px-4 py-2 text-sm text-right font-medium text-foreground">
-                        S/{(li.producto.precio_producto * li.cantidad).toFixed(2)}
+                        S/{(precioEfectivo(li.producto) * li.cantidad).toFixed(2)}
                       </td>
                       <td className="px-4 py-2 text-center">
                         <button

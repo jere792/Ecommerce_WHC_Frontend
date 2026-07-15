@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FaWhatsapp, FaEnvelope, FaFacebook, FaInstagram } from 'react-icons/fa';
+import { FaWhatsapp, FaEnvelope, FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { Phone, MapPin, Clock, ChevronRight } from 'lucide-react';
 import { useStore } from '../../contexts/StoreContext';
 
@@ -11,6 +11,9 @@ export function Footer() {
   const phone = settings?.telefono_empresa || '(+51) 949790715';
   const address = settings?.direccion_empresa || 'Los Rubies 295, La Victoria, Lima';
   const schedule = settings?.horario_empresa || 'Lun - Vie: 9:00 a.m. - 6:00 p.m.';
+  const facebook = settings?.url_facebook;
+  const instagram = settings?.url_instagram;
+  const tiktok = settings?.url_tiktok;
 
   const navLinks = [
     { to: '/inicio', label: 'Inicio' },
@@ -47,12 +50,24 @@ export function Footer() {
                 className="w-9 h-9 bg-blue-600 flex items-center justify-center hover:bg-blue-700 transition">
                 <FaEnvelope className="w-4 h-4 text-white" />
               </a>
-              <a href="#" className="w-9 h-9 bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition">
-                <FaFacebook className="w-4 h-4 text-white" />
-              </a>
-              <a href="#" className="w-9 h-9 bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition">
-                <FaInstagram className="w-4 h-4 text-white" />
-              </a>
+              {facebook && (
+                <a href={facebook} target="_blank" rel="noopener noreferrer"
+                  className="w-9 h-9 bg-blue-800 flex items-center justify-center hover:bg-blue-900 transition">
+                  <FaFacebook className="w-4 h-4 text-white" />
+                </a>
+              )}
+              {instagram && (
+                <a href={instagram} target="_blank" rel="noopener noreferrer"
+                  className="w-9 h-9 bg-pink-600 flex items-center justify-center hover:bg-pink-700 transition">
+                  <FaInstagram className="w-4 h-4 text-white" />
+                </a>
+              )}
+              {tiktok && (
+                <a href={tiktok} target="_blank" rel="noopener noreferrer"
+                  className="w-9 h-9 bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition">
+                  <FaTiktok className="w-4 h-4 text-white" />
+                </a>
+              )}
             </div>
           </div>
 

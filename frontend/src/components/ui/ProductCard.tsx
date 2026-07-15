@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "./CartContext";
@@ -12,6 +13,7 @@ interface ProductCardProps {
   precioOriginal?: number;
   stock?: number;
   categoria?: string;
+  precioOferta?: number;
 }
 
 export default function ProductCard({
@@ -24,16 +26,19 @@ export default function ProductCard({
   precioOriginal,
   stock,
   categoria,
+  precioOferta,
 }: ProductCardProps) {
   const navigate = useNavigate();
   const { addItem, items } = useCart();
+  const [imgError, setImgError] = useState(false);
 
   const handleCardClick = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     const target = e.target as HTMLElement;
     if (target.closest(".add-to-cart-btn")) return;
-    navigate(`/productos/${slug}`);
+    const params = precioOferta ? `?po=${precioOferta}` : '';
+    navigate(`/productos/${slug}${params}`);
   };
 
   const cartItem = items.find(
@@ -84,16 +89,18 @@ export default function ProductCard({
       }}
     >
       <div className="h-48 sm:h-56 w-full flex items-center justify-center bg-white p-3">
-        {imagen ? (
+        {imagen && !imgError ? (
           <img
             src={imagen}
             alt={nombre}
             className="object-contain h-full w-full"
             loading="lazy"
-            onError={e => { e.currentTarget.src = ""; }}
+            onError={() => setImgError(true)}
           />
         ) : (
-          <span className="text-blue-200">Sin imagen</span>
+          <div className="flex items-center justify-center h-full w-full bg-gray-50 text-gray-300 text-sm">
+            Sin imagen
+          </div>
         )}
       </div>
       <div className="px-3 sm:px-4 py-2 sm:py-3 flex flex-col gap-1">

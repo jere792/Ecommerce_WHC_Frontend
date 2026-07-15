@@ -277,7 +277,8 @@ export default function AdminOffers() {
           { type: 'date', label: 'Desde', value: fechaInicio, onChange: setFechaInicio },
           { type: 'date', label: 'Hasta', value: fechaFin, onChange: setFechaFin },
         ]}
-        alwaysShow
+        showMoreLabel="Ver segunda fila"
+        showLessLabel="Ocultar segunda fila"
       />
 
       <DataTable
