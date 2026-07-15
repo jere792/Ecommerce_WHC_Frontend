@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { Percent, Search } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import type { Producto } from '../../lib/supabaseTypes';
 
 interface Categoria {
@@ -43,6 +44,7 @@ export default function AdminOfferForm() {
   const [formEstado, setFormEstado] = useState('activo');
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const { showToast } = useToast();
 
@@ -140,16 +142,15 @@ export default function AdminOfferForm() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formProducto) {
-      showToast('Debes seleccionar un producto', 'error');
-      return;
-    }
-    if (formInicio && formFin && formInicio > formFin) {
-      showToast('La fecha de inicio no puede ser mayor a la fecha de fin', 'error');
-      return;
-    }
+    if (!formProducto) { showToast('Debes seleccionar un producto', 'error'); return; }
+    if (formInicio && formFin && formInicio > formFin) { showToast('La fecha de inicio no puede ser mayor a la fecha de fin', 'error'); return; }
+    if (isEdit) { setConfirmOpen(true); return; }
+    executeSave();
+  };
+
+  const executeSave = async () => {
     setLoading(true);
 
     let precio_oferta: number;
@@ -157,23 +158,16 @@ export default function AdminOfferForm() {
 
     if (formTipoDescuento === 'fijo') {
       valor_descuento = parseFloat(formValorDescuento);
-      const precioOriginal = selectedProduct?.precio_producto || 0;
-      precio_oferta = Math.max(0, precioOriginal - valor_descuento);
+      precio_oferta = Math.max(0, (selectedProduct?.precio_producto || 0) - valor_descuento);
     } else {
       const pct = parseFloat(formValorDescuento);
       valor_descuento = pct;
-      const precioOriginal = selectedProduct?.precio_producto || 0;
-      precio_oferta = Math.round(precioOriginal * (1 - pct / 100) * 100) / 100;
+      precio_oferta = Math.round((selectedProduct?.precio_producto || 0) * (1 - pct / 100) * 100) / 100;
     }
 
     const data = {
-      pk_producto: formProducto,
-      precio_oferta,
-      tipo_descuento: formTipoDescuento,
-      valor_descuento,
-      fecha_inicio: formInicio,
-      fecha_fin: formFin,
-      estado: formEstado,
+      pk_producto: formProducto, precio_oferta, tipo_descuento: formTipoDescuento,
+      valor_descuento, fecha_inicio: formInicio, fecha_fin: formFin, estado: formEstado,
     };
 
     if (isEdit) {
@@ -424,6 +418,15 @@ export default function AdminOfferForm() {
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Guardar cambios"
+        message={`¿Estás seguro de guardar los cambios en esta oferta?`}
+        confirmText="Guardar"
+        variant="primary"
+        onConfirm={() => { setConfirmOpen(false); executeSave(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

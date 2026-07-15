@@ -5,6 +5,7 @@ import { uploadToCloudinary } from '../../lib/cloudinary';
 import { Upload, Image as ImageIcon } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 const inputClass = "w-full border border-border rounded-lg px-4 py-3 bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
 
@@ -21,6 +22,7 @@ export default function AdminHeroSlideForm() {
   const [orden, setOrden] = useState('');
   const [activo, setActivo] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (isEdit) {
@@ -63,19 +65,22 @@ export default function AdminHeroSlideForm() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!imageUrl) { showToast('Debes seleccionar una imagen.', 'error'); return; }
+    if (isEdit) { setConfirmOpen(true); return; }
+    executeSave();
+  };
+
+  const executeSave = async () => {
     setLoading(true);
 
-    // Reordenar si hay conflicto
     const ordenNum = orden ? parseInt(orden) : 1;
     if (!isEdit) {
       const { data: existing } = await supabase.from('hero_slide').select('id_hero_slide, orden').eq('orden', ordenNum);
       if (existing && existing.length > 0) {
         const maxOrden = await supabase.from('hero_slide').select('orden').order('orden', { ascending: false }).limit(1);
-        const maxVal = maxOrden.data?.[0]?.orden ?? 0;
-        await supabase.from('hero_slide').update({ orden: maxVal + 1 }).eq('id_hero_slide', existing[0].id_hero_slide);
+        await supabase.from('hero_slide').update({ orden: (maxOrden.data?.[0]?.orden ?? 0) + 1 }).eq('id_hero_slide', existing[0].id_hero_slide);
       }
     }
 
@@ -211,6 +216,15 @@ export default function AdminHeroSlideForm() {
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Guardar cambios"
+        message={`¿Estás seguro de guardar los cambios en "${texto || 'este slide'}"?`}
+        confirmText="Guardar"
+        variant="primary"
+        onConfirm={() => { setConfirmOpen(false); executeSave(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

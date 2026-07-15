@@ -6,6 +6,7 @@ import type { Producto } from '../../lib/supabaseTypes';
 import { Package, Search } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { useAuthContext } from '../../hooks/AuthContext';
 
 export default function AdminAjusteStockForm() {
@@ -21,6 +22,7 @@ export default function AdminAjusteStockForm() {
   const [cantidad, setCantidad] = useState('');
   const [observacion, setObservacion] = useState('');
   const [saving, setSaving] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,37 +42,38 @@ export default function AdminAjusteStockForm() {
     ? productos.filter(p => p.nombre_producto.toLowerCase().includes(searchText.toLowerCase()))
     : [];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProduct) { showToast('Debes seleccionar un producto.', 'error'); return; }
     if (!cantidad || parseInt(cantidad) <= 0) { showToast('Debes ingresar una cantidad válida.', 'error'); return; }
+    if (tipo === 'salida') { setConfirmOpen(true); return; }
+    executeSave();
+  };
 
+  const executeSave = async () => {
     setSaving(true);
 
     const cant = parseInt(cantidad);
     const cantFinal = tipo === 'salida' ? -cant : cant;
     const codigo = await generarCodigoTransaccion('AJU');
 
-    // Obtener stock actual
     const { data: inv } = await supabase
       .from('inventario')
       .select('stock_actual')
-      .eq('pk_producto', selectedProduct.id_producto)
+      .eq('pk_producto', selectedProduct!.id_producto)
       .single();
 
     const stockActual = (inv as any)?.stock_actual ?? 0;
     const stockPosterior = Math.max(0, stockActual + cantFinal);
 
-    // Actualizar stock
     if (tipo === 'entrada') {
-      await supabase.rpc('increment_stock', { p_producto_id: selectedProduct.id_producto, p_cantidad: cant });
+      await supabase.rpc('increment_stock', { p_producto_id: selectedProduct!.id_producto, p_cantidad: cant });
     } else {
-      await supabase.rpc('decrement_stock', { p_producto_id: selectedProduct.id_producto, p_cantidad: cant });
+      await supabase.rpc('decrement_stock', { p_producto_id: selectedProduct!.id_producto, p_cantidad: cant });
     }
 
-    // Crear movimiento
     await supabase.from('movimiento').insert({
-      id_producto: selectedProduct.id_producto,
+      id_producto: selectedProduct!.id_producto,
       tipo_movimiento: 'AJUSTE',
       cantidad: cantFinal,
       observacion: `${codigo}${observacion ? ` - ${observacion}` : ''}`,
@@ -162,6 +165,15 @@ export default function AdminAjusteStockForm() {
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Confirmar ajuste de salida"
+        message={`¿Estás seguro de sacar ${cantidad} unidades de "${selectedProduct?.nombre_producto}"? Esta acción reducirá el inventario.`}
+        confirmText="Confirmar salida"
+        variant="destructive"
+        onConfirm={() => { setConfirmOpen(false); executeSave(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

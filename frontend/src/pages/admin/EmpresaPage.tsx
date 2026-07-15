@@ -4,6 +4,7 @@ import { uploadToCloudinary } from '../../lib/cloudinary';
 import { useStore } from '../../contexts/StoreContext';
 import { Upload, Image as ImageIcon, Building2 } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
+import { useToast } from '../../components/ui/Toast';
 import type { ConfiguracionTienda } from '../../lib/supabaseTypes';
 
 const emptySettings: Partial<ConfiguracionTienda> = {
@@ -31,7 +32,7 @@ export default function EmpresaPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [msg, setMsg] = useState('');
+  const { showToast } = useToast();
 
   useEffect(() => {
     supabase.from('configuracion_tienda').select('*').eq('id', 1).single()
@@ -53,7 +54,7 @@ export default function EmpresaPage() {
       const url = await uploadToCloudinary(file);
       setForm(prev => ({ ...prev, url_logo: url }));
     } catch (err) {
-      setMsg('Error al subir logo: ' + err);
+      showToast('Error al subir logo: ' + err, 'error');
     } finally {
       setUploading(false);
     }
@@ -62,7 +63,6 @@ export default function EmpresaPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMsg('');
 
     const payload = {
       id: 1,
@@ -90,10 +90,9 @@ export default function EmpresaPage() {
 
     setSaving(false);
     if (error) {
-      setMsg('Error: ' + error.message);
+      showToast('Error: ' + error.message, 'error');
     } else {
-      setMsg('Datos guardados correctamente');
-      setTimeout(() => setMsg(''), 3000);
+      showToast('Datos guardados correctamente', 'success');
     }
   };
 
@@ -221,14 +220,12 @@ export default function EmpresaPage() {
         </div>
 
         <div className="flex items-center justify-end gap-3 mt-6">
-          {msg && <span className={`text-sm ${msg.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>{msg}</span>}
           <button
             type="button"
             onClick={() => {
               supabase.from('configuracion_tienda').select('*').eq('id', 1).single()
                 .then(({ data }) => {
-                  if (data) setForm(data as ConfiguracionTienda);
-                  setMsg('');
+                    if (data) setForm(data as ConfiguracionTienda);
                 });
             }}
             className="bg-muted text-foreground px-6 py-2.5 rounded-lg hover:bg-muted/80 transition-colors text-sm font-medium"

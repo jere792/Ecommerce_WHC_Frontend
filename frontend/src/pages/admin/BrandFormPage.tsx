@@ -5,6 +5,7 @@ import { uploadToCloudinary } from '../../lib/cloudinary';
 import { Upload, Tag } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function AdminBrandForm() {
   const { id } = useParams();
@@ -19,6 +20,7 @@ export default function AdminBrandForm() {
   const [activo, setActivo] = useState(true);
   const [orden, setOrden] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -63,29 +65,26 @@ export default function AdminBrandForm() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isEdit) { setConfirmOpen(true); return; }
+    executeSave();
+  };
+
+  const executeSave = async () => {
     setLoading(true);
     const ordenNum = orden ? parseInt(orden) : null;
 
     if (ordenNum != null) {
-      const { data: existing } = await supabase
-        .from('marca_producto')
-        .select('id_marca_producto, orden')
-        .eq('orden', ordenNum);
+      const { data: existing } = await supabase.from('marca_producto').select('id_marca_producto, orden').eq('orden', ordenNum);
       const conflict = existing?.find((b: any) => isEdit ? b.id_marca_producto !== Number(id) : true);
       if (conflict) {
         if (isEdit) {
-          const { data: current } = await supabase
-            .from('marca_producto')
-            .select('orden')
-            .eq('id_marca_producto', id)
-            .single();
+          const { data: current } = await supabase.from('marca_producto').select('orden').eq('id_marca_producto', id).single();
           await supabase.from('marca_producto').update({ orden: (current as any)?.orden ?? null }).eq('id_marca_producto', conflict.id_marca_producto);
         } else {
           const { data: maxData } = await supabase.from('marca_producto').select('orden').order('orden', { ascending: false }).limit(1);
-          const maxVal = (maxData?.[0] as any)?.orden ?? 0;
-          await supabase.from('marca_producto').update({ orden: maxVal + 1 }).eq('id_marca_producto', conflict.id_marca_producto);
+          await supabase.from('marca_producto').update({ orden: ((maxData?.[0] as any)?.orden ?? 0) + 1 }).eq('id_marca_producto', conflict.id_marca_producto);
         }
       }
     }
@@ -241,6 +240,15 @@ export default function AdminBrandForm() {
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Guardar cambios"
+        message={`¿Estás seguro de guardar los cambios en "${nombre}"?`}
+        confirmText="Guardar"
+        variant="primary"
+        onConfirm={() => { setConfirmOpen(false); executeSave(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

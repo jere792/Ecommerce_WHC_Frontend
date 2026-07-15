@@ -5,6 +5,7 @@ import { uploadToCloudinary } from '../../lib/cloudinary';
 import { Upload, Image as ImageIcon } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 const PAGINAS = [
   { value: 'productos', label: 'Productos' },
@@ -27,6 +28,7 @@ export default function AdminPageHeroForm() {
   const [imagenUrl, setImagenUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (isEdit) {
@@ -60,9 +62,14 @@ export default function AdminPageHeroForm() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!pagina) { showToast('Debes seleccionar una página.', 'error'); return; }
+    if (isEdit) { setConfirmOpen(true); return; }
+    executeSave();
+  };
+
+  const executeSave = async () => {
     setSaving(true);
 
     const payload = { pagina, titulo, subtitulo: subtitulo || null, imagen_url: imagenUrl || null };
@@ -171,6 +178,15 @@ export default function AdminPageHeroForm() {
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Guardar cambios"
+        message={`¿Estás seguro de guardar los cambios en "${titulo}"?`}
+        confirmText="Guardar"
+        variant="primary"
+        onConfirm={() => { setConfirmOpen(false); executeSave(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

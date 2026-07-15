@@ -164,7 +164,7 @@ export default function AdminCategories() {
     const cat = confirmCat;
     if (!cat) return;
     const { error } = await supabase.from('categoria_productos').delete().eq('id_categoria_producto', cat.id_categoria_producto);
-    if (error) { showToast('Error al eliminar: ' + error.message, 'error'); } else { showToast('Categoría eliminada', 'success'); }
+    if (error) { showToast('Error al eliminar: ' + error.message, 'error'); } else { showToast('Categoría eliminada', 'warning'); }
     setConfirmOpen(false);
     setConfirmCat(null);
     loadCategories();

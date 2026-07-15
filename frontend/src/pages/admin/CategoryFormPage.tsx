@@ -5,6 +5,7 @@ import type { CategoriaProducto } from '../../lib/supabaseTypes';
 import { LayoutGrid } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 const inputClass = "w-full border rounded-lg px-3 py-2 text-sm bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
 
@@ -33,6 +34,7 @@ export default function CategoryFormPage() {
   const [categories, setCategories] = useState<CategoriaProducto[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const [nombre, setNombre] = useState('');
   const [slug, setSlug] = useState('');
@@ -103,59 +105,44 @@ export default function CategoryFormPage() {
     }
   }, [id, categories]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nombre.trim()) { showToast('El nombre es obligatorio', 'error'); return; }
+    if (isEditing) { setConfirmOpen(true); return; }
+    executeSave();
+  };
+
+  const executeSave = async () => {
     setSaving(true);
 
     const ordenNum = orden ? parseInt(orden) : null;
 
     if (ordenNum != null) {
       const conflict = categories.find(c =>
-        c.id_categoria_producto !== Number(id) &&
-        c.pk_categoria_padre === parentId &&
-        c.orden === ordenNum
+        c.id_categoria_producto !== Number(id) && c.pk_categoria_padre === parentId && c.orden === ordenNum
       );
       if (conflict) {
         if (isEditing) {
           const currentCat = categories.find(c => c.id_categoria_producto === Number(id));
-          await supabase.from('categoria_productos')
-            .update({ orden: currentCat?.orden ?? null })
-            .eq('id_categoria_producto', conflict.id_categoria_producto);
+          await supabase.from('categoria_productos').update({ orden: currentCat?.orden ?? null }).eq('id_categoria_producto', conflict.id_categoria_producto);
         } else {
-          const maxOrden = Math.max(
-            ...categories
-              .filter(c => c.pk_categoria_padre === parentId && c.id_categoria_producto !== conflict.id_categoria_producto)
-              .map(c => c.orden ?? 0),
-            0
-          );
-          await supabase.from('categoria_productos')
-            .update({ orden: maxOrden + 1 })
-            .eq('id_categoria_producto', conflict.id_categoria_producto);
+          const maxOrden = Math.max(...categories.filter(c => c.pk_categoria_padre === parentId && c.id_categoria_producto !== conflict.id_categoria_producto).map(c => c.orden ?? 0), 0);
+          await supabase.from('categoria_productos').update({ orden: maxOrden + 1 }).eq('id_categoria_producto', conflict.id_categoria_producto);
         }
       }
     }
 
     const payload = {
-      nombre_categoria_producto: nombre.trim(),
-      slug: slug || toSlug(nombre),
-      descripcion: descripcion || null,
-      estado,
-      orden: ordenNum,
-      pk_categoria_padre: parentId,
-      mostrar_en_home: mostrarEnHome,
-      subtitulo_home: subtituloHome || null,
+      nombre_categoria_producto: nombre.trim(), slug: slug || toSlug(nombre),
+      descripcion: descripcion || null, estado, orden: ordenNum,
+      pk_categoria_padre: parentId, mostrar_en_home: mostrarEnHome, subtitulo_home: subtituloHome || null,
     };
     const { error } = isEditing
       ? await supabase.from('categoria_productos').update(payload).eq('id_categoria_producto', Number(id))
       : await supabase.from('categoria_productos').insert(payload);
     setSaving(false);
-    if (error) {
-      showToast('Error al guardar: ' + error.message, 'error');
-    } else {
-      showToast(isEditing ? 'Categoría actualizada' : 'Categoría creada', 'success');
-      navigate('/admin/categorias');
-    }
+    if (error) { showToast('Error al guardar: ' + error.message, 'error'); }
+    else { showToast(isEditing ? 'Categoría actualizada' : 'Categoría creada', 'success'); navigate('/admin/categorias'); }
   };
 
   if (loading) return <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] text-muted-foreground">Cargando...</div>;
@@ -285,6 +272,15 @@ export default function CategoryFormPage() {
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Guardar cambios"
+        message={`¿Estás seguro de guardar los cambios en "${nombre}"?`}
+        confirmText="Guardar"
+        variant="primary"
+        onConfirm={() => { setConfirmOpen(false); executeSave(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import type { CategoriaProducto, MarcaProducto, Producto, ProductoImagen } from 
 import { Trash2, Upload, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 interface AdditionalImage {
   id?: number;
@@ -46,6 +47,7 @@ export default function AdminProductForm() {
   const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const [editCatId, setEditCatId] = useState<number | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const mainCats = categorias.filter(c => !c.pk_categoria_padre);
   const subCats = selectedMain ? categorias.filter(c => c.pk_categoria_padre === selectedMain) : [];
@@ -185,25 +187,19 @@ export default function AdminProductForm() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!imagen && !imagenFile) { showToast('Debes seleccionar una imagen.', 'error'); return; }
+    if (isEdit) { setConfirmOpen(true); return; }
+    executeSave();
+  };
 
-      if (!imagen && !imagenFile) {
-      showToast('Debes seleccionar una imagen.', 'error');
-      setLoading(false);
-      return;
-    }
+  const executeSave = async () => {
+    setLoading(true);
 
     let imagenUrl = imagen;
     if (imagenFile && !imagenUrl) {
-      try {
-        imagenUrl = await uploadToCloudinary(imagenFile);
-      } catch (err) {
-        showToast('Error al subir imagen: ' + err, 'error');
-        setLoading(false);
-        return;
-      }
+      try { imagenUrl = await uploadToCloudinary(imagenFile); } catch (err) { showToast('Error al subir imagen: ' + err, 'error'); setLoading(false); return; }
     }
 
     const productData = {
@@ -240,20 +236,14 @@ export default function AdminProductForm() {
       const existingIds = (await supabase.from('producto_imagen').select('id_producto_imagen').eq('id_producto', productId)).data?.map(i => i.id_producto_imagen) || [];
       const keepIds = additionalImages.filter(img => img.id).map(img => img.id!);
       const toDelete = existingIds.filter(id => !keepIds.includes(id));
-      if (toDelete.length > 0) {
-        await supabase.from('producto_imagen').delete().in('id_producto_imagen', toDelete);
-      }
+      if (toDelete.length > 0) { await supabase.from('producto_imagen').delete().in('id_producto_imagen', toDelete); }
       const toInsert = additionalImages.filter(img => !img.id).map(img => ({ id_producto: productId, url: img.url, orden: img.orden }));
       if (toInsert.length > 0) {
         const { error: insError } = await supabase.from('producto_imagen').insert(toInsert);
         if (insError) { showToast('Error al guardar imágenes adicionales: ' + insError.message, 'error'); setLoading(false); return; }
       }
     } else {
-      const { data: newProd, error: prodError } = await supabase
-        .from('producto')
-        .insert(productData)
-        .select('id_producto')
-        .single();
+      const { data: newProd, error: prodError } = await supabase.from('producto').insert(productData).select('id_producto').single();
       if (prodError) { showToast(prodError.message, 'error'); setLoading(false); return; }
 
       if (newProd) {
@@ -264,11 +254,7 @@ export default function AdminProductForm() {
       }
 
       if (additionalImages.length > 0 && newProd) {
-        const inserts = additionalImages.map(img => ({
-          id_producto: newProd.id_producto,
-          url: img.url,
-          orden: img.orden,
-        }));
+        const inserts = additionalImages.map(img => ({ id_producto: newProd.id_producto, url: img.url, orden: img.orden }));
         const { error: imgError } = await supabase.from('producto_imagen').insert(inserts);
         if (imgError) { showToast('Error al guardar imágenes adicionales: ' + imgError.message, 'error'); setLoading(false); return; }
       }
@@ -657,6 +643,15 @@ export default function AdminProductForm() {
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Guardar cambios"
+        message={`¿Estás seguro de guardar los cambios en "${nombre}"?`}
+        confirmText="Guardar"
+        variant="primary"
+        onConfirm={() => { setConfirmOpen(false); executeSave(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

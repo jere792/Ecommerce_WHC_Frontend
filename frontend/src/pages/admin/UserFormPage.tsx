@@ -5,6 +5,7 @@ import type { RolUsuario } from '../../lib/supabaseTypes';
 import { Users, UserPlus } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 const inputClass = "w-full border border-border rounded-lg px-4 py-2.5 bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
 
@@ -23,6 +24,7 @@ export default function AdminUserForm() {
   const [pkRol, setPkRol] = useState<number>(0);
   const [roles, setRoles] = useState<RolUsuario[]>([]);
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     supabase.from('rol_usuario').select('*').then(({ data }) => {
@@ -46,50 +48,32 @@ export default function AdminUserForm() {
     }
   }, [id, isEdit]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (password && password !== confirmPassword) { showToast('Las contraseñas no coinciden.', 'error'); return; }
+    if (isEdit) { setConfirmOpen(true); return; }
+    executeSave();
+  };
 
-    if (password && password !== confirmPassword) {
-      showToast('Las contraseñas no coinciden.', 'error');
-      return;
-    }
-
+  const executeSave = async () => {
     setLoading(true);
 
     if (isEdit) {
       const { error } = await supabase.rpc('actualizar_usuario', {
-        p_id_usuario: Number(id),
-        p_correo: correo,
-        p_password: password || null,
-        p_nombres: nombres,
-        p_apellidos: apellidos || null,
-        p_telefono: telefono || null,
-        p_pk_rol: pkRol,
+        p_id_usuario: Number(id), p_correo: correo, p_password: password || null,
+        p_nombres: nombres, p_apellidos: apellidos || null, p_telefono: telefono || null, p_pk_rol: pkRol,
       });
       if (error) { showToast('Error al guardar: ' + error.message, 'error'); setLoading(false); return; }
       showToast('Usuario actualizado correctamente', 'success');
     } else {
       if (!password) { showToast('Debes ingresar una contraseña.', 'error'); setLoading(false); return; }
-
       const { data: createData, error: createError } = await supabase.rpc('crear_usuario', {
-        p_correo: correo,
-        p_password: password,
-        p_nombres: nombres,
-        p_apellidos: apellidos || null,
-        p_telefono: telefono || null,
-        p_pk_rol: pkRol,
+        p_correo: correo, p_password: password, p_nombres: nombres,
+        p_apellidos: apellidos || null, p_telefono: telefono || null, p_pk_rol: pkRol,
       });
-      if (createError) {
-        showToast('Error al crear usuario: ' + createError.message, 'error');
-        setLoading(false);
-        return;
-      }
+      if (createError) { showToast('Error al crear usuario: ' + createError.message, 'error'); setLoading(false); return; }
       const createResult = createData as any;
-      if (createResult?.error) {
-        showToast('Error: ' + createResult.error, 'error');
-        setLoading(false);
-        return;
-      }
+      if (createResult?.error) { showToast('Error: ' + createResult.error, 'error'); setLoading(false); return; }
       showToast('Usuario creado correctamente', 'success');
     }
 
@@ -205,6 +189,15 @@ export default function AdminUserForm() {
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Guardar cambios"
+        message={`¿Estás seguro de guardar los cambios en "${nombres}"?`}
+        confirmText="Guardar"
+        variant="primary"
+        onConfirm={() => { setConfirmOpen(false); executeSave(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

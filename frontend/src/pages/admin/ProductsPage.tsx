@@ -146,7 +146,7 @@ export default function AdminProducts() {
       );
       showToast(
         `Producto ${newEstado === "activo" ? "activado" : "inactivado"} correctamente`,
-        "success",
+        newEstado === "activo" ? "success" : "warning",
       );
     }
     setConfirmOpen(false);
