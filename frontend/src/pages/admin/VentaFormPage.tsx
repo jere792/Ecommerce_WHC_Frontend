@@ -13,7 +13,7 @@ interface LineItem {
   cantidad: number;
 }
 
-const inputClass = "w-full border border-border rounded-lg px-4 py-2.5 bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
+const inputClass = "w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
 const labelClass = "block text-sm font-medium text-foreground mb-1.5";
 
 export default function AdminVentaForm() {
