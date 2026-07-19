@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest"
+    "test": "jest",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",

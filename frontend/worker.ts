@@ -1,8 +1,14 @@
-const SUPABASE_URL = 'https://tkzcfnpaxnsjyieajvne.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRremNmZnBheG5zanlpZWFqdm5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMjc0OTcsImV4cCI6MjA2MDkwMzQ5N30.0wQeHHi8vPbHhAOLSN6Qw_PfAr1HOSAA64EqXPR7lvo';
-
 export default {
-  async fetch(request: Request, env: { ASSETS: { fetch: (req: Request) => Promise<Response> } }): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: {
+      ASSETS: { fetch: (req: Request) => Promise<Response> };
+      SUPABASE_URL: string;
+      SUPABASE_ANON_KEY: string;
+      VITE_CLOUDINARY_CLOUD_NAME?: string;
+      VITE_CLOUDINARY_UPLOAD_PRESET?: string;
+    }
+  ): Promise<Response> {
     const response = await env.ASSETS.fetch(request);
     const headers = new Headers(response.headers);
     headers.set("X-Content-Type-Options", "nosniff");
@@ -13,7 +19,12 @@ export default {
       const text = await response.text();
       const injected = text.replace(
         '<div id="root"></div>',
-        `<script>window.__SUPABASE_URL__="${SUPABASE_URL}";window.__SUPABASE_ANON_KEY__="${SUPABASE_ANON_KEY}";</script><div id="root"></div>`
+        `<script>
+window.__SUPABASE_URL__="${env.SUPABASE_URL}";
+window.__SUPABASE_ANON_KEY__="${env.SUPABASE_ANON_KEY}";
+window.__VITE_CLOUDINARY_CLOUD_NAME__="${env.VITE_CLOUDINARY_CLOUD_NAME || ""}";
+window.__VITE_CLOUDINARY_UPLOAD_PRESET__="${env.VITE_CLOUDINARY_UPLOAD_PRESET || ""}";
+</script><div id="root"></div>`
       );
       return new Response(injected, {
         status: response.status,

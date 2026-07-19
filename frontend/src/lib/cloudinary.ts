@@ -1,5 +1,5 @@
-const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+const CLOUDINARY_CLOUD_NAME = (window as any).__VITE_CLOUDINARY_CLOUD_NAME__ || import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = (window as any).__VITE_CLOUDINARY_UPLOAD_PRESET__ || import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 export async function uploadToCloudinary(file: File): Promise<string> {
   const formData = new FormData();
